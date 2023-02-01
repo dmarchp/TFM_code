@@ -1,0 +1,14 @@
+prw_network/other_res_files
+prw_network/contact_files_OLD
+prw_network/raw_json_files/RWDIS
+prw_network/raw_json_files/RWDIS_mod/configs/
+prw_network/*.png
+prw_network/*.mp4
+prw_network/.ipynb_checkpoints
+prw_network/OptDistancies.ipynb
+prw_network/LlegirJson.ipynb
+prw_network/contactsFromTimeEvo_old.py
+prw_network/proves_fallides.py
+prw_network/prova_npy_files.py
+prw_network/script.py
+
