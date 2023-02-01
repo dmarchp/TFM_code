@@ -8,7 +8,7 @@ import os
 from time import time
 import multiprocessing as mp
 
-arena_r = 20.0 # centimeters
+arena_r = 75.0 # centimeters
 exclusion_r = 1.5 # centimeters
 interac_r = 80.0 # milimeters
 
@@ -17,7 +17,7 @@ ticksPerSecond = 31
 ticksPerLoop = timestep*ticksPerSecond
 loops = 400
 
-N = 35
+N = 492
 speed = 9
 speedVar = 2
 
@@ -207,7 +207,7 @@ def main2(maxFiles=False): # to get integrated contacts from contact file from t
 if __name__ == '__main__':
     maxFiles = 10
     tstart = time()
-    for ir in [40.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
+    for ir in [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
     # for ir in [70.0, ]:
         interac_r = ir
         main(maxFiles)
