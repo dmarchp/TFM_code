@@ -12,10 +12,19 @@ cicle = 11
 
 N = 492
 
-filenameConfig = f'raw_json_files/RWDIS_mod/configs/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001.csv'
-filenameContact = f'raw_json_files/RWDIS_mod/configs/contacts/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001_loops_800_ir_70.0_contacts.csv'
-dfconfigs = pd.read_csv(filenameConfig)
-dfcontacts = pd.read_csv(filenameContact)
+# csv files:
+# filenameConfig = f'raw_json_files/RWDIS_mod/configs/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001.csv'
+# filenameContact = f'raw_json_files/RWDIS_mod/configs/contacts/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001_loops_800_ir_70.0_contacts.csv'
+# dfconfigs = pd.read_csv(filenameConfig)
+# dfcontacts = pd.read_csv(filenameContact)
+
+# parquet files:
+filenameConfig = f'raw_json_files/RWDIS_mod/configs/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001.parquet'
+filenameContact = f'raw_json_files/RWDIS_mod/configs/contacts/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001_loops_800_ir_70.0_contacts.parquet'
+dfconfigs = pd.read_parquet(filenameConfig)
+dfcontacts = pd.read_parquet(filenameContact)
+
+
 ids = pd.unique(dfconfigs['ID'])
 Nbots = len(ids)
 dfcicle0 = dfcontacts.loc[dfcontacts['cicleID']==cicle]
