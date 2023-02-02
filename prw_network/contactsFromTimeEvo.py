@@ -8,17 +8,19 @@ import os
 from time import time
 import multiprocessing as mp
 
-arena_r = 75.0 # centimeters
+# arena_r = 75.0 # centimeters
+arena_r = 20.0
 exclusion_r = 1.5 # centimeters
 interac_r = 80.0 # milimeters
 
 timestep = 0.0103 # seconds per loop
 ticksPerSecond = 31
 ticksPerLoop = timestep*ticksPerSecond
-loops = 400
+loops = 0
 
-N = 492
-speed = 9
+# N = 492
+N = 35
+speed = 7
 speedVar = 2
 
 configs_path = 'raw_json_files/RWDIS_mod/configs/'
@@ -111,7 +113,8 @@ def getContactsFromTrajParallel(filename, interac_r, loops, toFile=True):
     configID, cicleID, contacts0, contacts1 = [], [], [], []
     # keep in mind that if an initial time is discarded when generating the Traj, cicle=0 corresponds to a mid simulation time already
     dfconfigs = [trajDF.loc[(i*Nbots):(i*Nbots+Nbots-1)] for i in range(int(Nconfigs))]
-    pool = mp.Pool(mp.cpu_count())
+    pool = mp.Pool(int(mp.cpu_count()/2)) # sembla que va mes rapid si /2
+    # pool = mp.Pool(int(mp.cpu_count()/1.5))
     res_async = tqdm([pool.apply_async(getContactsFromCicle, args = (df, i, ids, ticksPerCicle)) for i,df in enumerate(dfconfigs)])
     res = [r.get() for r in res_async]
     for confres in res:
@@ -172,7 +175,7 @@ def main(maxFiles=False): # to get contacts from trajectory positions
     existingContacts = len(glob.glob(configs_path + 'contacts/' + filenameRoot + '_*' + contactSufix))
     # if existingConfigs > 5:
     #     existingConfigs = 5
-    if maxFiles:
+    if maxFiles and existingConfigs > maxFiles:
         existingConfigs = maxFiles
     print(f'Generating contact files. \n Existing configurations: {existingConfigs}. \n Existing contact files: {existingContacts}')
     for i in range(existingConfigs):
@@ -193,7 +196,7 @@ def main2(maxFiles=False): # to get integrated contacts from contact file from t
     existingContactFiles = len(glob.glob(f'{configs_path}contacts/' + filenameRoot + '_*' + contactSufix))
     # existingIntContactFiles = len(glob.glob(configs_path + 'contacts/' + filenameRoot + '_*' + contactSufix[:-4] + '_cicleINT.csv'))
     existingIntContactFiles = len(glob.glob(configs_path + 'contacts/' + filenameRoot + '_*' + contactSufix[:-8] + '_cicleINT.parquet'))
-    if maxFiles:
+    if maxFiles and existingIntContactFiles > maxFiles:
         existingContactFiles = maxFiles
     print(f'Generating integrated contact files. \n Existing contact files: {existingContactFiles}. \n Existing integrated contact files: {existingIntContactFiles}')
     for i in range(existingContactFiles):
@@ -207,11 +210,13 @@ def main2(maxFiles=False): # to get integrated contacts from contact file from t
 if __name__ == '__main__':
     maxFiles = 10
     tstart = time()
-    for ir in [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
-    # for ir in [70.0, ]:
+    # for ir in [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
+    # for ir in [35.0, 40.0, 50.0, 60.0, 70.0, 80.0]:
+    for ir in [65.0, 70.0, 75.0, 80.0 ]:
         interac_r = ir
         main(maxFiles)
         main2(maxFiles)
+        print("----------------------------------------")
     tend = time()
     print(f'time elapsed: {tend-tstart}')
     # getContactsFromTraj('PRW_nBots_35_ar_20.0_speed_7_speedVar_2_001.csv', 70.0, 800)

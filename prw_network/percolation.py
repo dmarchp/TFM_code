@@ -6,9 +6,11 @@ import os
 import glob
 import matplotlib.pyplot as plt
 
+# N = 492
+# arena_r = 75.0
 N = 35
 arena_r = 20.0
-speed = 9
+speed = 7
 speedVar = 2
 contactsPath = 'raw_json_files/RWDIS_mod/configs/contacts/'
 loops = 800
@@ -123,6 +125,7 @@ def getMeanClusterSize(N, arena_r, irs, loops, computeMissingIrs = True):
         if missing_irs and computeMissingIrs:
             mcs_list = []
             for ir in missing_irs:
+                # print(f'here for {loops} {ir}')
                 com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=True)
                 mcs = meanClusterSize(com_sizes)
                 mcs_list.append(mcs)
@@ -133,7 +136,7 @@ def getMeanClusterSize(N, arena_r, irs, loops, computeMissingIrs = True):
     else:
         irs_with_mcs, mcs_list = [], []
         for ir in irs:
-            com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=True)
+            com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=True) # es podria paralelitzar
             if com_sizes:
                 mcs = meanClusterSize(com_sizes)
                 mcs_list.append(mcs)
@@ -236,7 +239,7 @@ def componentsDistrBoxPlot(N, arena_r, irs, loops, infoLogFile=False):
     ax.set_xlabel('$r_i$')
     ax.set_ylabel('component sizes')
     fig.tight_layout()
-    fig.savefig(f'com_sizes_boxplot_N_{N}_ra_{arena_r}_loops_{loops}.png')
+    fig.savefig(f'com_sizes_boxplot_N_{N}_ra_{arena_r}_loops_{loops}_speed_{speed}_speedVar_{speedVar}.png')
     plt.close(fig)
     if infoLogFile:
         file = open(f'other_res_files/com_sizes_boxplot_N_{N}_ra_{arena_r}_loops_{loops}.log', 'w')
@@ -244,6 +247,15 @@ def componentsDistrBoxPlot(N, arena_r, irs, loops, infoLogFile=False):
         for i,ir in enumerate(irs):
             file.write(f'{ir}, {len(com_sizes_all_ir[i])}, {com_sizes_all_ir[i][:20]}\n')
         file.close()
+
+def componentsHistogram(N, arena_r, ir, loops):
+    com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=True)
+    fig, ax = plt.subplots()
+    ax.hist(com_sizes, bins=N, range=(0,N))
+    fig.text(0.1, 0.97, f'N = {N}, $r_a$ = {arena_r}, $r_i$ = {ir} loops = {loops}. GC excluded, total counts = {len(com_sizes)}')
+    fig.tight_layout()
+    fig.savefig(f'com_sizes_histogram_N_{N}_ra_{arena_r}_ri_{ir}_loops_{loops}_speed_{speed}_speedVar_{speedVar}.png')
+    plt.close(fig)
 
 
 def getAvgDegree(N, arena_r, irs, loops, computeMissingIrs = True):
@@ -278,19 +290,29 @@ def getAvgDegree(N, arena_r, irs, loops, computeMissingIrs = True):
 
 
 irs_loops_dic = {
-    0: [40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-    400: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100.0],
-    800: [40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0],
+    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0],
+    400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
+    800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
     1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
+}
+
+# per les dades amb speed 7
+
+irs_loops_dic = {
+    0: [40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
+    400: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100],
+    800: [40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100],
+    1200: [40.0, 50.0, 60.0, 65.0, 70.0, 80.0, 90.0, 100]
 }
 
 def main():
     # plotMeanClusterSize(N, arena_r, irs, loops)
-    loops = [400, 800] #  [0, 400, 800, 1200]
-    plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=False, missingIrs=False)
+    loops = [0, 400, 800] #  [0, 400, 800, 1200]
+    plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=False)
     #plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=False)
-    componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
-    getAvgDegree(N, arena_r, [float(i) for i in range(40,100,10)], 400, False)
+    # componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
+    # getAvgDegree(N, arena_r, [float(i) for i in range(40,100,10)], 400, False)
+    # componentsHistogram(N, arena_r, 90.0, 400)
 
     
 if __name__ == '__main__':

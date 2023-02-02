@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 arena_r = 750.0
 exclusion_r = 15.0
 interac_r = 70.0
-cicle = 11
+cicle = 48
 
 N = 492
 
@@ -70,17 +70,19 @@ for i in configs0:
 
 #%%
 # print the corresponding integrated config:
-filenameContactInt = f'raw_json_files/RWDIS_mod/configs/contacts/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_002_loops_800_ir_70.0_contacts_cicleINT.csv'
-dfcontactsINT = pd.read_csv(filenameContactInt)
-dfcontactsINTcicle0 = dfcontactsINT.loc[dfcontactsINT['cicleID']==1].copy(deep=True)
+filenameContactInt = f'raw_json_files/RWDIS_mod/configs/contacts/PRW_nBots_{N}_ar_{arena_r/10}_speed_9_speedVar_2_001_loops_800_ir_70.0_contacts_cicleINT.parquet'
+dfcontactsINT = pd.read_parquet(filenameContactInt)
+dfcontactsINTcicle0 = dfcontactsINT.loc[dfcontactsINT['cicleID']==cicle].copy(deep=True)
 dfcontactsINTcicle0.drop(labels='cicleID', axis='columns', inplace=True)
 # dfcontactsINTcicle0.sort_values(by=['contacts0', 'contacts1'], inplace=True)
 # dfcontactsINTcicle0.reset_index(drop=True, inplace=True)
 g = ig.Graph.DataFrame(dfcontactsINTcicle0, directed=False)
+print(g.vcount())
 if g.vcount() < Nbots:
     print('here')
     vertices_ids = [v['name'] for v in g.vs]
     lacking_vertices = [v for v in range(Nbots) if v not in vertices_ids]
+    print(lacking_vertices)
     for v in lacking_vertices:
         g.add_vertex(name=v)
 vertices_ids = [v['name'] for v in g.vs]
