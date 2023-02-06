@@ -6,8 +6,8 @@ import os
 import glob
 import matplotlib.pyplot as plt
 
-# N = 492
-# arena_r = 75.0
+N = 492
+arena_r = 75.0
 N = 35
 arena_r = 20.0
 speed = 7
@@ -68,6 +68,7 @@ def getCommunitySizesAllTraj(N, interac_r, loops, excludeGiantComp=False, getGC=
     # contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.csv'
     contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.parquet'
     existingFiles = len(glob.glob(contactsPath + filenameRoot + '_*' + contactsIntSufix))
+    existingFiles = 1
     # print(existingFiles)
     com_sizes_all_configs = []
     giant_comp_all_configs = []
@@ -168,6 +169,10 @@ def plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops_list, quenched=Fa
         dfMCSq = pd.read_csv(f'quenched_results/MeanClusterSize_v0_nopush_N_{N}_ar_{arena_r}_er_1.5.csv')
         dfMCSq['interac_r'] *= 10
         ax.plot(dfMCSq['interac_r'], dfMCSq['mcs'], '.--k', label='Quenched (nopush)', linewidth=0.8)
+        if os.path.exists(f'quenched_results/MeanClusterSize_intQuench_Nint_2_nopush_N_{N}_ar_{arena_r}_er_1.5.csv'):
+            dfMCSqi = pd.read_csv(f'quenched_results/MeanClusterSize_intQuench_Nint_2_nopush_N_{N}_ar_{arena_r}_er_1.5.csv')
+            dfMCSqi['interac_r'] *= 10 
+            ax.plot(dfMCSqi['interac_r'], dfMCSqi['mcs'], marker='.', ls='--', color='xkcd:gray', label='Int Quenched (nopush)', linewidth=0.8)
     fig.legend(title='loops')
     fig.tight_layout()
     fig.savefig(f'MCS_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')
@@ -193,6 +198,7 @@ def getAvgGiantComponent(N, arena_r, irs, loops):
     else:
         avgGC_list, stdGC_list = [], []
         for ir in irs:
+            print(ir)
             _, giant_comps = getCommunitySizesAllTraj(N, ir, loops, getGC =True)
             avgGC, stdGC = np.mean(giant_comps), np.std(giant_comps)
             avgGC_list.append(avgGC), stdGC_list.append(stdGC)
@@ -206,6 +212,7 @@ def plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops_list, quenched=False)
     ax.set_ylabel('Avg Giant Component')
     fig.suptitle(f'N = {N}, $r_a = {arena_r}$')
     for loops in loops_list:
+        print(loops)
         irs = irs_loops_dic[loops]
         dfAGC = getAvgGiantComponent(N, arena_r, irs, loops)
         # ax.plot(dfAGC['interac_r'], dfAGC['avgGC'], label=f'{loops}', marker='.')
@@ -215,7 +222,12 @@ def plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops_list, quenched=False)
         dfAGCquench = dfAGCquench.loc[dfAGCquench['N']==N] #.copy(deep=True)
         # set interac_r to milimiters:
         dfAGCquench['interac_r'] *= 10
-        ax.errorbar(dfAGCquench['interac_r'], dfAGCquench['avg'], dfAGCquench['std'], fmt='.--k', linewidth=0.8, elinewidth=0.5, capsize=2.0, label='Quench (nopush)')  
+        ax.errorbar(dfAGCquench['interac_r'], dfAGCquench['avg'], dfAGCquench['std'], fmt='.--k', linewidth=0.8, elinewidth=0.5, capsize=2.0, label='Quench (nopush)')
+        if os.path.exists('quenched_results/avgMaxCom_intQuench_Nint_2_difN_dens_0.028_nopush.csv'):
+            dfAGCqi = pd.read_csv('quenched_results/avgMaxCom_intQuench_Nint_2_difN_dens_0.028_nopush.csv')
+            dfAGCqi = dfAGCqi.loc[dfAGCqi['N']==N]
+            dfAGCqi['interac_r'] *= 10
+            ax.errorbar(dfAGCqi['interac_r'], dfAGCqi['avg'], dfAGCqi['std'], lw=0.8, elinewidth=0.5, capsize=2.0, marker='.', ls='--', color='xkcd:gray', label='Int Quench (nopush)')
     ax.legend(title='loops', loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5))
     fig.tight_layout()
     fig.savefig(f'avgGC_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')
@@ -300,16 +312,17 @@ irs_loops_dic = {
 
 irs_loops_dic = {
     0: [40.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-    400: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100],
-    800: [40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100],
-    1200: [40.0, 50.0, 60.0, 65.0, 70.0, 80.0, 90.0, 100]
+    400: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100.0],
+    800: [40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 100.0],
+    1200: [40.0, 50.0, 60.0, 65.0, 70.0, 80.0, 90.0, 100.0]
 }
 
 def main():
     # plotMeanClusterSize(N, arena_r, irs, loops)
     loops = [0, 400, 800] #  [0, 400, 800, 1200]
-    plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=False)
-    #plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=False)
+    #loops = []
+    #plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=False)
+    plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
     # componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
     # getAvgDegree(N, arena_r, [float(i) for i in range(40,100,10)], 400, False)
     # componentsHistogram(N, arena_r, 90.0, 400)
