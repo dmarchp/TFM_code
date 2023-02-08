@@ -11,3 +11,22 @@ prw_network/proves_fallides.py
 prw_network/prova_npy_files.py
 prw_network/script.py
 
+clean_version/
+convergencia/
+deterministic_evolution/
+deterministic_f0_study/
+deterministic_solutions/
+frozen_positions/
+frozen_positions_new/
+limit_lambda_1/
+power_spectrum/
+power_spectrum_PRL/
+prw_network/
+Qeq0_line/
+sim_phase_space/
+sim_phase_space_frozen/
+sim_some_params/
+sim_some_params_frozen/
+time_evos_dif_ic/
+version_1_q0/
+zz_mostra_igraph/
