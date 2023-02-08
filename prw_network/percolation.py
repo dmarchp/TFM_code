@@ -6,11 +6,11 @@ import os
 import glob
 import matplotlib.pyplot as plt
 
-N = 492
-arena_r = 75.0
+# N = 492
+# arena_r = 75.0
 speed = 9
-# N = 35
-# arena_r = 20.0
+N = 35
+arena_r = 20.0
 # speed = 7
 speedVar = 2
 contactsPath = 'raw_json_files/RWDIS_mod/configs/contacts/'
@@ -69,7 +69,7 @@ def getCommunitySizesAllTraj(N, interac_r, loops, excludeGiantComp=False, getGC=
     # contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.csv'
     contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.parquet'
     existingFiles = len(glob.glob(contactsPath + filenameRoot + '_*' + contactsIntSufix))
-    existingFiles = 1
+    # existingFiles = 1
     # print(existingFiles)
     com_sizes_all_configs = []
     giant_comp_all_configs = []
@@ -267,9 +267,10 @@ def componentsHistogram(N, arena_r, ir, loops):
     ax.hist(com_sizes, bins=N, range=(0,N))
     ax.set_xscale('log')
     ax.set_yscale('log')
+    ax.set_xlim(100,200)
     fig.text(0.1, 0.97, f'N = {N}, $r_a$ = {arena_r}, $r_i$ = {ir} loops = {loops}. GC excluded, total counts = {len(com_sizes)}')
     fig.tight_layout()
-    fig.savefig(f'com_sizes_histogram_N_{N}_ra_{arena_r}_ri_{ir}_loops_{loops}_speed_{speed}_speedVar_{speedVar}.png')
+    fig.savefig(f'com_sizes_histogram_N_{N}_ra_{arena_r}_ri_{ir}_loops_{loops}_speed_{speed}_speedVar_{speedVar}_zoom.png')
     plt.close(fig)
 
 
@@ -314,34 +315,28 @@ def plotAvgDegree(N, arena_r, irs_loops_dic, loops_list, quenched=False):
         # ax.plot(dfAD['interac_r'], dfAD['avgGC'], label=f'{loops}', marker='.')
         ax.errorbar(dfAD['interac_r'], dfAD['avgDegree'], yerr=dfAD['stdDegree'], fmt='.-', linewidth=0.8, elinewidth=0.5, capsize=2.0, label=f'{loops}')
     if quenched:
-        dfADquench = pd.read_csv('quenched_results/avgMaxCom_difN_dens_0.028_nopush.csv')
-        dfADquench = dfADquench.loc[dfADquench['N']==N] #.copy(deep=True)
+        dfADquench = pd.read_csv(f'quenched_results/avgDegree_N_{N}_ar_{arena_r}_er_1.5_nopush.csv')
         # set interac_r to milimiters:
         dfADquench['interac_r'] *= 10
         ax.errorbar(dfADquench['interac_r'], dfADquench['avg'], dfADquench['std'], fmt='.--k', linewidth=0.8, elinewidth=0.5, capsize=2.0, label='Quench (nopush)')
-        if os.path.exists('quenched_results/??'):
-            dfADqi = pd.read_csv('quenched_results/??')
-            dfADqi = dfADqi.loc[dfADqi['N']==N]
-            dfADqi['interac_r'] *= 10
-            ax.errorbar(dfADqi['interac_r'], dfADqi['avg'], dfADqi['std'], lw=0.8, elinewidth=0.5, capsize=2.0, marker='.', ls='--', color='xkcd:gray', label='Int Quench (nopush)')
     ax.legend(title='loops', loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5))
     fig.tight_layout()
     fig.savefig(f'avgDegree_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')
 
+# per les dades N=35, speed 9
 irs_loops_dic = {
-    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0],
-    400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-    800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
+    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0],
+    400: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
+    800: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
     1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
 }
 
 # per les dades N=492, speed 9
-
-irs_loops_dic = {
-    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0],
-    400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-    800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]
-}
+# irs_loops_dic = {
+#     0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 85.0, 90.0, 95.0],
+#     400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
+#     800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]
+# }
 
 # per les dades amb speed 7
 # irs_loops_dic = {
@@ -355,15 +350,15 @@ def main():
     # plotMeanClusterSize(N, arena_r, irs, loops)
     loops = [0, 400, 800] #  [0, 400, 800, 1200]
     #loops = []
-    #plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=False)
+    plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=True)
     # plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
     # componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
     # ----------- average degree ----------
     # for k,v in irs_loops_dic.items():
-        # getAvgDegree(N, arena_r, v, k, True)
-    # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800])
+    #     getAvgDegree(N, arena_r, v, k, True)
+    # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800], quenched=True)
 
-    componentsHistogram(N, arena_r, 60.0, 0)
+    # componentsHistogram(N, arena_r, 60.0, 0)
 
     
 if __name__ == '__main__':

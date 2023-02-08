@@ -8,8 +8,8 @@ import os
 from time import time
 import multiprocessing as mp
 
-# arena_r = 75.0 # centimeters
-arena_r = 20.0
+arena_r = 75.0 # centimeters
+# arena_r = 20.0
 exclusion_r = 1.5 # centimeters
 interac_r = 80.0 # milimeters
 
@@ -18,9 +18,9 @@ ticksPerSecond = 31
 ticksPerLoop = timestep*ticksPerSecond
 loops = 0
 
-# N = 492
-N = 35
-speed = 7
+N = 492
+# N = 35
+speed = 9
 speedVar = 2
 
 configs_path = 'raw_json_files/RWDIS_mod/configs/'
@@ -208,11 +208,11 @@ def main2(maxFiles=False): # to get integrated contacts from contact file from t
 
 
 if __name__ == '__main__':
-    maxFiles = 10
+    maxFiles = 4
     tstart = time()
     # for ir in [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
-    # for ir in [35.0, 40.0, 50.0, 60.0, 70.0, 80.0]:
-    for ir in [65.0, 70.0, 75.0, 80.0 ]:
+    # for ir in [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
+    for ir in [55.0, 65.0]:
         interac_r = ir
         main(maxFiles)
         main2(maxFiles)
