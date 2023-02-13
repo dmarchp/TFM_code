@@ -3,9 +3,9 @@ import math, cmath
 
 # model parameters:
 l = 0.5
-q1, q2 = 7, 10
+q1, q2 = 9000, 10000
 r1, r2 = 1/q1, 1/q2
-pi1, pi2 = 0.4, 0.2
+pi1, pi2 = 0.1, 0.1
 qs, rs, pis = [q1, q2], [r1, r2], [pi1, pi2]
 
 # a f0**3 + b f0**2 + c f0 + d = 0
@@ -68,6 +68,9 @@ f2s = [f_i(2,f0) for f0 in f0_roots_abs]
 solutions = [(f0,f1,f2) for f0,f1,f2 in zip(f0_roots_abs,f1s,f2s)]
 
 for sol in solutions:
+    print(sol)
+
+for i,sol in enumerate(solutions):
     if all(f >= 0 for f in sol):
-        print('Valid solution')
+        print(f'Valid solution {i}')
         print(sol)
