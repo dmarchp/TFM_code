@@ -2,11 +2,11 @@ import subprocess
 import numpy as np
 import pandas as pd
 
-subprocess.call('python f0poly_sols_clean.py 0.1 0.1 7 10 0.5 > sols.dat', shell=True)
-with open('sols.dat', 'r') as file:
-    sols = [float(f) for f in file.readline().split()]
+# subprocess.call('python f0poly_sols_clean.py 0.1 0.1 7 10 0.5 > sols.dat', shell=True)
+# with open('sols.dat', 'r') as file:
+#     sols = [float(f) for f in file.readline().split()]
 
-print(sols)
+# print(sols)
 
 
 
