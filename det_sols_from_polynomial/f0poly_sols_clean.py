@@ -73,6 +73,7 @@ def main():
             print(*solution)
     else:
         f0_roots_abs = f0_lambda_neq_0()
+        # print(f0_roots_abs)
         f1s = [f_i(1,f0) for f0 in f0_roots_abs]
         f2s = [f_i(2,f0) for f0 in f0_roots_abs]
         solutions = [(f0,f1,f2) for f0,f1,f2 in zip(f0_roots_abs,f1s,f2s)]
