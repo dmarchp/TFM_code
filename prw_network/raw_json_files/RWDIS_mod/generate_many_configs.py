@@ -6,18 +6,18 @@ import glob
 
 call('mkdir -p configs', shell=True)
 
-inSeed = 91
-Nconfigs = 2
-arena_r = 75.0 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
+inSeed = 3123000
+Nconfigs = 25
+arena_r = 18.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
 timeStep = 0.0103
-simulationTime = 700
+simulationTime = 900
 
-nBots = 492
+nBots = 35
 speed = 9
 speedVariation = 2
 
-# discard initial configurations:
-secondsToDiscard = 400.0
+# discard initial configurations: (400 seconds for N=492)
+secondsToDiscard = 50.0
 ticksPerSecond = 31.0
 ticksToDiscard = secondsToDiscard*ticksPerSecond
 print(ticksToDiscard)
@@ -34,7 +34,7 @@ data['speed'] = speed
 data['speedVariation'] = speedVariation
 data['timestep'] = timeStep
 data['simulationTime'] = simulationTime
-data['formation'] = "ellipse" # options are: "random", "pile", "line", "circle", "ellipse"
+data['formation'] = "random" # options are: "random", "pile", "line", "circle", "ellipse"
 
 if data['GUI'] == 1:
     data['GUI'] = 0

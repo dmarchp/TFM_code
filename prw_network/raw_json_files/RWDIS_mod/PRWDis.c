@@ -138,7 +138,7 @@ int16_t circle_barrier(double x, double y, double * dx, double * dy)
 {
   double d = sqrt(x*x + y*y);
 
-  if (d < 750.0)
+  if (d < 185.0)
   return 0;
 
   *dx = -x/d;

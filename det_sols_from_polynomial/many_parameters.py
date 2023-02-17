@@ -104,8 +104,10 @@ def computeAsimetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
 
 
 
-for l in [0.9, 0.99, 0.999]:
-    computeASimetricMap_mesh(7, 10, l)
-    print(f'done with l={l}')
+#for l in [0.9, 0.99, 0.999]:
+#    computeASimetricMap_mesh(7, 10, l)
+#    print(f'done with l={l}')
+
+computeASimetricMap_mesh(7, 10, 0.9999)
 
 
