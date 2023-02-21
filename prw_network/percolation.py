@@ -7,8 +7,8 @@ import glob
 import matplotlib.pyplot as plt
 from collections import Counter
 
-N = 492
-arena_r = 75.0
+N = 35
+arena_r = 18.5
 speed = 9
 # N = 35
 # arena_r = 20.0
@@ -70,8 +70,9 @@ def getCommunitySizesAllTraj(N, interac_r, loops, excludeGiantComp=False, getGC=
     # contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.csv'
     contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.parquet'
     existingFiles = len(glob.glob(contactsPath + filenameRoot + '_*' + contactsIntSufix))
+    # print(contactsPath + filenameRoot + '_*' + contactsIntSufix)
     # existingFiles = 1
-    # print(existingFiles)
+    print(existingFiles)
     com_sizes_all_configs = []
     giant_comp_all_configs = []
     for i in range(existingFiles):
@@ -262,39 +263,50 @@ def componentsDistrBoxPlot(N, arena_r, irs, loops, infoLogFile=False):
             file.write(f'{ir}, {len(com_sizes_all_ir[i])}, {com_sizes_all_ir[i][:20]}\n')
         file.close()
 
-def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[int], excludeGiantComp=True, dataToFile = False, plotQuenched=True):
+def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[int], prob=False, excludeGiantComp=True, dataToFile = False, plotQuenched=True):
     '''
     comutes the ~power law~ like figure of the number of com of sizes s vs size s.
     as each loop has a different critical percolation radius, a list irs has to be provided
     '''
     gcLabel = '' if excludeGiantComp else 'excludedGC'
-    loopsDF, irsDF, comsDF, countsDF = [], [], []
+    loopsDF, irsDF, comsDF, countsDF, probsDF = [], [], [], [], []
     for ir, loops in zip(irs, loopsList):
         com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=excludeGiantComp)
         com_sizes_counter = Counter(com_sizes)
         comsDF.extend(list(com_sizes_counter.keys()))
         countsDF.extend(list(com_sizes_counter.values()))
+        probsDF.extend([counts/len(com_sizes) for counts in list(com_sizes_counter.values())])
         loopsDF.extend([loops]*len(com_sizes_counter))
         irsDF.extend([ir]*len(com_sizes_counter))
-    com_counts_df = pd.DataFrame({'loops':loopsDF, 'interac_r':irsDF, 'coms':comsDF, 'counts':countsDF})
-    com_counts_df = com_counts_df.sort_valyes(by=['loops', 'coms'], ignore_index=True)
+    com_counts_df = pd.DataFrame({'loops':loopsDF, 'interac_r':irsDF, 'coms':comsDF, 'counts':countsDF, 'probs':probsDF})
+    com_counts_df = com_counts_df.sort_values(by=['loops', 'coms'], ignore_index=True)
     if dataToFile:
         filename = f'comSizesCounts_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.csv'
         com_counts_df.to_csv(filename, index=False)
     # plot:
     fig, ax = plt.subplots()
-    ax.set(xlabel='s', ylabel='N(s)', xscale='log', yscale='log')
+    ylabel = 'P(s)' if prob else 'N(s)'
+    ax.set(xlabel='s', ylabel=ylabel, xscale='log', yscale='log')
     for ir, loops in zip(irs, loopsList):
         auxdf = com_counts_df.query('loops == @loops')
-        ax.plot(auxdf['coms'], auxdf['counts'], label='{loops}, $r_i^{*} = {ir}', marker='.', ls='None')
+        if prob:
+            ax.plot(auxdf['coms'], auxdf['probs'], label=f'{loops}, $r_i^{{*}} = {ir}$', marker='.', ls='None')
+        else:
+            ax.plot(auxdf['coms'], auxdf['counts'], label=f'{loops}, $r_i^{{*}} = {ir}$', marker='.', ls='None')
     if plotQuenched:
         interac_r_q = 6.5 # de moment hard coded aqui
-        qDF = pd.read_csv(f'comSizesCounts_N_{N}_ar_{ar}_ir_{interac_r_q}_er_1.5_nopush_{gcLabel}.csv')
-        ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label='Quenched, r_i^{*} = {interac_r_q}')
+        qDF = pd.read_csv(f'quenched_results/comSizesCounts_N_{N}_ar_{ar+1.5}_ir_{interac_r_q}_er_1.5_nopush_{gcLabel}.csv')
+        if prob:
+            ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
+        else:
+            ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
     fig.text(0.35, 0.97, f'$excludeGiantComp = {excludeGiantComp}$')
-    fig.legend(title='loops', loc=(0.8,0.7))
+    fig.legend(title='loops', fontsize=9) #  loc=(0.8,0.7)
     fig.tight_layout()
-    fig.savefig('comSizesCounts_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.png')
+    if prob:
+        fig.savefig(f'comSizesProbs_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.png')
+    else:
+        fig.savefig(f'comSizesCounts_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.png')
     
 
             
@@ -363,19 +375,19 @@ def plotAvgDegree(N, arena_r, irs_loops_dic, loops_list, quenched=False):
     fig.savefig(f'avgDegree_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')
 
 # per les dades N=35, speed 9
-# irs_loops_dic = {
-#     0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0],
-#     400: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
-#     800: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
-#     1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
-# }
+irs_loops_dic = {
+    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0],
+    400: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
+    800: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
+    1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
+}
 
 # per les dades N=492, speed 9
-irs_loops_dic = {
-    0: [35.0, 40.0, 50.0, 55.0, 60.0, 65.0, 70.0, 80.0, 85.0, 90.0, 95.0],
-    400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
-    800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]
-}
+# irs_loops_dic = {
+#     0: [35.0, 40.0, 50.0, 55.0, 60.0, 65.0, 70.0, 80.0, 85.0, 90.0, 95.0],
+#     400: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0],
+#     800: [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]
+# }
 
 # per les dades amb speed 7
 # irs_loops_dic = {
@@ -389,15 +401,16 @@ def main():
     # plotMeanClusterSize(N, arena_r, irs, loops)
     loops = [0, 400, 800] #  [0, 400, 800, 1200]
     #loops = []
-    plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=True)
-    # plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
+    # plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=True)
+    plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
     # componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
     # ----------- average degree ----------
     # for k,v in irs_loops_dic.items():
     #     getAvgDegree(N, arena_r, v, k, True)
     # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800], quenched=True)
-
     # componentsHistogram(N, arena_r, 60.0, 0)
+    # plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
+    # plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
 
     
 if __name__ == '__main__':
