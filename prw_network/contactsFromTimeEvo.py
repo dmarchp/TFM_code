@@ -8,8 +8,9 @@ import os
 from time import time
 import multiprocessing as mp
 
-arena_r = 75.0 # centimeters
-# arena_r = 20.0
+#arena_r = 75.0 # centimeters
+#arena_r = 20.0
+arena_r = 18.5
 exclusion_r = 1.5 # centimeters
 interac_r = 80.0 # milimeters
 
@@ -18,8 +19,8 @@ ticksPerSecond = 31
 ticksPerLoop = timestep*ticksPerSecond
 loops = 0
 
-N = 492
-# N = 35
+#N = 492
+N = 35
 speed = 9
 speedVar = 2
 
@@ -101,6 +102,7 @@ def getContactsFromTrajParallel(filename, interac_r, loops, toFile=True):
     ids = pd.unique(trajDF['ID'])
     Nbots = len(ids)
     Nconfigs = len(trajDF)/Nbots
+    print(Nconfigs)
     # is there any tick with more than 1 config?
     count = Counter(list(trajDF.loc[trajDF['ID']==0]['ticks']))
     ticks_plus1_configs = []
@@ -212,7 +214,7 @@ if __name__ == '__main__':
     tstart = time()
     # for ir in [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
     # for ir in [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]:
-    for ir in [55.0, 65.0]:
+    for ir in [40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]:
         interac_r = ir
         main(maxFiles)
         main2(maxFiles)
