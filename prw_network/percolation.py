@@ -5,6 +5,7 @@ import subprocess
 import os
 import glob
 import matplotlib.pyplot as plt
+from collections import Counter
 
 N = 492
 arena_r = 75.0
@@ -260,6 +261,44 @@ def componentsDistrBoxPlot(N, arena_r, irs, loops, infoLogFile=False):
         for i,ir in enumerate(irs):
             file.write(f'{ir}, {len(com_sizes_all_ir[i])}, {com_sizes_all_ir[i][:20]}\n')
         file.close()
+
+def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[int], excludeGiantComp=True, dataToFile = False, plotQuenched=True):
+    '''
+    comutes the ~power law~ like figure of the number of com of sizes s vs size s.
+    as each loop has a different critical percolation radius, a list irs has to be provided
+    '''
+    gcLabel = '' if excludeGiantComp else 'excludedGC'
+    loopsDF, irsDF, comsDF, countsDF = [], [], []
+    for ir, loops in zip(irs, loopsList):
+        com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=excludeGiantComp)
+        com_sizes_counter = Counter(com_sizes)
+        comsDF.extend(list(com_sizes_counter.keys()))
+        countsDF.extend(list(com_sizes_counter.values()))
+        loopsDF.extend([loops]*len(com_sizes_counter))
+        irsDF.extend([ir]*len(com_sizes_counter))
+    com_counts_df = pd.DataFrame({'loops':loopsDF, 'interac_r':irsDF, 'coms':comsDF, 'counts':countsDF})
+    com_counts_df = com_counts_df.sort_valyes(by=['loops', 'coms'], ignore_index=True)
+    if dataToFile:
+        filename = f'comSizesCounts_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.csv'
+        com_counts_df.to_csv(filename, index=False)
+    # plot:
+    fig, ax = plt.subplots()
+    ax.set(xlabel='s', ylabel='N(s)', xscale='log', yscale='log')
+    for ir, loops in zip(irs, loopsList):
+        auxdf = com_counts_df.query('loops == @loops')
+        ax.plot(auxdf['coms'], auxdf['counts'], label='{loops}, $r_i^{*} = {ir}', marker='.', ls='None')
+    if plotQuenched:
+        interac_r_q = 6.5 # de moment hard coded aqui
+        qDF = pd.read_csv(f'comSizesCounts_N_{N}_ar_{ar}_ir_{interac_r_q}_er_1.5_nopush_{gcLabel}.csv')
+        ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label='Quenched, r_i^{*} = {interac_r_q}')
+    fig.text(0.35, 0.97, f'$excludeGiantComp = {excludeGiantComp}$')
+    fig.legend(title='loops', loc=(0.8,0.7))
+    fig.tight_layout()
+    fig.savefig('comSizesCounts_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.png')
+    
+
+            
+            
 
 def componentsHistogram(N, arena_r, ir, loops):
     com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=True)
