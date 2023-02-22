@@ -7,8 +7,10 @@ import glob
 import matplotlib.pyplot as plt
 from collections import Counter
 
-N = 35
-arena_r = 18.5
+# N = 35
+# arena_r = 18.5
+N = 492
+arena_r = 73.5
 speed = 9
 # N = 35
 # arena_r = 20.0
@@ -72,7 +74,7 @@ def getCommunitySizesAllTraj(N, interac_r, loops, excludeGiantComp=False, getGC=
     existingFiles = len(glob.glob(contactsPath + filenameRoot + '_*' + contactsIntSufix))
     # print(contactsPath + filenameRoot + '_*' + contactsIntSufix)
     # existingFiles = 1
-    print(existingFiles)
+    # print(existingFiles)
     com_sizes_all_configs = []
     giant_comp_all_configs = []
     for i in range(existingFiles):
@@ -169,7 +171,7 @@ def plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops_list, quenched=Fa
         dfMCS = getMeanClusterSize(N, arena_r, irs, loops, computeMissingIrs = missingIrs)
         ax.plot(dfMCS['interac_r'], dfMCS['mcs'], label=f'{loops}', marker='.', linewidth=0.8)
     if quenched:
-        dfMCSq = pd.read_csv(f'quenched_results/MeanClusterSize_v0_nopush_N_{N}_ar_{arena_r}_er_1.5.csv')
+        dfMCSq = pd.read_csv(f'quenched_results/MeanClusterSize_v0_nopush_N_{N}_ar_{arena_r+1.5}_er_1.5.csv')
         dfMCSq['interac_r'] *= 10
         ax.plot(dfMCSq['interac_r'], dfMCSq['mcs'], '.--k', label='Quenched (nopush)', linewidth=0.8)
         if os.path.exists(f'quenched_results/MeanClusterSize_intQuench_Nint_2_nopush_N_{N}_ar_{arena_r}_er_1.5.csv'):
@@ -201,7 +203,7 @@ def getAvgGiantComponent(N, arena_r, irs, loops):
     else:
         avgGC_list, stdGC_list = [], []
         for ir in irs:
-            print(ir)
+            # print(ir)
             _, giant_comps = getCommunitySizesAllTraj(N, ir, loops, getGC =True)
             avgGC, stdGC = np.mean(giant_comps), np.std(giant_comps)
             avgGC_list.append(avgGC), stdGC_list.append(stdGC)
@@ -268,7 +270,7 @@ def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[
     comutes the ~power law~ like figure of the number of com of sizes s vs size s.
     as each loop has a different critical percolation radius, a list irs has to be provided
     '''
-    gcLabel = '' if excludeGiantComp else 'excludedGC'
+    gcLabel = 'excludedGC' if excludeGiantComp else ''
     loopsDF, irsDF, comsDF, countsDF, probsDF = [], [], [], [], []
     for ir, loops in zip(irs, loopsList):
         com_sizes = getCommunitySizesAllTraj(N, ir, loops, excludeGiantComp=excludeGiantComp)
@@ -297,7 +299,7 @@ def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[
         interac_r_q = 6.5 # de moment hard coded aqui
         qDF = pd.read_csv(f'quenched_results/comSizesCounts_N_{N}_ar_{ar+1.5}_ir_{interac_r_q}_er_1.5_nopush_{gcLabel}.csv')
         if prob:
-            ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
+            ax.plot(qDF['coms'], qDF['probs'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
         else:
             ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
     fig.text(0.35, 0.97, f'$excludeGiantComp = {excludeGiantComp}$')
@@ -382,6 +384,16 @@ irs_loops_dic = {
     1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
 }
 
+# per les dades amb el radi arena -1.5 (492, 73.5)
+simple_ir = [40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+simple_ir_2 = [35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+irs_loops_dic = {0:simple_ir, 400:simple_ir_2, 800:simple_ir_2}
+
+# per les dades amb el radi arena -1.5 (35, 18.5)
+# simple_ir = [40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+# simple_ir_2 = [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 80.0, 90.0, 100.0]
+# irs_loops_dic = {0:simple_ir, 400:simple_ir_2, 800:simple_ir_2}
+
 # per les dades N=492, speed 9
 # irs_loops_dic = {
 #     0: [35.0, 40.0, 50.0, 55.0, 60.0, 65.0, 70.0, 80.0, 85.0, 90.0, 95.0],
@@ -402,15 +414,16 @@ def main():
     loops = [0, 400, 800] #  [0, 400, 800, 1200]
     #loops = []
     # plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=True)
-    plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
+    # plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
     # componentsDistrBoxPlot(N, arena_r, [float(i) for i in range(40,100,10)], 400, True)
     # ----------- average degree ----------
     # for k,v in irs_loops_dic.items():
     #     getAvgDegree(N, arena_r, v, k, True)
     # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800], quenched=True)
     # componentsHistogram(N, arena_r, 60.0, 0)
-    # plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
-    # plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
+    # VEIENT ELS PICS DEL MCS A 492:
+    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
+    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
 
     
 if __name__ == '__main__':
