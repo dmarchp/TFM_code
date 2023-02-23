@@ -1,6 +1,7 @@
 import subprocess
 import numpy as np
 import pandas as pd
+import os
 
 # subprocess.call('python f0poly_sols_clean.py 0.1 0.1 7 10 0.5 > sols.dat', shell=True)
 # with open('sols.dat', 'r') as file:
@@ -32,7 +33,7 @@ def computeSymetricMap_df(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99),dl=0.01, l_li
 # potser fer un mesh seria mes logic........
 def computeSymmetricMap_mesh(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, l_lims = (0.00,0.99), npyMesh = True, parqDf = True):
     Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
-    Nls = int((l_lims[1] - l_lims[0])/dl) + dl + 1
+    Nls = int((l_lims[1] - l_lims[0])/dl) + 1
     xgrid_pi, ygrid_l = np.mgrid[pi_lims[0]:pi_lims[1]:complex(0,Npis), l_lims[0]:l_lims[1]:complex(0,Nls)]
     xgrid_pi, ygrid_l = np.around(xgrid_pi,2), np.around(ygrid_l,2)
     grid_fs = np.empty([3, Npis, Nls])
@@ -82,11 +83,6 @@ def computeAsymmetricMap_mesh(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99), npyMe
             df[k] = df[k].astype('float')
         df.to_parquet(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.parquet', index=False)
 
-
-
-            
-
-
 def computeAsymmetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
     Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
     pis = np.linspace(pi_lims[0], pi_lims[1], Npis)
@@ -103,11 +99,39 @@ def computeAsymmetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
     df.to_csv(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.csv', index=False)
 
 
+def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac=False):
+    Nls = int((l_lims[1] - l_lims[0])/dl) + 1
+    ls = np.linspace(l_lims[0], l_lims[1], Nls)
+    lambdaEvo = [[],[],[]]
+    for l in ls:
+        if noInterac:
+            subprocess.call(f'python f0poly_sols_clean.py {(1-l)*pi1} {(1-l)*pi2} {q1} {q2} 0.0 > sols.dat', shell=True)
+        else:
+            subprocess.call(f'python f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+        with open('sols.dat', 'r') as file:
+            sols = [float(f) for f in file.readline().split()]
+        for i in range(3):
+            lambdaEvo[i].append(sols[i])
+    df = pd.DataFrame({'lambda':list(ls), 'f0':lambdaEvo[0], 'f1':lambdaEvo[1], 'f2':lambdaEvo[2]})
+    # if os.path.exists('res_files/lambdaEvo_results.csv'):
+    #     dfglobal = pd.read_csv(f'res_files/lambdaEvo_results.csv')
+    #     dfglobal = pd.concat([dfglobal, df], ignore_index=True)
+    #     dfglobal = dfglobal.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'l'], ignore_index=True)
+    # else:
+    #     dfglobal = df
+    # dfglobal.to_csv(f'res_files/lambdaEvo_results.csv')
+    if noInterac:
+        df.to_csv(f'res_files/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_noInterac.csv', index=False)
+    else:
+        df.to_csv(f'res_files/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
+
+
 
 #for l in [0.9, 0.99, 0.999]:
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeAsymmetricMap_mesh(7, 10, 0.2)
+# computeAsymmetricMap_mesh(7, 10, 0.2)
 
+computeLambdaEvo(0.3, 0.3, 7, 10, noInterac=True)
 

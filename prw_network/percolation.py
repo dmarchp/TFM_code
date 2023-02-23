@@ -265,7 +265,7 @@ def componentsDistrBoxPlot(N, arena_r, irs, loops, infoLogFile=False):
             file.write(f'{ir}, {len(com_sizes_all_ir[i])}, {com_sizes_all_ir[i][:20]}\n')
         file.close()
 
-def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[int], prob=False, excludeGiantComp=True, dataToFile = False, plotQuenched=True):
+def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[int], quench_ir: float, prob=False, excludeGiantComp=True, dataToFile = False, plotQuenched=True):
     '''
     comutes the ~power law~ like figure of the number of com of sizes s vs size s.
     as each loop has a different critical percolation radius, a list irs has to be provided
@@ -296,12 +296,11 @@ def plotComSizes_dif_loops(N: int, ar: float, irs: list[float], loopsList: list[
         else:
             ax.plot(auxdf['coms'], auxdf['counts'], label=f'{loops}, $r_i^{{*}} = {ir}$', marker='.', ls='None')
     if plotQuenched:
-        interac_r_q = 6.5 # de moment hard coded aqui
-        qDF = pd.read_csv(f'quenched_results/comSizesCounts_N_{N}_ar_{ar+1.5}_ir_{interac_r_q}_er_1.5_nopush_{gcLabel}.csv')
+        qDF = pd.read_csv(f'quenched_results/comSizesCounts_N_{N}_ar_{ar+1.5}_ir_{quench_ir}_er_1.5_nopush_{gcLabel}.csv')
         if prob:
-            ax.plot(qDF['coms'], qDF['probs'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
+            ax.plot(qDF['coms'], qDF['probs'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {quench_ir*10}$')
         else:
-            ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {interac_r_q*10}$')
+            ax.plot(qDF['coms'], qDF['counts'], color='xkcd:gray', marker='x', ls='None', label=rf'Quenched, $r_i^{{*}} = {quench_ir*10}$')
     fig.text(0.35, 0.97, f'$excludeGiantComp = {excludeGiantComp}$')
     fig.legend(title='loops', fontsize=9) #  loc=(0.8,0.7)
     fig.tight_layout()
@@ -422,8 +421,10 @@ def main():
     # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800], quenched=True)
     # componentsHistogram(N, arena_r, 60.0, 0)
     # VEIENT ELS PICS DEL MCS A 492:
-    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
-    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
+    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], quench_ir = 6.4, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
+    plotComSizes_dif_loops(492, 73.5, [60.0, 45.0, 40.0], [0, 400, 800], quench_ir = 6.4, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
+    plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
+    plotComSizes_dif_loops(35, 18.5, [70.0, 60.0, 40.0], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
 
     
 if __name__ == '__main__':
