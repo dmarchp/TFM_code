@@ -28,7 +28,10 @@ Qeq0_line/
 sim_phase_space/
 sim_phase_space_frozen/
 sim_some_params/
-sim_some_params_frozen/
+
+sim_some_params_frozen/Galla
+sim_some_params_frozen/__pycache__
+
 time_evos_dif_ic/
 version_1_q0/
 zz_mostra_igraph/
