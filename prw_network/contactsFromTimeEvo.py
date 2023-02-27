@@ -9,19 +9,19 @@ from time import time
 import multiprocessing as mp
 
 #arena_r = 75.0 # centimeters
-# arena_r = 73.5
+arena_r = 73.5
 #arena_r = 20.0
-arena_r = 18.5
+# arena_r = 18.5
 exclusion_r = 1.5 # centimeters
 interac_r = 80.0 # milimeters
 
 timestep = 0.0103 # seconds per loop
 ticksPerSecond = 31
 ticksPerLoop = timestep*ticksPerSecond
-loops = 800
+loops = 0
 
-# N = 492
-N = 35
+N = 492
+# N = 35
 speed = 9
 speedVar = 2
 
@@ -113,7 +113,7 @@ def getContactsFromTrajParallel(filename, interac_r, loops, toFile=True):
     if(ticks_plus1_configs):
         print(f"There are {len(ticks_plus1_configs)} ticks with more than 1 config, from Nconfigs.")
     # set a max number of configs per traj to speed things up...
-    # Nconfigs = 500 if Nconfigs > 500 else Nconfigs
+    Nconfigs = 500 if Nconfigs > 500 else Nconfigs
     # search for contacts in each configuration and build the columns of a future dataframe:
     configID, cicleID, contacts0, contacts1 = [], [], [], []
     # keep in mind that if an initial time is discarded when generating the Traj, cicle=0 corresponds to a mid simulation time already
@@ -216,10 +216,10 @@ def main2(maxFiles=False): # to get integrated contacts from contact file from t
 
 
 if __name__ == '__main__':
-    maxFiles = 10
+    maxFiles = 2
     tstart = time()
     # for ir in [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 70.0, 80.0, 90.0, 100.0]:
-    for ir in [60.0,]:
+    for ir in [55.0, 57.5, 62.5, 65.0]:
         interac_r = ir
         main(maxFiles)
         main2(maxFiles)
