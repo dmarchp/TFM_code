@@ -133,5 +133,17 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 
 # computeAsymmetricMap_mesh(7, 10, 0.2)
 
-computeLambdaEvo(0.3, 0.3, 7, 10, noInterac=True)
+computeLambdaEvo(0.4, 0.2, 5, 10)
+computeLambdaEvo(0.4, 0.2, 10, 20)
+computeLambdaEvo(0.4, 0.2, 15, 30)
+computeLambdaEvo(0.4, 0.2, 20, 40)
 
+computeLambdaEvo(0.4, 0.2, 7, 10)
+computeLambdaEvo(0.4, 0.2, 14, 20)
+computeLambdaEvo(0.4, 0.2, 21, 30)
+computeLambdaEvo(0.4, 0.2, 28, 40)
+
+computeLambdaEvo(0.4, 0.2, 9, 10)
+computeLambdaEvo(0.4, 0.2, 18, 20)
+computeLambdaEvo(0.4, 0.2, 27, 30)
+computeLambdaEvo(0.4, 0.2, 36, 40)

@@ -6,24 +6,24 @@ import glob
 
 call('mkdir -p configs', shell=True)
 
-inSeed = 3123000
-Nconfigs = 25
-arena_r = 18.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
+inSeed = 600
+Nconfigs = 2
+arena_r = 73.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
 timeStep = 0.0103
-simulationTime = 900
+simulationTime = 700
 
-nBots = 35
+nBots = 492
 speed = 9
 speedVariation = 2
 
 # discard initial configurations: (400 seconds for N=492)
-secondsToDiscard = 50.0
+secondsToDiscard = 400.0
 ticksPerSecond = 31.0
 ticksToDiscard = secondsToDiscard*ticksPerSecond
 print(ticksToDiscard)
 
 filenameRoot = f'PRW_nBots_{nBots}_ar_{arena_r}_speed_{speed}_speedVar_{speedVariation}'
-existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*.csv'))
+existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*.parquet'))
 
 # MODIFY THE JSON FILE
 with open(f'kilombo.json', 'r') as f:
@@ -34,7 +34,7 @@ data['speed'] = speed
 data['speedVariation'] = speedVariation
 data['timestep'] = timeStep
 data['simulationTime'] = simulationTime
-data['formation'] = "random" # options are: "random", "pile", "line", "circle", "ellipse"
+data['formation'] = "pile" # options are: "random", "pile", "line", "circle", "ellipse"
 
 if data['GUI'] == 1:
     data['GUI'] = 0
