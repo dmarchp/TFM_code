@@ -363,17 +363,20 @@ def getAvgDegree(N, arena_r, irs, loops, computeMissingIrs = True):
         dfAvgDegree.to_csv(filename, index=False)
     return dfAvgDegree
 
-def getDegreeDistr(N, arena_r, interac_r, loops, toFile=True):
+def getDegreeDistr(N, arena_r, interac_r, loops, toFile=True, overwrite=True):
     '''
     gets the Degree distribution for a specific interaction radius and integration time (loops)
     '''
     filename = f'other_res_files/degreeDistr_N_{N}_ar_{arena_r}_ir_{round(interac_r/10.0,2)}_speed_{speed}_speedVar_{speedVar}_loops_{loops}.csv'
-    if os.path.exists(filename):
+    if os.path.exists(filename) and not overwrite:
         df = pd.read_csv(filename)
     else:
         degrees = getDegreesAllTraj(N, interac_r, loops)
-        boxCenters, hist, dens = histogramBinLog(degrees, (min(degrees), max(degrees)), 10)
-        df = pd.DataFrame({'boxCenters':boxCenters, 'counts':hist, 'prob':dens})
+        binLims, binCenters = binsForHist1D_log((min(degrees), max(degrees)), 10)
+        binCenters, prob, dprob = hist1D(degrees, binLims, binCenters, isPDF = True)
+        df = pd.DataFrame({'binCenters':binCenters, 'prob':prob, 'dprob':dprob})
+        # boxCenters, hist, dens = histogramBinLog(degrees, (min(degrees), max(degrees)), 10)
+        # df = pd.DataFrame({'boxCenters':boxCenters, 'counts':hist, 'prob':dens})
         if toFile:
             df.to_csv(filename, index=False)
     return df
@@ -456,10 +459,10 @@ def main():
     # VEIENT ELS PICS DEL MCS A 492:
     # plotComSizes_dif_loops(492, 73.5, [60.0, 47.5, 42.5], [0, 400, 800], quench_ir = 6.4, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
     # plotComSizes_dif_loops(492, 73.5, [60.0, 47.5, 42.5], [0, 400, 800], quench_ir = 6.4, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
-    plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
-    plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
-    # interac_r = 40.0
-    # getDegreeDistr(N, arena_r, interac_r, 800, toFile=True)
+    # plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
+    # plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
+    interac_r = 40.0
+    getDegreeDistr(N, arena_r, interac_r, 800, toFile=True)
 
     
 if __name__ == '__main__':
