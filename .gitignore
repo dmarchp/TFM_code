@@ -14,13 +14,16 @@ prw_network/script.py
 det_sols_from_polynomial/Untitled.ipynb
 det_sols_from_polynomial/sols.dat
 
-clean_version/
+clean_version/time_evos_julia
+
 convergencia/
 deterministic_evolution/
 deterministic_f0_study/
 deterministic_solutions/
 frozen_positions/
-frozen_positions_new/
+
+frozen_positions_new/positions_and_contacts
+
 limit_lambda_1/
 power_spectrum/
 power_spectrum_PRL/
