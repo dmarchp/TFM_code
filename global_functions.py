@@ -18,7 +18,7 @@ def histogramBinLog(data, lims, logBoxes):
     dens, _ = np.histogram(data, bins=boxLims, density=True)
     return boxCenters, hist, dens
 
-
+### ATENCIO: PEL BIN CENTER DE LA PART LOGARITMICA HAURE DE FER CENTER = NP.SQRT(INF*SUP)
 def binsForHist1D_log(lims: tuple[float], logBoxes: int):
     """
     creates a sequence with the box limits for an Histogram. 

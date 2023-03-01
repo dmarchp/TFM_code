@@ -17,7 +17,8 @@ def getConfigPath(N, exclusion_r, arena_r=20.0, push=False):
         push_folder = 'configs_w_push'
     else:
         push_folder = 'configs_wo_push'
-    configPath = f'../frozen_positions_new/positions_and_contacts/{N}_bots/{push_folder}'
+    #configPath = f'../frozen_positions_new/positions_and_contacts/{N}_bots/{push_folder}'
+    configPath = f'/media/david/KINGSTON/quenched_configs/{N}_bots/{push_folder}'
     return configPath
 
 
@@ -142,11 +143,12 @@ def getAvgMaxComSize(N, exclusion_r, interac_r, arena_r=20.0, push=False):
     stdMaxComSize = np.std(max_com_sizes)
     return avgMaxComSize, stdMaxComSize
 
-def getBotDegrees(N, exclusion_r, interac_r, arena_r=20.0, push=False):
+def getBotDegrees(N, exclusion_r, interac_r, arena_r=20.0, push=False, missingContacts=False):
     configPath = getConfigPath(N, exclusion_r, arena_r, push)
     configCounter = len(glob.glob(f'{configPath}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt'))
     contactListCounter = len(glob.glob(f'{configPath}/contact_list_*_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}.txt'))
-    if not contactListCounter == configCounter:
+    # print(configCounter, contactListCounter)
+    if not contactListCounter == configCounter and missingContacts:
         wd = os.getcwd()
         os.chdir('../frozen_positions_new')
         subprocess.call(f'python generate_contact_list.py {N} {arena_r} {interac_r} {exclusion_r} {int(push)}', shell=True)

@@ -7,6 +7,7 @@ import glob
 import sys
 import matplotlib.pyplot as plt
 from collections import Counter
+from scipy.special import factorial
 sys.path.append('../')
 # from global_functions import histogramBinLog
 # sys.path.append('/home/david/Desktop/Uni_code/TFM_code/global_functions')
@@ -20,7 +21,7 @@ arena_r = 18.5
 # arena_r = 73.5
 speed = 9
 # N = 35
-# arena_r = 20.0
+arena_r = 20.0
 # speed = 7
 speedVar = 2
 contactsPath = 'raw_json_files/RWDIS_mod/configs/contacts/'
@@ -98,7 +99,7 @@ def getCommunitySizesAllTraj(N, interac_r, loops, excludeGiantComp=False, getGC=
     else:
         return com_sizes_all_configs
 
-def getDegreesAllTraj(N, interac_r, loops):
+def getDegreesAllTraj(N, arena_r, interac_r, loops):
     filenameRoot = f'PRW_nBots_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}'
     contactsIntSufix = f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.parquet'
     existingFiles = len(glob.glob(contactsPath + filenameRoot + '_*' + contactsIntSufix))
@@ -348,7 +349,7 @@ def getAvgDegree(N, arena_r, irs, loops, computeMissingIrs = True):
         if missing_irs and computeMissingIrs:
             avgDegree_list, stdDegree_list = [], []
             for ir in missing_irs:
-                degrees = getDegreesAllTraj(N, ir, loops)
+                degrees = getDegreesAllTraj(N, arena_r, ir, loops)
                 avgDegree_list.append(np.mean(degrees)), stdDegree_list.append(np.std(degrees))
             dfNewIrs = pd.DataFrame({'interac_r':missing_irs, 'avgDegree':avgDegree_list, 'stdDegree':stdDegree_list})
             dfAvgDegree = pd.concat([dfAvgDegree, dfNewIrs], ignore_index=True)
@@ -357,7 +358,7 @@ def getAvgDegree(N, arena_r, irs, loops, computeMissingIrs = True):
     else:
         avgDegree_list, stdDegree_list = [], []
         for ir in irs:
-            degrees = getDegreesAllTraj(N, ir, loops)
+            degrees = getDegreesAllTraj(N, arena_r, ir, loops)
             avgDegree_list.append(np.mean(degrees)), stdDegree_list.append(np.std(degrees))
         dfAvgDegree = pd.DataFrame({'interac_r':irs, 'avgDegree':avgDegree_list, 'stdDegree':stdDegree_list})
         dfAvgDegree.to_csv(filename, index=False)
@@ -371,8 +372,12 @@ def getDegreeDistr(N, arena_r, interac_r, loops, toFile=True, overwrite=True):
     if os.path.exists(filename) and not overwrite:
         df = pd.read_csv(filename)
     else:
-        degrees = getDegreesAllTraj(N, interac_r, loops)
-        binLims, binCenters = binsForHist1D_log((min(degrees), max(degrees)), 10)
+        degrees = getDegreesAllTraj(N, arena_r, interac_r, loops)
+        # as degrees take discrete values: 0,1,2,3... binCenters are kept as the inf limit of the bin (if < 10):
+        # binLims, binCenters = binsForHist1D_log((min(degrees), max(degrees)), 10)
+        # binCenters = binLims[:-1]
+        binCenters = np.linspace(min(degrees), max(degrees), max(degrees)-min(degrees)+1)
+        binLims = np.linspace(min(degrees), max(degrees)+1, max(degrees)+1-min(degrees)+1) - 0.5
         binCenters, prob, dprob = hist1D(degrees, binLims, binCenters, isPDF = True)
         df = pd.DataFrame({'binCenters':binCenters, 'prob':prob, 'dprob':dprob})
         # boxCenters, hist, dens = histogramBinLog(degrees, (min(degrees), max(degrees)), 10)
@@ -386,9 +391,39 @@ def plotDegreeDistr(N, arena_r, irs, loops_l):
     fig, ax = plt.subplots()
     for ir,loops in zip(irs, loops_l):
         df = getDegreeDistr(N, arena_r, ir, loops, toFile=True)
-        ax.plot(df['boxCenters'], df['prob'], label=f'$\Delta t = {loops}, \; r_i^{{*}} = {ir}$')
+        ax.plot(df['binCenters'], df['prob'], label=f'$\Delta t = {loops}, \; r_i^{{*}} = {ir}$')
     ax.set(xlabel='Degree, $k$', ylabel='$P(k)$')
-    fig.tight_layout(f'degreeDistr_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}.png')
+    fig.tight_layout()
+    fig.savefig(f'degreeDistr_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}.png')
+
+def plotDegreeDistr_manyir_oneDeltat(N, arena_r, irs, loops, poisson=False):
+    fig, ax = plt.subplots()
+    for ir in irs:
+        df = getDegreeDistr(N, arena_r, ir, loops, toFile=True, overwrite=False)
+        line, = ax.plot(df['binCenters'], df['prob'], label=f'$r_i = {ir}$', marker='.', lw=0.7, ls=':')
+        if poisson:
+            degrees = getDegreesAllTraj(N, arena_r, ir, loops)
+            avgdeg = np.mean(degrees)
+            expo = np.exp(-avgdeg)
+            df['poisson'] = expo*(avgdeg**df['binCenters'])/(factorial(df['binCenters']))
+            ax.plot(df['binCenters'], df['poisson'], lw=0.8, color = line.get_color(), alpha=0.5)
+    ax.set(xlabel='Degree, $k$', ylabel='$P(k)$')
+    fig.legend(loc=(0.7, 0.6), fontsize=9)
+    # fig.text(0.3, 0.96, f'N = {N}, $r_a = {arena_r}$, $\Delta t = {loops}$', fontsize=9)
+    fig.suptitle(f'N = {N}, $r_a = {arena_r}$, $\Delta t = {loops}$', fontsize=9)
+    fig.tight_layout()
+    fig.savefig(f'degreeDistr_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_loops_{loops}.png')
+
+def plotDegreeDistr_vark_vs_k_manyir_oneDeltat(N, arena_r, irs, loops):
+    fig, ax = plt.subplots()
+    for ir in irs:
+        df = getDegreeDistr(N, arena_r, ir, loops, toFile=True, overwrite=False)
+        ax.plot(df['binCenters'], df['dprob']**2, label=f'$r_i = {ir}$')
+    ax.set(xlabel='Degree, $k$', ylabel='$Var(k)$')
+    fig.legend(fontsize=9)
+    fig.suptitle(f'N = {N}, $r_a = {arena_r}$, $\Delta t = {loops}$', fontsize=9)
+    fig.tight_layout()
+    fig.savefig(f'degreeDistr_k_vs_Vark_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_loops_{loops}.png')
 
 def plotAvgDegree(N, arena_r, irs_loops_dic, loops_list, quenched=False):
     fig, ax = plt.subplots()
@@ -409,19 +444,41 @@ def plotAvgDegree(N, arena_r, irs_loops_dic, loops_list, quenched=False):
     fig.tight_layout()
     fig.savefig(f'avgDegree_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')
 
+def plot_varDegree_vs_Degree(N, arena_r, irs_loops_dic, loops_list, quenched=False):
+    fig, ax = plt.subplots()
+    ax.set(xlabel='$k$', ylabel='$Var(k)$')
+    fig.suptitle(f'N = {N}, $r_a = {arena_r}$')
+    for loops in loops_list:
+        irs = irs_loops_dic[loops]
+        dfAD = getAvgDegree(N, arena_r, irs, loops, computeMissingIrs=False)
+        ax.plot(dfAD['avgDegree'], dfAD['stdDegree']**2, label=f'{loops}', marker='.', lw=0.8, alpha=0.7)
+    if quenched:
+        dfADquench = pd.read_csv(f'quenched_results/avgDegree_N_{N}_ar_{arena_r}_er_1.5_nopush.csv')
+        # set interac_r to milimiters:
+        dfADquench['interac_r'] *= 10
+        ax.plot(dfADquench['avg'], dfADquench['std']**2, ls='--', color='k', marker='.', linewidth=0.8, label='Quench (nopush)')
+    ax.legend(title='loops', loc='best', bbox_to_anchor=(0.5, 0., 0.5, 0.5))
+    fig.tight_layout()
+    fig.savefig(f'varDegree_vs_avgDegree_N_{N}_ar_{arena_r}_speed_{speed}_speedVar_{speedVar}_diffloops.png')    
+
+# basic:
+irs = [float(i) for i in range(40,75,5)]
+irs.extend([80.0, 90.0, 100.0])
+irs_loops_dic = {0:irs, 400:irs, 800:irs}
+
 # per les dades N=35, speed 9
-irs_loops_dic = {
-    0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0],
-    400: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
-    800: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
-    1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
-}
+# irs_loops_dic = {
+#     0: [35.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0],
+#     400: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
+#     800: [35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0, 100.0, 110.0],
+#     1200: [40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0]
+# }
 
 # per les dades amb el radi arena -1.5 (492, 73.5)
-irs_0 = [40.0, 50.0, 55.0, 57.5, 60.0, 62.5, 65.0, 70.0, 80.0, 90.0, 100.0]
-irs_400 = [35.0, 37.5, 40.0, 42.5, 45.0, 47.5, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-irs_800 = [35.0, 37.5, 40.0, 42.5, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-irs_loops_dic = {0:irs_0, 400:irs_400, 800:irs_800}
+# irs_0 = [40.0, 50.0, 55.0, 57.5, 60.0, 62.5, 65.0, 70.0, 80.0, 90.0, 100.0]
+# irs_400 = [35.0, 37.5, 40.0, 42.5, 45.0, 47.5, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+# irs_800 = [35.0, 37.5, 40.0, 42.5, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+# irs_loops_dic = {0:irs_0, 400:irs_400, 800:irs_800}
 
 # per les dades amb el radi arena -1.5 (35, 18.5)
 # simple_ir = [40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 100.0]
@@ -446,7 +503,7 @@ irs_loops_dic = {0:irs_0, 400:irs_400, 800:irs_800}
 
 def main():
     # plotMeanClusterSize(N, arena_r, irs, loops)
-    loops = [0, 400, 800] #  [0, 400, 800, 1200]
+    loops = [0, 400, 800, 1200]
     #loops = []
     # plotMeanClusterSize_loops(N, arena_r, irs_loops_dic, loops, quenched=True, missingIrs=True)
     # plotAvgGiantComponent(N, arena_r, irs_loops_dic, loops, quenched=True)
@@ -455,6 +512,7 @@ def main():
     # for k,v in irs_loops_dic.items():
     #     getAvgDegree(N, arena_r, v, k, True)
     # plotAvgDegree(N, arena_r, irs_loops_dic, [0,400,800], quenched=True)
+    plot_varDegree_vs_Degree(N, arena_r, irs_loops_dic, [0, 400, 800,], True)
     # componentsHistogram(N, arena_r, 60.0, 0)
     # VEIENT ELS PICS DEL MCS A 492:
     # plotComSizes_dif_loops(492, 73.5, [60.0, 47.5, 42.5], [0, 400, 800], quench_ir = 6.4, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
@@ -462,7 +520,11 @@ def main():
     # plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=True, dataToFile=True, plotQuenched=True)
     # plotComSizes_dif_loops(35, 18.5, [70.0, 55.0, 37.5], [0, 400, 800], quench_ir = 6.5, prob=True, excludeGiantComp=False, dataToFile=True, plotQuenched=True)
     interac_r = 40.0
-    getDegreeDistr(N, arena_r, interac_r, 800, toFile=True)
+    # getDegreeDistr(N, arena_r, interac_r, 800, toFile=True)
+    # plotDegreeDistr_manyir_oneDeltat(35, 18.5, [35.0, 37.5, 50.0, 80.0], 800, poisson=True)
+    # plotDegreeDistr_manyir_oneDeltat(492, 73.5, [35.0, 42.5, 50.0, 80.0], 800, poisson=True)
+    # plotDegreeDistr_vark_vs_k_manyir_oneDeltat(35, 18.5, [35.0, 37.5, 50.0, 80.0], 800)
+    # plotDegreeDistr_vark_vs_k_manyir_oneDeltat(492, 73.5, [35.0, 42.5, 50.0, 80.0], 800)
 
     
 if __name__ == '__main__':
