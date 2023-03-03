@@ -30,8 +30,10 @@ ticksPerSecond = 31.0
 ticksToDiscard = secondsToDiscard*ticksPerSecond
 #print(ticksToDiscard)
 
-filenameRoot = f'PRW_nBots_{nBots}_ar_{arena_r}_speed_{speed}_speedVar_{speedVariation}'
-existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*.parquet'))
+#filenameRoot = f'PRW_nBots_{nBots}_ar_{arena_r}_speed_{speed}_speedVar_{speedVariation}'
+filenameRoot = getFilenameRoot(nBots, arena_r, speed , speedVariation)
+extension = getFilesExtension()
+existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*' + extension))
 
 def modify_arena_size_in_PRWDIS():
     global arena_r

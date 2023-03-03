@@ -26,6 +26,9 @@ def dist2D(pos0, pos1):
 ################################################ FROM CONFIG TO CONTACT FILE #################################################
 # all radius are in units CM!!!
 def getContactsFromCicle(df: pd.DataFrame, confID: int, ids: list[int], interac_r: float, loops: int, ticksPerCicle: int):
+    """
+    interac_r r must be specified in cm
+    """
     configID, cicleID, contacts0, contacts1 = [], [], [], []
     df.reset_index(drop=True, inplace=True)
     if (loops == 0):
@@ -46,9 +49,9 @@ def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limi
     ticksPerCicle = loops*ticksPerLoop
     filename = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilesExtension()
     filenameContact = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilenameContactSufix(loops, interac_r)
-    trajDF = pd.read_parquet(getConfigsPath()+ '/' + filename)
     if os.path.exists(f'{getConfigsPath()}/contacts/{filenameContact}'):
         return
+    trajDF = pd.read_parquet(getConfigsPath()+ '/' + filename)
     # get a contact list from each configuration:
     ids = pd.unique(trajDF['ID'])
     Nbots = len(ids)
@@ -86,6 +89,35 @@ def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limi
     dfconfigs['contacts1'] = dfconfigs['contacts1'].astype('int16')
     dfconfigs.to_parquet(f'{getConfigsPath()}/contacts/{filenameContact}', index=False)
 
+def integrateContacts(configNumber, N, arena_r, interac_r, loops):
+    filenameContact = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilenameContactSufix(loops, interac_r)
+    filenameContactInt = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilenameContactIntSufix(loops, interac_r)
+    if os.path.exists(filenameContactInt):
+        return
+    contactsDF = pd.read_parquet(getConfigsPath() + '/contacts/' + filenameContact)
+    cicles = list(pd.unique(contactsDF['cicleID']))
+    cicleID, contacts0, contacts1 = [], [], []
+    print(f'Integrating configurations in the same cycle, loops = {loops}, interac_r = {interac_r}')
+    # drop the last cycle as it may not be completed
+    if loops > 0:
+        cicles.pop()
+    for cicle in tqdm(cicles): 
+        dfcicles = contactsDF.loc[contactsDF['cicleID']==cicle].copy(deep=True)
+        dfcicles = dfcicles.drop(columns='configID')
+        dfcicles = dfcicles.drop_duplicates()
+        cicleID.extend([cicle] * len(dfcicles))
+        contacts0.extend([i0 for i0 in dfcicles['contacts0']])
+        contacts1.extend([i1 for i1 in dfcicles['contacts1']])
+    # build dataframe:
+    dfconfigsInt = pd.DataFrame({'cicleID':cicleID, 'contacts0':contacts0, 'contacts1':contacts1})
+    # set datatypes:
+    dfconfigsInt['cicleID'] = dfconfigsInt['cicleID'].astype('int16')
+    dfconfigsInt['contacts0'] = dfconfigsInt['contacts0'].astype('int16')
+    dfconfigsInt['contacts1'] = dfconfigsInt['contacts1'].astype('int16')
+    dfconfigsInt.to_parquet(getConfigsPath() + '/contacts/' + filenameContactInt)
+
+
+# this is the main function to generate contact files for a given set of parameters
 def configs_to_contacts(N, arena_r, interac_r, loops, maxFiles = False):
     existingConfigs = len(glob.glob(getConfigsPath() + '/' + getFilenameRoot(N, arena_r) + '_*' + getFilesExtension()))
     existingContacts = len(glob.glob(getConfigsPath() + '/contacts/' + getFilenameRoot(N, arena_r) + '_*' + getFilenameContactSufix(loops, interac_r)))
@@ -96,6 +128,19 @@ def configs_to_contacts(N, arena_r, interac_r, loops, maxFiles = False):
     for i in range(1,existingConfigs+1):
         getContactsFromTrajParallel(i, N, arena_r, interac_r, loops)
 
+# this is the main function to generate integrated contact files for a given set of parameters
+def contacts_to_contactsInt(N, arena_r, interac_r, loops, maxFiles = False):
+    existingContacts = len(glob.glob(getConfigsPath()+'/contacts/'+getFilenameRoot(N, arena_r)+'_*'+getFilenameContactSufix(loops, interac_r)))
+    existingContactsInt = len(glob.glob(getConfigsPath()+'/contacts/'+getFilenameRoot(N, arena_r)+'_*'+getFilenameContactIntSufix(loops, interac_r)))
+    if maxFiles and existingContacts > maxFiles:
+        existingContacts = maxFiles
+        print(f'Using {maxFiles} contact files to generate integrated contact files.')
+    print(f'Generating integrated contact files. \n Existing contact files: {existingContacts}. \n Existing integrated contact files: {existingContactsInt}')
+    for i in range(1,existingContacts+1):
+        integrateContacts(i, N, arena_r, interac_r, loops)
+        
+
 
 if __name__ == '__main__':
     configs_to_contacts(35, 18.5, 7.0, 800, maxFiles=1)
+    contacts_to_contactsInt(35, 18.5, 7.0, 800, maxFiles=1)

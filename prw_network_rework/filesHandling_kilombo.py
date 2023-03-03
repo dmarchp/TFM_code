@@ -20,7 +20,7 @@ def getFilenameNumber(configNumber, zerosFill=3):
 def getFilenameContactSufix(loops, interac_r):
     return f'_loops_{loops}_ir_{interac_r}_contacts.parquet'
 
-def getFilenameINTContactSufix(loops, interac_r):
+def getFilenameContactIntSufix(loops, interac_r):
     return f'_loops_{loops}_ir_{interac_r}_contacts_cicleINT.parquet'
     
 def getFilesExtension():
