@@ -5,6 +5,9 @@
 from sys import argv
 from subprocess import call
 import glob
+import sys
+sys.path.append('../')
+from package_global_functions import getExternalSSDpath
 
 # argumetnts to recieve: N_bots arena_r interac_r exclusion_r
 if len(argv) == 6:
@@ -48,3 +51,11 @@ call("sed -i 's/ !call execute_command_line(\"python stationary_results.py F\")/
 call("make", shell=True)
 # reset max_time to an appropiate simulation time
 call(f"sed -i 's/max_time.*/max_time = 5000/' "+fin_file, shell=True)
+
+
+
+# move the contact lists to the external SSD
+ssdpath = getExternalSSDpath()
+if ssdpath:
+    call(f'mkdir -p {ssdpath}/quenched_configs/{N_bots}_bots/{push_folder}/', shell=True)
+    call(f'mv positions_and_contacts/{N_bots}_bots/{push_folder}/contact_list_*_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}.txt {ssdpath}/quenched_configs/{N_bots}_bots/{push_folder}', shell=True)

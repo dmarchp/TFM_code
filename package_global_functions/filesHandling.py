@@ -7,8 +7,9 @@ def getPCname():
     
 def getExternalSSDpath():
     hostName = getPCname()
-    if hostName == 'bestia':
+    if hostName == 'bestia' or 'david-X550LD':
         extSSDpath = '/media/david/KINGSTON'
-    elif hostName == 'davidASUS': # CANVIAR PEL NOM CORRECTE
-        extSSDpath = '/media/aaa/KINGSTON'
+    else:
+        print("Unrecognized PC!")
+        extSSDpath = ''
     return extSSDpath

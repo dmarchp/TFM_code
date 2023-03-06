@@ -5,9 +5,12 @@ import numpy as np
 import random
 from sys import argv
 import matplotlib.pyplot as plt
-# import os
+import os
 import glob
 import subprocess
+import sys
+sys.path.append('../')
+from package_global_functions import getExternalSSDpath
 
 # generate random points in a circular area:
 # https://stackoverflow.com/questions/30564015/how-to-generate-random-points-in-a-circular-distribution
@@ -170,8 +173,8 @@ def generateConfiguration(pushFlag=True):
     # once the configuration is generated, save it to a file
     if(len(positions)==N):
         writeConfiguration()
-        if len(glob.glob(f'positions_and_contacts/{N}_bots/{push_folder}/img_bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.png'))<10:
-            plotConfiguration()
+        #if len(glob.glob(f'positions_and_contacts/{N}_bots/{push_folder}/img_bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.png'))<10:
+        #    plotConfiguration()
         return True
     else:
         #plotConfiguration(new_pos_bot)
@@ -185,7 +188,12 @@ for _ in range(Nconfigs):
     if completed : completedConfigsCounter +=1
     
 print(f'Successfuly generated {completedConfigsCounter} configurations from the {Nconfigs} required.')
-    
+
+# COPY CONFIGURATIONS TO EXTERNAL SSD
+ssdpath = getExternalSSDpath()
+if ssdpath:
+    subprocess.call(f'mkdir -p {ssdpath}/quenched_configs/{N}_bots/{push_folder}/', shell=True)
+    subprocess.call(f'cp positions_and_contacts/{N}_bots/{push_folder}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt {ssdpath}/quenched_configs/{N}_bots/{push_folder}/', shell=True)
 
 
 
