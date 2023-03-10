@@ -1,5 +1,5 @@
 # ASYMMETRIC PIS
-# plot the theoretical lines in a white backround phase space;
+# plot the theoretical lines in a white backround phase space pi1,pi2;
 import matplotlib.pyplot as plt
 import pandas as pd
 import argparse
@@ -80,10 +80,10 @@ plt.close(fig)
 
 
 # prova equacio
-def aprox_pi2(pi1,q1,q2,l):
-    l0 = pi1*q1/q2
-    l0 = l0 * (1-l*q2)/(1-l*q1)
+# def aprox_pi2(pi1,q1,q2,l):
+#     l0 = pi1*q1/q2
+#     l0 = l0 * (1-l*q2)/(1-l*q1)
     
-l = 0.4
-tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
-tline['aprox_pi2'] = tline.apply(lambda x: aprox_pi2(tline['pi1'], q1, q2, l)
+# l = 0.4
+# tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+# tline['aprox_pi2'] = tline.apply(lambda x: aprox_pi2(tline['pi1'], q1, q2, l)

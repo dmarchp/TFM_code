@@ -9,12 +9,12 @@ sys.path.append('../../')
 from package_global_functions import *
 
 # parameters:
-inSeed = 600
+inSeed = 78
 Nconfigs = 2
-arena_r = 73.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
+arena_r = 18.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
 
 # parameters to modify in the kilombo.json
-nBots = 492
+nBots = 35
 speed = 9
 speedVariation = 2
 timeStep = 0.0103
@@ -24,8 +24,8 @@ formation = "pile" # options are: "random", "pile", "line", "circle", "ellipse"
 # for a bigger szize (N=492), pile or ellipse produce a better inicial spread. Nvthless, a discarding time of about 400 seconds must be set
 # in order to decorrelate from the initial formation
 
-# discard initial configurations: (400 seconds for N=492)
-secondsToDiscard = 400.0
+# discard initial configurations: (10? for N=35, 400 seconds for N=492)
+secondsToDiscard = 10.0
 ticksPerSecond = 31.0
 ticksToDiscard = secondsToDiscard*ticksPerSecond
 #print(ticksToDiscard)

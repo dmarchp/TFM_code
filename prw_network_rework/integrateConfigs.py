@@ -49,8 +49,8 @@ def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limi
     ticksPerCicle = loops*ticksPerLoop
     filename = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilesExtension()
     filenameContact = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilenameContactSufix(loops, interac_r)
-    if os.path.exists(f'{getConfigsPath()}/contacts/{filenameContact}'):
-        return
+    # if os.path.exists(f'{getConfigsPath()}/contacts/{filenameContact}'):
+    #     return
     trajDF = pd.read_parquet(getConfigsPath()+ '/' + filename)
     # get a contact list from each configuration:
     ids = pd.unique(trajDF['ID'])
@@ -81,6 +81,8 @@ def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limi
     # build the dataframe:
     dfconfigs = pd.DataFrame({'configID':configID, 'cicleID':cicleID, 'contacts0':contacts0, 'contacts1':contacts1})
     dfconfigs.sort_values(by=['configID', 'contacts0'], inplace=True)
+    minCicle = min(dfconfigs['cicleID'])
+    dfconfigs['cicleID'] = dfconfigs['cicleID'] - minCicle
     call(f'mkdir -p {getConfigsPath()}/contacts/', shell=True)
     # set datatypes:
     dfconfigs['configID'] = dfconfigs['configID'].astype('int16')
@@ -140,7 +142,11 @@ def contacts_to_contactsInt(N, arena_r, interac_r, loops, maxFiles = False):
         integrateContacts(i, N, arena_r, interac_r, loops)
         
 
-
+# 7.0, 8.0, 9.0, 10.0
 if __name__ == '__main__':
-    configs_to_contacts(35, 18.5, 7.0, 800, maxFiles=1)
-    contacts_to_contactsInt(35, 18.5, 7.0, 800, maxFiles=1)
+    mFiles = 4
+    # configs_to_contacts(35, 18.5, 6.5, 800, maxFiles=mFiles)
+    # contacts_to_contactsInt(35, 18.5, 6.5, 800, maxFiles=mFiles)
+    for ir in [7.0, 8.0, 9.0, 10.0]:
+        configs_to_contacts(35, 18.5, ir, 800, maxFiles=mFiles)
+        contacts_to_contactsInt(35, 18.5, ir, 800, maxFiles=mFiles)

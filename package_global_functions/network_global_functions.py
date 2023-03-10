@@ -34,3 +34,30 @@ def getDegreeDistr(degrees):
     binLims = np.linspace(minDeg, maxDeg+1, (maxDeg+1) - minDeg + 1) # 0, 1, 2, 3, 4 (histogram takes boxes [0,1), [1, 2), ..., [3,4))
     binCenters, prob, dprob = hist1D(degrees, binLims, binCenters, isPDF = True)
     return binCenters, prob, dprob
+    
+    
+def getConfigComSizes(dfconfig, N):
+    """
+    input:
+        - dfconfigs: df with columns 'contacts0' and 'contacts1'. IDs of the network vertices, 0...N-1 or 1...N
+        - N: number of vertices expected in the network
+    output:
+        - arrays with the community sizes, community sizes without giant component, and size of the giant component
+    """
+    g = ig.Graph.DataFrame(dfconfig, directed=False)
+    components = g.components()
+    sum_check = 0
+    comSizes, comSizes_woGC = [], []
+    # com sizes
+    for i,com in enumerate(components):
+        comSizes.append(len(com))
+        sum_check += len(com)
+    if(sum_check != N):
+        for _ in range(N-sum_check):
+            components_sizes.append(1)
+    # com sizes withou the giant component
+    index_max = max(range(len(components_sizes)), key=components_sizes.__getitem__)
+    giantComp = components_sizes[index_max]
+    components_sizes.remove(giantComp)
+    comSizes_woGC = [c for c in comSizes if c != giantComp]
+    return comSizes, comSizes_woGC, giantComp
