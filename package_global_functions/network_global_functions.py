@@ -54,10 +54,11 @@ def getConfigComSizes(dfconfig, N):
         sum_check += len(com)
     if(sum_check != N):
         for _ in range(N-sum_check):
-            components_sizes.append(1)
-    # com sizes withou the giant component
-    index_max = max(range(len(components_sizes)), key=components_sizes.__getitem__)
-    giantComp = components_sizes[index_max]
-    components_sizes.remove(giantComp)
+            comSizes.append(1)
+    # com sizes without the giant component
+    index_max = max(range(len(comSizes)), key=comSizes.__getitem__)
+    giantComp = comSizes[index_max]
     comSizes_woGC = [c for c in comSizes if c != giantComp]
+    if not comSizes_woGC: # i.e. it is an empty list
+        comSizes_woGC.append(0)
     return comSizes, comSizes_woGC, giantComp

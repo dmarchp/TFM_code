@@ -44,7 +44,7 @@ def getContactsFromCicle(df: pd.DataFrame, confID: int, ids: list[int], interac_
                configID.append(confID), cicleID.append(cicle), contacts0.append(id0), contacts1.append(id1)
     return configID, cicleID, contacts0, contacts1
 
-def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limitTrajConfigs = False):
+def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limitTrajConfigs = False, jumpTrajConfigs=False):
     global ticksPerLoop
     ticksPerCicle = loops*ticksPerLoop
     filename = getFilenameRoot(N, arena_r) + getFilenameNumber(configNumber) + getFilesExtension()
@@ -68,10 +68,13 @@ def getContactsFromTrajParallel(configNumber, N, arena_r, interac_r, loops, limi
     # set a max number of configs per traj to speed things up...
     if limitTrajConfigs and limitTrajConfigs < Nconfigs:
         Nconfigs = limitTrajConfigs
-    # search for contacts in each configuration and build the columns of a future dataframe:
-    configID, cicleID, contacts0, contacts1 = [], [], [], []
     # keep in mind that if an initial time is discarded when generating the Traj, cicle=0 corresponds to a mid simulation time already
     dfconfigs = [trajDF.loc[(i*Nbots):(i*Nbots+Nbots-1)] for i in range(int(Nconfigs))]
+    # otherwise, jump a certain number of trajectories to get more uncorrelated snapshots
+    if jumpTrajConfigs:
+        dfconfigs = dfconfigs[::jumpTrajConfigs]
+    # search for contacts in each configuration and build the columns of a future dataframe:
+    configID, cicleID, contacts0, contacts1 = [], [], [], []
     pool = mp.Pool(int(mp.cpu_count()/2)) # sembla que va mes rapid si /2 que el total o /1.5
     res_async = tqdm([pool.apply_async(getContactsFromCicle, args = (df, i, ids, interac_r, loops, ticksPerCicle)) for i,df in enumerate(dfconfigs)])
     res = [r.get() for r in res_async]
@@ -120,7 +123,7 @@ def integrateContacts(configNumber, N, arena_r, interac_r, loops):
 
 
 # this is the main function to generate contact files for a given set of parameters
-def configs_to_contacts(N, arena_r, interac_r, loops, maxFiles = False):
+def configs_to_contacts(N, arena_r, interac_r, loops, maxFiles = False, jumpTrajConfigs=0):
     existingConfigs = len(glob.glob(getConfigsPath() + '/' + getFilenameRoot(N, arena_r) + '_*' + getFilesExtension()))
     existingContacts = len(glob.glob(getConfigsPath() + '/contacts/' + getFilenameRoot(N, arena_r) + '_*' + getFilenameContactSufix(loops, interac_r)))
     print(f'Generating contact files. \n Existing configurations: {existingConfigs}. \n Existing contact files: {existingContacts}')
@@ -128,7 +131,7 @@ def configs_to_contacts(N, arena_r, interac_r, loops, maxFiles = False):
         existingConfigs = maxFiles
         print(f'Using {maxFiles} position files to generate contacts.')
     for i in range(1,existingConfigs+1):
-        getContactsFromTrajParallel(i, N, arena_r, interac_r, loops)
+        getContactsFromTrajParallel(i, N, arena_r, interac_r, loops, jumpTrajConfigs=jumpTrajConfigs)
 
 # this is the main function to generate integrated contact files for a given set of parameters
 def contacts_to_contactsInt(N, arena_r, interac_r, loops, maxFiles = False):
@@ -145,8 +148,10 @@ def contacts_to_contactsInt(N, arena_r, interac_r, loops, maxFiles = False):
 # 7.0, 8.0, 9.0, 10.0
 if __name__ == '__main__':
     mFiles = 4
-    # configs_to_contacts(35, 18.5, 6.5, 800, maxFiles=mFiles)
-    # contacts_to_contactsInt(35, 18.5, 6.5, 800, maxFiles=mFiles)
-    for ir in [7.0, 8.0, 9.0, 10.0]:
-        configs_to_contacts(35, 18.5, ir, 800, maxFiles=mFiles)
-        contacts_to_contactsInt(35, 18.5, ir, 800, maxFiles=mFiles)
+    configs_to_contacts(492, 73.5, 3.5, 800, maxFiles=mFiles)
+    contacts_to_contactsInt(492, 73.5, 3.5, 800, maxFiles=mFiles)
+    # for ir in 4.0, 5.0, 5.5, 5.75, 6.0, 6.25, 6.5, 7.0, 8.0, 9.0, 10.0:
+    #for irmm in range(45, 105, 5):
+        # ir = irmm/10
+        # configs_to_contacts(492, 73.5, ir, 0, maxFiles=mFiles, jumpTrajConfigs=10)
+        # contacts_to_contactsInt(492, 73.5, ir, 0, maxFiles=mFiles)
