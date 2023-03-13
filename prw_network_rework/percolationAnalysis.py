@@ -8,10 +8,12 @@ import pandas as pd
 import numpy as np
 import os
 from subprocess import call
+from random import sample
 import sys
 sys.path.append('../')
 from package_global_functions import *
 from processConfigs import *
+from filesHandling_kilombo import *
 
 # Average Degree as a function of the interaction radius:
 # def getAvgDegree():
@@ -87,6 +89,73 @@ def MollyReedCriterion(N, arena_r, irs, loops_l, quenched=False):
     fig.savefig(f'MollyReedCriterion_N_{N}_ar_{arena_r}.png')
 
 
+# MEAN CLUSTER SIZE
+def computeMeanClusterSize(N, arena_r, interac_r, loops, maxCicles):
+    """
+    computes the mean cluster size for specific conditions: N, ar, ir, loops...
+    """
+    rawDataFilename = getConfigsPath() + '/raw_data/' + f'comSizesWoGc_N_{N}_ar_{arena_r}_ir_{interac_r}_loops_{loops}.parquet'
+    df = pd.read_parquet(rawDataFilename)
+    cicles = pd.unique(df['cicleID'])
+    if len(cicles) > maxCicles:
+        sep = int(len(cicles)/maxCicles)
+        ciclesToUse = list(cicles)[::sep]
+        ciclesToUse = sample(ciclesToUse, k=maxCicles)
+        ciclesToUse.sort()
+    else:
+        ciclesToUse = cicles
+    dfaux = df.query('cicleID in @ciclesToUse').copy()
+    dfaux['comSizes_sq'] = dfaux['comSizes']**2
+    a = sum(dfaux['comSizes'])
+    b = sum(dfaux['comSizes_sq'])
+    try:
+        mcs = b/a
+    except ZeroDivisionError:
+        mcs = float('nan')
+    return mcs
+
+def getMeanClusterSize_ir(N, arena_r, loops, irs, maxCicles):
+    """
+    gets the MCS along a set of interaction radius, for fixed N, ar, loops
+    """
+    filename = getConfigsPath() + f'/processed_data/meanClusterSize_N_{N}_ar_{arena_r}_ir_loops_{loops}.csv'
+    if os.path.exists(filename):
+        df = pd.read_csv(filename)
+        missing_irs = [ir for ir in irs if ir not in list(df['interac_r'])]
+        if missing_irs:
+            mcs_l = []
+            for ir in missing_irs:
+                mcs = computeMeanClusterSize(N, arena_r, ir, loops, maxCicles)
+                mcs_l.append(mcs)
+            df_missing_irs = pd.DataFrame({'interac_r':missing_irs, 'mcs':mcs_l})
+            df = pd.concat([df, df_missing_irs], ignore_index=True)
+            df = df.sort_values(by='interac_r')
+            df.to_csv(filename, index=False)
+    else:  
+        mcs_l = []
+        for ir in irs:
+            mcs = computeMeanClusterSize(N, arena_r, ir, loops, maxCicles)
+            mcs_l.append(mcs)
+        df = pd.DataFrame({'interac_r':irs, 'mcs':mcs_l})
+        df.to_csv(filename, index=False)
+    return df
+
+def plotMeanClusterSize(N, arena_r, loops_l, maxCicles, quenched=False):
+    fig, ax = plt.subplots()
+    ax.set(xlabel='$r_i$', ylabel='MCS')
+    for loops in loops_l:
+        irs = availableIrs(N, arena_r, loops)
+        dfmcs = getMeanClusterSize_ir(N, arena_r, loops, irs, maxCicles)
+        ax.plot(dfmcs['interac_r'], dfmcs['mcs'], label = f'{loops}', marker='.', lw=0.7)
+    if quenched:
+        dfmcs_q = pd.read_csv(f'quenched_results/MeanClusterSize_v0_nopush_N_{N}_ar_{arena_r+1.5}_er_1.5.csv')
+        ax.plot(dfmcs_q['interac_r'], dfmcs_q['mcs'], marker='.', ls='--', lw=0.7, color='k', label='Quenched')
+    fig.legend(title='$\Delta t$', fontsize=9)
+    fig.tight_layout()
+    fig.savefig(f'meanClusterSize_N_{N}_ar_{arena_r}.png')
+
+
+
 
 
 
@@ -96,5 +165,7 @@ def MollyReedCriterion(N, arena_r, irs, loops_l, quenched=False):
 
 if __name__ == '__main__':
     # plotDegreeDistr_manyir_oneDeltat(35, 18.5, [3.5, 3.75, 5.0, 8.0], 800)
-    MollyReedCriterion(35, 18.5, [4.0, 5.0, 6.0, 7.0, 8.0], [0, 800], quenched=True)
+    # MollyReedCriterion(35, 18.5, [4.0, 5.0, 6.0, 7.0, 8.0], [0, 800], quenched=True)
+    N, ar, loops = 35, 18.5, 800
+    plotMeanClusterSize(N, ar, [0, 400, 800], 100, quenched=True)
 
