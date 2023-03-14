@@ -4,22 +4,18 @@ import pandas as pd
 import argparse
 import matplotlib.pyplot as plt
 
-# to do:
-# compute the fs map for ohter values of lambda than 0.9 upwards
-
 parser = argparse.ArgumentParser()
 parser.add_argument('q1', type=int, help='site 1 quality')
 parser.add_argument('q2', type=int, help='site 2 quality')
-parser.add_argument('l', type=float, help='interdependence (lambda)')
 parser.add_argument(
     'x', type=float, help='factor between f1 and f2, f2 = x*f1')
 parser.add_argument('-mask', help='mask the upper trigangle where pi1+pi2 > 1', action='store_true')
 parser.add_argument('-Tline', help='Add theoretical transition line to the colormap plot', action='store_true')
 args = parser.parse_args()
 
-q1, q2, l, x = args.q1, args.q2, args.l, args.x
+q1, q2, x = args.q1, args.q2, args.x
 
-fsMesh = np.load(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.npz')
+fsMesh = np.load(f'res_files/map_sym_q1_{q1}_q2_{q2}.npz')
 Qmesh = fsMesh['fs'][2] - x*fsMesh['fs'][1]
 sumXY = fsMesh['x'] + fsMesh['y']
 
@@ -34,17 +30,17 @@ max = abs(Qmesh).max()
 
 fig, ax = plt.subplots(figsize=(5.6,4.8))
 im = ax.pcolormesh(fsMesh['x'], fsMesh['y'], Qmesh, vmin = -max, vmax = max, cmap='seismic_r', shading='nearest')
-ax.set_xlabel('$\pi_1$')
-ax.set_ylabel('$\pi_2$')
+ax.set_xlabel('$\pi_{1,2}$')
+ax.set_ylabel('$\lambda$')
 cb = fig.colorbar(im, ax=ax, aspect=25, shrink=0.75, pad=0.025)
 cb.ax.tick_params(labelsize=9)
 if args.Tline:
-    tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+    tline = pd.read_csv(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
     tline = tline.query('pi2 >= 0.01')
     if args.mask:
         tline['suma'] = tline['pi1'] + tline['pi2']
         tline = tline.query('suma <= 1')
     ax.plot(tline['pi1'], tline['pi2'], color='xkcd:black', lw=0.7)
-ax.set_aspect(1.0)
+# ax.set_aspect(1.0)
 fig.tight_layout(pad=0.1)
-fig.savefig(f'stateSpace_asym_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.png')
+fig.savefig(f'stateSpace_sym_q1_{q1}_q2_{q2}_f2_{int(x)}f1.png')

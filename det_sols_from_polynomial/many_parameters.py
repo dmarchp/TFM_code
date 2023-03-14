@@ -98,6 +98,33 @@ def computeAsymmetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
     df = pd.DataFrame(map)
     df.to_csv(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.csv', index=False)
 
+def computeAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.99), dl=0.01, l_lims = (0.0, 0.99), npyMesh = True, parqDf = True):
+    Npi2s = int((pi2_lims[1] - pi2_lims[0])/dpi2) + 1
+    Nls = int((l_lims[1]-l_lims[0])/dl) + 1
+    xgrid_pi2, ygrid_l = np.mgrid[pi2_lims[0]:pi2_lims[1]:complex(0,Npi2s), l_lims[0]:l_lims[1]:complex(0,Nls)]
+    xgrid_pi2, ygrid_l = np.around(xgrid_pi2, 2), np.around(ygrid_l,2)
+    grid_fs = np.empty([3, Npi2s, Nls])
+    for i,pi2 in enumerate(xgrid_pi2[:,0]):
+        for j,l in enumerate(ygrid_l[0,:]):
+            # print(f'{pi1} {pi2} {q1} {q2} {l}')
+            subprocess.call(f'python f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+            with open('sols.dat', 'r') as file:
+                sols = [float(f) for f in file.readline().split()]
+                grid_fs[:,i,j] = sols
+    if npyMesh:
+        np.savez(f'res_files/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, fs=grid_fs)
+    if parqDf:
+        # unpack all grids, fs into lists:
+        pi2s = [pi for pi_row in xgrid_pi2 for pi in pi_row]
+        ls = [l for l_row in ygrid_l for l in l_row]
+        fs = [[],[],[]]
+        for i in range(3):
+            fs = [fi for fiv in grid_fs[i] for fi in fiv]
+        df = pd.DataFrame({'pi2':pi2s, 'l':ls, 'f0':fs[0], 'f1':fs[1], 'f2':fs[2]})
+        for k in df.keys():
+            df[k] = df[k].astype('float')
+        df.to_parquet(f'res_files/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.parquet', index=False)
+
 
 def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac=False):
     Nls = int((l_lims[1] - l_lims[0])/dl) + 1
@@ -131,9 +158,14 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeAsymmetricMap_mesh(7, 10, 0.3)
-computeAsymmetricMap_mesh(7, 10, 0.6)
-computeAsymmetricMap_mesh(7, 10, 0.9)
+computeSymmetricMap_mesh(7, 10, pi_lims=(0.01, 0.5), parqDf=False)
+computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
+
+# computeAsymmetricMap_mesh(7, 10, 0.3)
+# computeAsymmetricMap_mesh(7, 10, 0.6)
+# computeAsymmetricMap_mesh(7, 10, 0.9)
+
+# computeAsymmetricMap_mesh_fixPi1(0.3, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 
 # computeLambdaEvo(0.4, 0.2, 5, 10)
 # computeLambdaEvo(0.4, 0.2, 10, 20)
