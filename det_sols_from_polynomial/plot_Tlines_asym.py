@@ -7,6 +7,15 @@ import os
 from subprocess import call
 from f0poly_sols_clean import f0_lambda_neq_0
 import numpy as np
+import sys
+sys.path.append('../')
+from package_global_functions import *
+
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
 
 # parser = argparse.ArgumentParser()
 # parser.add_argument('q1', type=int, help='site 1 quality')
@@ -34,7 +43,7 @@ def plot_Qlines_pi1pi2_dif_lambda(ls, q1, q2, x=2, xlim=(0,0.5), ylim=(0,0.5)):
     ax.set(xlabel=r'$\pi_1$', ylabel=r'$\pi_2$', xlim=xlim, ylim=ylim)
     colors = plt.cm.gnuplot(np.linspace(0,1,len(ls)))
     for i,l in enumerate(ls):
-        tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+        tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
         ax.plot(tline['pi1'], tline['pi2'], lw=0.8, color=colors[i], label=f'{l}')
     fig.legend(title=r'$\lambda$', fontsize=8, title_fontsize=9, loc=(0.2, 0.55))
     ax.set_aspect(1.0)
@@ -48,7 +57,7 @@ def plot_Qlines_pi1pi2_dif_q1(q1s, q2, l, x=2, xlim=(0,0.5), ylim=(0,0.5)):
     colors = plt.cm.cool(np.linspace(0,1,len(q1s)))
     ax.set(xlabel=r'$\pi_1$', ylabel=r'$\pi_2$', xlim=xlim, ylim=ylim)
     for i,q1 in enumerate(q1s):
-        tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+        tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
         ax.plot(tline['pi1'], tline['pi2'], lw=0.8, color=colors[i], label=f'{q1}')
     fig.legend(title=r'$q_1$', fontsize=8, title_fontsize=9, loc=(0.2, 0.3))
     ax.set_aspect(1.0)
@@ -65,7 +74,7 @@ def plot_Qlines_lambda():
     colors = plt.cm.gnuplot(np.linspace(0,1,len(pi1s)))
     pi2s_l = [[],[],[],[]]
     for l in ls:
-        tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+        tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
         for i,pi1 in enumerate(pi1s):
             pi2 = tline.query('pi1 == @pi1')['pi2']
             pi2s_l[i].append(pi2)
@@ -85,10 +94,9 @@ def plot_Qlines_pi2lam_difq1(q1s, q2, pi1, x=2, xlim=(0,0.5), ylim=(0,1)):
     colors = plt.cm.cool(np.linspace(0,1,len(q1s)))
     ax.set(xlabel=r'$\pi_2$', ylabel=r'$\lambda$', xlim=xlim, ylim=ylim)
     for i,q1 in enumerate(q1s):
-        # if not os.path.exists(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-        #     call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-        call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-        tline = pd.read_csv(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+        if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+        tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
         ax.plot(tline['pi2'], tline['lambda'], lw=0.8, color=colors[i], label=f'{q1}')
     fig.legend(title=r'$q_1$', fontsize=8, title_fontsize=9, loc=(0.7, 0.7))
     fig.text(0.4, 0.96, rf'$\pi_1= {pi1}, q_2 = {q2}$', fontsize=9)
@@ -116,9 +124,9 @@ def plot_Qlines_pi1pi2_dif_lambda_Delta(ls, Delta, x=2, xlim=(0,0.5), ylim=(0,0.
     for l, color in zip(ls, colors):
         for i,q_pair in enumerate(q_pairs_Delta[Delta]):
             q1, q2, = q_pair
-            if not os.path.exists(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv'):
                 call(f'python find_Tlines_asym.py {q1} {q2} {l} {x}', shell=True)
-            tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+            tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
             if i==len(q_pairs_Delta[Delta])-1:
                 ax.plot(tline['pi1'], tline['pi2'], color=color, label=f'{l}', alpha=(i+1)/len(q_pairs_Delta[Delta]), lw=0.7)
             else:
@@ -138,9 +146,9 @@ def plot_Qlines_pi1pi2_dif_q1_manyDelta(Deltas, l, x=2, xlim=(0,0.5), ylim=(0,0.
     for Delta, color in zip(Deltas, colors):
         for i,q_pair in enumerate(q_pairs_Delta[Delta]):
             q1, q2 = q_pair
-            if not os.path.exists(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv'):
                 call(f'python find_Tlines_asym.py {q1} {q2} {l} {x}', shell=True)
-            tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+            tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
             if i==len(q_pairs_Delta[Delta])-1:
                 ax.plot(tline['pi1'], tline['pi2'], color=color, label=f'{q_pairs_Delta[Delta][0]}', alpha=(i+1)/len(q_pairs_Delta[Delta]), lw=0.7)
             else:
@@ -159,9 +167,9 @@ def plot_Qlines_pi2lam_difq1_manyDelta(Deltas, pi1, x=2, xlim=(0,0.5), ylim=(0,1
     for Delta, color in zip(Deltas, colors):
         for i,q_pair in enumerate(q_pairs_Delta[Delta]):
             q1, q2 = q_pair
-            if not os.path.exists(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
                 call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            tline = pd.read_csv(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
             if i==len(q_pairs_Delta[Delta])-1:
                 ax.plot(tline['pi2'], tline['lambda'], color=color, label=f'{q_pairs_Delta[Delta][0]}', alpha=(i+1)/len(q_pairs_Delta[Delta]), lw=0.7)
             else:
@@ -186,9 +194,9 @@ def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
     for q2, color in zip(q2s, colors):
         deltas, lambdas = [], []
         for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
                 call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            tline = pd.read_csv(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
             deltas.append((q2-q1)/(q2+q1))
             lamb = float(tline.query('pi2 == @pi2')['lambda'])
             if np.isnan(lamb):
@@ -201,6 +209,29 @@ def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
     fig.text(0.45, 0.97, f'$\pi_1 = {pi1}, \; \pi_2 = {pi2}$, $Q = f_2 - {x}f1$', fontsize=8)
     fig.tight_layout()
     fig.savefig(f'lambda_threshold_f2_{x}f1_asym_pi1_{pi1}_pi2_{pi2}_Delta.png')
+
+def plot_lambda_threshold_pi2s(pi2s, pi1, q2, x=2):
+    fig, ax = plt.subplots(figsize=(5.6,4.8))
+    colors = plt.cm.gnuplot(np.linspace(0,1,len(pi2s)))
+    for pi2, color in zip(pi2s, colors):
+        deltas, lambdas = [], []
+        for q1 in q1s_q2[q2]:
+            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+            # call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            deltas.append((q2-q1)/(q2+q1))
+            lamb = float(tline.query('pi2 == @pi2')['lambda'])
+            if np.isnan(lamb):
+                lambdas.append(0)
+            else:
+                lambdas.append(lamb)
+        ax.plot(deltas, lambdas, label=f'{pi2}', color=color, marker='.', lw=0.8, markersize=3)
+    ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$')
+    fig.legend(loc=(0.85, 0.75), fontsize=8, title_fontsize=9, title='$\pi_2$')
+    fig.text(0.45, 0.97, f'$\pi_1 = {pi1}, \; q_2 = {q2}$, $Q = f_2 - {x}f1$', fontsize=8)
+    fig.tight_layout()
+    fig.savefig(f'lambda_threshold_f2_{x}f1_asym_pi1_{pi1}_manyPi2_oneDelta_q2_{q2}.png')
 
 
 # plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(5)], 3, 10, 2)
@@ -244,6 +275,9 @@ def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
 # plot_lambda_threshold_delta([10,20,30,40], 0.4, 0.2, 2)
 # plot_lambda_threshold_delta([10,20,30,40], 0.4, 0.3, 2)
 
-plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.05, 2)
-plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.1, 2)
-plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.15, 2)
+# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.05, 2)
+# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.1, 2)
+# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.15, 2)
+
+# plot_lambda_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40)
+plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40)

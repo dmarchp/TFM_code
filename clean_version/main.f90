@@ -65,6 +65,7 @@ program main
         call init_system_state() !trim set the system to all uncomitted at every rea
         call compute_probs()
         call compute_kparam(pop_fraction,pop_fraction_k)
+        j=0
         write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
         do j=1,max_time
             call update_system_galla()

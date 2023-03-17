@@ -3,18 +3,26 @@ import numpy as np
 import os
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('../')
+from package_global_functions import *
+
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
 
 def plot_Qlines(q2, q1s, x=2):
     colors = plt.cm.gnuplot(np.linspace(0,1,len(q1s)))
     fig, ax = plt.subplots(figsize=(5.6,4.8))
     for i,q1 in enumerate(q1s):
-        tline = pd.read_csv(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+        tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
         ax.plot(tline['pi'], tline['lambda'], label=f'{q1}', color=colors[i])
     ax.set(xlabel='$\pi_{1,2}$', ylabel='$\lambda$', xlim=(0, 0.5), ylim=(0,1))
     fig.legend(title=f'$q_1, \; q_2 = {q2}$', fontsize=8, title_fontsize=9, loc=(0.2,0.74))
     fig.tight_layout()
     fig.savefig(f'tlines_sym_q2_{q2}_f2_{x}f1.png')
-
 
 
 q_pairs_Delta = {
@@ -28,7 +36,7 @@ def plot_Qlines_manyDelta(Deltas, x=2):
     colors = plt.cm.gist_rainbow(np.linspace(0,1,len(Deltas)))
     for Delta, color in zip(Deltas, colors):
         for i,q_pair in enumerate(q_pairs_Delta[Delta]):
-            tline = pd.read_csv(f'res_files/Tline_sym_pis_q1_{q_pair[0]}_q2_{q_pair[1]}_f2_{int(x)}f1.csv')
+            tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q_pair[0]}_q2_{q_pair[1]}_f2_{int(x)}f1.csv')
             if i == len(q_pairs_Delta[Delta])-1:
                 ax.plot(tline['pi'], tline['lambda'], color=color, label=f'{q_pairs_Delta[Delta][0]}', alpha=(i+1)/len(q_pairs_Delta[Delta]), lw=0.7)
             else:
@@ -51,10 +59,10 @@ def plot_lambda_threshold_delta(q2s, pi, x=2):
     for q2, color in zip(q2s, colors):
         deltas, lambdas = [], []
         for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
                 lambdas.append(0)
             else:
-                tline = pd.read_csv(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+                tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
                 lamb = float(tline.query('pi == @pi')['lambda'])
                 if np.isnan(lamb):
                     lambdas.append(0)
@@ -76,10 +84,10 @@ def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
     for pi, color in zip(pis, colors):
         deltas, lambdas = [], []
         for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            if not os.path.exists(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
                 lambdas.append(0)
             else:
-                tline = pd.read_csv(f'res_files/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+                tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
                 lamb = float(tline.query('pi == @pi')['lambda'])
                 if np.isnan(lamb):
                     lambdas.append(0)

@@ -1,9 +1,15 @@
 import argparse
 from f0poly_sols_clean import f0_lambda_neq_0, f0_lambda_eq_0, f_i
 from scipy.optimize import bisect, newton
+from subprocess import call
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+import sys
+sys.path.append('../')
+from package_global_functions import *
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('q1', type=int, help='site 1 quality')
@@ -50,7 +56,7 @@ if last_pi2_w_sol:
     pi2_lims = (last_pi2_w_sol+dpi_smaller, last_pi2_w_sol+dpi-dpi_smaller)
     Npis = int((pi2_lims[1] - pi2_lims[0])/dpi_smaller) + 1
     pi2s_extra = np.linspace(pi2_lims[0], pi2_lims[1], Npis)
-    pi2s = np.around(pi2s, 2)
+    pi2s = np.around(pi2s, 4)
     lambdas_extra = []
     for pi2 in pi2s_extra:
         try:
@@ -63,4 +69,14 @@ if last_pi2_w_sol:
 
 df = pd.DataFrame({'pi2':pi2s, 'lambda':lambdas})
 df = df.sort_values(by='pi2')
-df.to_csv(f'res_files/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv', index=False)
+
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
+
+if not os.path.exists(path):
+    call(f'mkdir -p {path}', shell=True) # no faria falta la -p ...
+
+df.to_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv', index=False)

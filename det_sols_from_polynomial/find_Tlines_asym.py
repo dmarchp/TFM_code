@@ -1,9 +1,14 @@
 import argparse
 from f0poly_sols_clean import f0_lambda_neq_0, f0_lambda_eq_0, f_i
 from scipy.optimize import bisect, newton
+from subprocess import call
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+import sys
+sys.path.append('../')
+from package_global_functions import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('q1', type=int, help='site 1 quality')
@@ -133,9 +138,14 @@ if first_pi1_w_sol or np.isclose(l, 0.0):
     pi2s.extend(pi2s_ex)
 df = pd.DataFrame({'pi1':pi1s, 'pi2':pi2s})
 df = df.sort_values(by='pi1')
-df.to_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv', index=False)
 
-# plot de prova:
-# fig, ax = plt.subplots()
-# ax.plot(df['pi1'], df['pi2'])
-# fig.savefig('provaTline.png')
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
+
+if not os.path.exists(path):
+    call(f'mkdir -p {path}', shell=True) # no faria falta la -p ...
+
+df.to_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv', index=False)

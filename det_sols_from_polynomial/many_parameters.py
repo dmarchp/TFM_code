@@ -2,13 +2,15 @@ import subprocess
 import numpy as np
 import pandas as pd
 import os
+import sys
+sys.path.append('../')
+from package_global_functions import *
 
-# subprocess.call('python f0poly_sols_clean.py 0.1 0.1 7 10 0.5 > sols.dat', shell=True)
-# with open('sols.dat', 'r') as file:
-#     sols = [float(f) for f in file.readline().split()]
-
-# print(sols)
-
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
 
 
 def computeSymetricMap_df(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99),dl=0.01, l_lims = (0.01,0.99)):
@@ -28,7 +30,7 @@ def computeSymetricMap_df(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99),dl=0.01, l_li
             map['f0'].append(sols[0]), map['f1'].append(sols[1]), map['f2'].append(sols[2])
     # build and save datagrame
     df = pd.DataFrame(map)
-    pd.to_csv(f'res_files/map_sym_q1_{q1}_q2_{q2}.csv', index=False)
+    pd.to_csv(f'{path}/map_sym_q1_{q1}_q2_{q2}.csv', index=False)
 
 # potser fer un mesh seria mes logic........
 def computeSymmetricMap_mesh(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, l_lims = (0.00,0.99), npyMesh = True, parqDf = True):
@@ -44,7 +46,7 @@ def computeSymmetricMap_mesh(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, 
                 sols = [float(f) for f in file.readline().split()]
                 grid_fs[:,i,j] = sols
     if npyMesh:
-        np.savez(f'res_files/map_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, fs=grid_fs)
+        np.savez(f'{path}/map_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, fs=grid_fs)
     if parqDf:
         # unpack all grids, fs into lists:
         pis = [pi for pi_row in xgrid_pi for pi in pi_row]
@@ -55,7 +57,7 @@ def computeSymmetricMap_mesh(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, 
         df = pd.DataFrame({'pi':pis, 'l':ls, 'f0':fs[0], 'f1':fs[1], 'f2':fs[2]})
         for k in df.keys():
             df[k] = df[k].astype['float']
-        df.to_parquet(f'res_files/map_sym_q1_{q1}_q2_{q2}.parquet', index=False)
+        df.to_parquet(f'{path}/map_sym_q1_{q1}_q2_{q2}.parquet', index=False)
 
 def computeAsymmetricMap_mesh(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99), npyMesh = True, parqDf = True):
     Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
@@ -70,7 +72,7 @@ def computeAsymmetricMap_mesh(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99), npyMe
                 sols = [float(f) for f in file.readline().split()]
                 grid_fs[:,i,j] = sols
     if npyMesh:
-        np.savez(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.npz', x=xgrid_pi1, y=ygrid_pi2, fs=grid_fs)
+        np.savez(f'{path}/map_asym_q1_{q1}_q2_{q2}_l_{l}.npz', x=xgrid_pi1, y=ygrid_pi2, fs=grid_fs)
     if parqDf:
         # unpack all grids, fs into lists:
         pi1s = [pi for pi_row in xgrid_pi1 for pi in pi_row]
@@ -81,7 +83,7 @@ def computeAsymmetricMap_mesh(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99), npyMe
         df = pd.DataFrame({'pi1':pi1s, 'pi2':pi2s, 'f0':fs[0], 'f1':fs[1], 'f2':fs[2]})
         for k in df.keys():
             df[k] = df[k].astype('float')
-        df.to_parquet(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.parquet', index=False)
+        df.to_parquet(f'{path}/map_asym_q1_{q1}_q2_{q2}_l_{l}.parquet', index=False)
 
 def computeAsymmetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
     Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
@@ -96,7 +98,7 @@ def computeAsymmetricMap_df(q1, q2, l, dpi=0.01, pi_lims = (0.01, 0.99)):
             map['pi1'].append(round(pi1,2)), map['pi2'].append(round(pi2,2))
             map['f0'].append(sols[0]), map['f1'].append(sols[1]), map['f2'].append(sols[2])
     df = pd.DataFrame(map)
-    df.to_csv(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.csv', index=False)
+    df.to_csv(f'{path}/map_asym_q1_{q1}_q2_{q2}_l_{l}.csv', index=False)
 
 def computeAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.99), dl=0.01, l_lims = (0.0, 0.99), npyMesh = True, parqDf = True):
     Npi2s = int((pi2_lims[1] - pi2_lims[0])/dpi2) + 1
@@ -123,7 +125,7 @@ def computeAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0
         df = pd.DataFrame({'pi2':pi2s, 'l':ls, 'f0':fs[0], 'f1':fs[1], 'f2':fs[2]})
         for k in df.keys():
             df[k] = df[k].astype('float')
-        df.to_parquet(f'res_files/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.parquet', index=False)
+        df.to_parquet(f'{path}/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.parquet', index=False)
 
 
 def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac=False):
@@ -148,9 +150,9 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
     #     dfglobal = df
     # dfglobal.to_csv(f'res_files/lambdaEvo_results.csv')
     if noInterac:
-        df.to_csv(f'res_files/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_noInterac.csv', index=False)
+        df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_noInterac.csv', index=False)
     else:
-        df.to_csv(f'res_files/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
+        df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
 
 
 

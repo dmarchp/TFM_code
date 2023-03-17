@@ -13,3 +13,6 @@ def getExternalSSDpath():
         print("Unrecognized PC!")
         extSSDpath = ''
     return extSSDpath
+    
+def getProjectFoldername():
+    return '/TFM_code'
