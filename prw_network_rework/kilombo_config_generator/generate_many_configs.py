@@ -37,7 +37,7 @@ existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*' + extension))
 
 def modify_arena_size_in_PRWDIS():
     global arena_r
-    call(f"sed -i 's/  double arena_r = .*/  double arena_r = {round(arena_r*10,2)}/' PRWDis.c", shell=True)
+    call(f"sed -i 's/  double arena_r = .*/  double arena_r = {round(arena_r*10,2)};/' PRWDis.c", shell=True)
     #call("make", shell=True)
     
 def modify_kilombo_json():
