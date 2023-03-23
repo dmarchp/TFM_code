@@ -14,16 +14,16 @@ parser.add_argument('q1', type=int, help='site 1 quality')
 parser.add_argument('q2', type=int, help='site 2 quality')
 parser.add_argument('l', type=float, help='interdependence (lambda)')
 parser.add_argument('N', type=int, help='Number of agents')
+parser.add_argument('Nrea', type=int, help='Number of realitzations to perform')
 parser.add_argument('inSeed', type=int, help='seed')
 
 args = parser.parse_args()
 
-pi1, pi2, q1, q2, l, N, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.inSeed
+pi1, pi2, q1, q2, l, N, Nrea, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.Nrea, args.inSeed
 Nsites = 2
 seed(inSeed)
-Nrea = 1
-statFrom = 500
-simIters = 1500
+statFrom = 1000
+simIters = 2000
 getEvery = 20
 
 filename = f'stat_data_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.csv'

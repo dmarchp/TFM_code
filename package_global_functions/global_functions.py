@@ -69,3 +69,6 @@ def hist1D(x, Bins, binCenter, isPDF, isNonZero = True):
         H = H[nonZ]
         dH = dH[nonZ]
     return binCenter, H, dH
+    
+    
+    
