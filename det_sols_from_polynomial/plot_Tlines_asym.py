@@ -182,28 +182,52 @@ def plot_Qlines_pi2lam_difq1_manyDelta(Deltas, pi1, x=2, xlim=(0,0.5), ylim=(0,1
 
 
 q1s_q2 = {
-    10: list(range(1,10)),
-    20: list(range(1,12)) + list(range(12,20,2)),
-    30: list(range(1,12)) + list(range(12,30,4)),
-    # 40: list(range(1,12)) + list(range(12,40,2))
-    40: list(range(1,40))
+    5.0: [i/10 for i in range(4,50,3)],
+    7.0: [i/10 for i in range(5,70,3)],
+    10.0: [i/10 for i in range(10,100,3)],
+    20.0: [i/10 for i in range(10,200,10)],
+    30.0: [i/10 for i in range(30,300,10)],
+    40.0: [float(q1) for q1 in list(range(1,40))]
 }
+
+def lambda_threshold_line(q1s, q2, pi1, pi2, x):
+    deltas, lambdas, last_q1_l0 = [], [], False
+    for q1 in q1s:
+        if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+            call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+        tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+        deltas.append((q2-q1)/(q2+q1))
+        lamb = float(tline.query('pi2 == @pi2')['lambda'])
+        if np.isnan(lamb):
+            lambdas.append(0)
+            last_q1_l0, qindex = q1, q1s_q2[q2].index(q1)
+        else:
+            lambdas.append(lamb)
+    # extra q1s:
+    if last_q1_l0:
+        dq1 = q1s_q2[q2][1] - q1s_q2[q2][0]
+        smaller_dq1 = dq1/10
+        a, b, h = last_q1_l0+smaller_dq1, last_q1_l0+dq1-smaller_dq1, smaller_dq1
+        extra_q1s = np.linspace(a, b, round((b-a)/h+1))
+        extra_q1s = np.around(extra_q1s, 1)
+        for q1 in extra_q1s:
+            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            deltas.insert(qindex+1, (q2-q1)/(q2+q1))
+            lamb = float(tline.query('pi2 == @pi2')['lambda'])
+            if np.isnan(lamb):
+                lambdas.insert(qindex+1, 0)
+            else:
+                lambdas.insert(qindex+1, lamb)
+            qindex += 1
+    return deltas, lambdas
 
 def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
     fig, ax = plt.subplots(figsize=(5.6,4.8))
     colors = plt.cm.gist_rainbow(np.linspace(0,1,len(q2s)))
     for q2, color in zip(q2s, colors):
-        deltas, lambdas = [], []
-        for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-            deltas.append((q2-q1)/(q2+q1))
-            lamb = float(tline.query('pi2 == @pi2')['lambda'])
-            if np.isnan(lamb):
-                lambdas.append(0)
-            else:
-                lambdas.append(lamb)
+        deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
         ax.plot(deltas, lambdas, label=f'{q2}', color=color, marker='.', lw=0.8, markersize=3)
     ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$')
     fig.legend(loc=(0.85, 0.75), fontsize=8)
@@ -211,50 +235,18 @@ def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
     fig.tight_layout()
     fig.savefig(f'lambda_threshold_f2_{x}f1_asym_pi1_{pi1}_pi2_{pi2}_Delta.png')
 
+
 def plot_lambda_threshold_pi2s(pi2s, pi1, q2, x=2):
     fig, ax = plt.subplots(figsize=(5.6,4.8))
     colors = plt.cm.gnuplot(np.linspace(0,1,len(pi2s)))
     for pi2, color in zip(pi2s, colors):
-        deltas, lambdas = [], []
-        for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            # call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-            deltas.append((q2-q1)/(q2+q1))
-            lamb = float(tline.query('pi2 == @pi2')['lambda'])
-            if np.isnan(lamb):
-                lambdas.append(0)
-            else:
-                lambdas.append(lamb)
-        ax.plot(deltas, lambdas, label=f'{pi2}', color=color, marker='.', lw=0.8, markersize=3)
+        deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
+        ax.plot(deltas, lambdas, label=f'{pi2}', color=color, marker='.', lw=0.8, markersize=2)
     ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$')
     fig.legend(loc=(0.85, 0.75), fontsize=8, title_fontsize=9, title='$\pi_2$')
     fig.text(0.45, 0.97, f'$\pi_1 = {pi1}, \; q_2 = {q2}$, $Q = f_2 - {x}f1$', fontsize=8)
     fig.tight_layout()
     fig.savefig(f'lambda_threshold_f2_{x}f1_asym_pi1_{pi1}_manyPi2_oneDelta_q2_{q2}.png')
-
-
-def plot_Delta_threshold_pi2s(pi2s, pi1, q2, x=2):
-    fig, ax = plt.subplots(figsize=(5.6,4.8))
-    colors = plt.cm.gnuplot(np.linspace(0,1,len(pi2s)))
-    deltas_c = []
-    for pi2 in pi2s:
-        deltas, lambdas = [], []
-        for q1 in q1s_q2[q2]:
-            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-            deltas.append((q2-q1)/(q2+q1))
-            lamb = float(tline.query('pi2 == @pi2')['lambda'])
-            if np.isnan(lamb):
-                lambdas.append(0)
-            else:
-                lambdas.append(lamb)
-        deltas.reverse(), lambdas.reverse()
-        deltas_c.append(deltas[lambdas.index(0)])
-    ax.plot(pi2s, deltas_c)
-    fig.savefig('prova.png')
 
 
 def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
@@ -268,21 +260,12 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
     markers = markers[:len(pi1s)]
     for pi1, color, marker in zip(pi1s, colors, markers):
         deltas_c = []
-        minpi2, maxpi2, spacing = 0.02, 0.5, 0.02
+        #minpi2, maxpi2, spacing = 0.02, 0.5, 0.02
+        minpi2, maxpi2, spacing = 0.02, 0.5, 0.01
         pi2s = np.linspace(minpi2, maxpi2, int((maxpi2-minpi2)/spacing)+1)
         pi2s = np.around(pi2s, 2)
         for pi2 in pi2s:
-            deltas, lambdas = [], []
-            for q1 in q1s_q2[q2]:
-                if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-                    call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
-                tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-                deltas.append((q2-q1)/(q2+q1))
-                lamb = float(tline.query('pi2 == @pi2')['lambda'])
-                if np.isnan(lamb):
-                    lambdas.append(0)
-                else:
-                    lambdas.append(lamb)
+            deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
             deltas.reverse(), lambdas.reverse()
             deltas_c.append(deltas[lambdas.index(0)])
         if piFraction:
@@ -337,22 +320,20 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
 # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.4)
 
 
-# plot_lambda_threshold_delta([10,20,30,40], 0.4, 0.1, 2)
-# plot_lambda_threshold_delta([10,20,30,40], 0.4, 0.2, 2)
-# plot_lambda_threshold_delta([10,20,30,40], 0.4, 0.3, 2)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.1, 2)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.2, 2)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.3, 2)
 
-# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.05, 2)
-# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.1, 2)
-# plot_lambda_threshold_delta([10,20,30,40], 0.2, 0.15, 2)
-
-# plot_lambda_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40)
-plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40)
-# plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40)
-
-# plot_Delta_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.05, 2)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.1, 2)
+# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.15, 2)
 
 
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40, x = 1)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40, x = 1, piFraction=False)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40, piFraction=False)
+# plot_lambda_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40.0)
+# plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40.0)
+# plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40.0)
+
+# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
+# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
+# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
+# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)

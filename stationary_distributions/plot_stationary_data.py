@@ -35,12 +35,15 @@ def plot_histoPDF_fs(N, pi1, pi2, q1, q2, l):
     fig.savefig(f'histoPDF_fs_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.png')
 
 
-def plot_histoPDF_fi_difSystemSize(f, Ns, binsNs, pi1, pi2, q1, q2, l, detValue=False):
+def plot_histoPDF_fi_difSystemSize(f, Ns, binsNs, pi1, pi2, q1, q2, l, detValue=False, xlim=False):
     """
     f = 'f0', 'f1', 'f2'
+    xlim False for auto or tuple
     """
     fig, ax = plt.subplots()
     ax.set(xlabel=fs_labels[f], ylabel='PDF')
+    if xlim:
+        ax.set_xlim(xlim)
     for N, b, i in zip(Ns, binsNs, range(len(Ns))):
         filename = path + f'/stat_data_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.csv'
         df = pd.read_csv(filename)
@@ -50,6 +53,7 @@ def plot_histoPDF_fi_difSystemSize(f, Ns, binsNs, pi1, pi2, q1, q2, l, detValue=
         with open('sols.dat', 'r') as file:
             sols = [float(f) for f in file.readline().split()]
             ax.axvline(sols[int(f[1])], color='k', ls='-', lw=1.0)
+        call('rm sols.dat', shell=True)
     fig.legend(loc=(0.7, 0.75), fontsize=9, title='N', title_fontsize=9)
     fig.text(0.25, 0.97, f'$N = {N}$, $(\pi_1, \pi_2) = ({pi1}, {pi2})$, $(q_1, q_2) = ({q1}, {q2})$, $\lambda = {l}$', fontsize=8)
     fig.tight_layout()
@@ -86,6 +90,6 @@ def replicaFiguraJulia():
 
 # plot_histoPDF_fs(500, 0.1, 0.1, 7, 10, 0.6)
 
-plot_histoPDF_fi_difSystemSize('f2', [5000, 500, 35], [10, 10, 18], 0.3, 0.3, 7, 10, 0.6, detValue=True)
+plot_histoPDF_fi_difSystemSize('f2', [5000, 500, 35], [10, 10, 18], 0.3, 0.3, 7, 10, 0.9, detValue=True, xlim=(0,1))
 
 # replicaFiguraJulia()

@@ -12,8 +12,8 @@ from package_global_functions import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('q1', type=int, help='site 1 quality')
-parser.add_argument('q2', type=int, help='site 2 quality')
+parser.add_argument('q1', type=float, help='site 1 quality')
+parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('pi1', type=float, help='site 1 probability discovery (pi1)')
 parser.add_argument(
     'x', type=float, help='factor between f1 and f2, f2 = x*f1')
