@@ -148,7 +148,7 @@ def plotMeanClusterSize(N, arena_r, loops_l, maxCicles, quenched=False):
         dfmcs = getMeanClusterSize_ir(N, arena_r, loops, irs, maxCicles)
         ax.plot(dfmcs['interac_r'], dfmcs['mcs'], label = f'{loops}', marker='.', lw=0.7)
     if quenched:
-        dfmcs_q = pd.read_csv(f'quenched_results/MeanClusterSize_v0_nopush_N_{N}_ar_{arena_r+1.5}_er_1.5.csv')
+        dfmcs_q = pd.read_csv(f'quenched_results/meanClusterSize_nopush_N_{N}_ar_{arena_r+1.5}_er_1.5.csv')
         ax.plot(dfmcs_q['interac_r'], dfmcs_q['mcs'], marker='.', ls='--', lw=0.7, color='k', label='Quenched')
     fig.legend(title='$\Delta t$', fontsize=9)
     fig.tight_layout()
@@ -166,6 +166,6 @@ def plotMeanClusterSize(N, arena_r, loops_l, maxCicles, quenched=False):
 if __name__ == '__main__':
     # plotDegreeDistr_manyir_oneDeltat(35, 18.5, [3.5, 3.75, 5.0, 8.0], 800)
     # MollyReedCriterion(35, 18.5, [4.0, 5.0, 6.0, 7.0, 8.0], [0, 800], quenched=True)
-    N, ar, loops = 35, 18.5, 800
-    plotMeanClusterSize(N, ar, [0, 400, 800], 100, quenched=True)
+    N, ar, loops = 492, 73.5, 800
+    plotMeanClusterSize(N, ar, [0, 400, 800], 36, quenched=True)
 

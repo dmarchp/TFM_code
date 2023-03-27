@@ -148,10 +148,8 @@ def contacts_to_contactsInt(N, arena_r, interac_r, loops, maxFiles = False):
 # 7.0, 8.0, 9.0, 10.0
 if __name__ == '__main__':
     mFiles = 4
-    configs_to_contacts(492, 73.5, 3.5, 800, maxFiles=mFiles)
-    contacts_to_contactsInt(492, 73.5, 3.5, 800, maxFiles=mFiles)
-    # for ir in 4.0, 5.0, 5.5, 5.75, 6.0, 6.25, 6.5, 7.0, 8.0, 9.0, 10.0:
-    #for irmm in range(45, 105, 5):
-        # ir = irmm/10
-        # configs_to_contacts(492, 73.5, ir, 0, maxFiles=mFiles, jumpTrajConfigs=10)
-        # contacts_to_contactsInt(492, 73.5, ir, 0, maxFiles=mFiles)
+    configs_to_contacts(492, 73.5, 5.5, 400, maxFiles=mFiles, jumpTrajConfigs=5)
+    contacts_to_contactsInt(492, 73.5, 5.5, 400, maxFiles=mFiles)
+    # for ir in [3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]:
+    #     configs_to_contacts(492, 73.5, ir, 400, maxFiles=mFiles, jumpTrajConfigs=5)
+    #     contacts_to_contactsInt(492, 73.5, ir, 400, maxFiles=mFiles)

@@ -9,6 +9,8 @@ import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
 
+# TO DO: d'alguna manera he de fer que el fortran tingui acces als fitxers que estan al ssd, o copiant-los o canviant la ruta opcional al fortran...
+
 # argumetnts to recieve: N_bots arena_r interac_r exclusion_r
 if len(argv) == 6:
     N_bots = int(argv[1])

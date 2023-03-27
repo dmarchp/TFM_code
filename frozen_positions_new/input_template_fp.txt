@@ -9,7 +9,7 @@
 &input_cts
 
 ! System
-N_bots = 31
+N_bots = 492
 N_sites = 2
 max_time = 5000
 
@@ -32,15 +32,15 @@ q(:) = 9 10
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P). If yes/uniform/pi what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 31 0 0
+bots_per_site = 492 0 0
 /
 
 &input_arena
 ! Arena radius and center measured in cm
-arena_r = 18.5
+arena_r = 75.0
 arena_x = 0.0
 arena_y = 0.0
-interac_r = 5.0
+interac_r = 6.25
 exclusion_r = 1.5
 push = .false.
 /

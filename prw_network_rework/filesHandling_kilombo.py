@@ -65,6 +65,8 @@ def countContactIntConfigs(N, arena_r, interac_r, loops, speed = 9, speedVar = 2
         ciclesEachConfig.append(cicles)
     return counter, ciclesEachConfig
         
+        
+# mes que mirar contact list hauria de mirar quins tenen els com sizes calculats...
 def availableIrs(N, arena_r, loops, speed = 9, speedVar = 2):
     fullNameWc = getConfigsPath() + '/contacts/' + getFilenameRoot(N,arena_r,speed,speedVar) + '_*'
     fullNameWc += f'_loops_{loops}_ir_*_contacts.parquet'
