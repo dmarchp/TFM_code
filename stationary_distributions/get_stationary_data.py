@@ -87,3 +87,5 @@ if os.path.exists(f'{path}/{filename}'):
     finalDf.to_csv(f'{path}/{filename}', index=False)
 else:
     newData.to_csv(f'{path}/{filename}', index=False)
+    
+call('rm -r time_evo_csv/', shell=True)

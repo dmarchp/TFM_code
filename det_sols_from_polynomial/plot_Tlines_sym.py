@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from scipy.stats import linregress
+from subprocess import call
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('../')
@@ -46,11 +47,21 @@ def plot_Qlines_manyDelta(Deltas, x=2):
     fig.tight_layout()
     fig.savefig(f'tlines_sym_manyDeltas_f2_{x}f1.png')
 
+# old integer q's
+# q1s_q2 = {
+#     10: list(range(4,10)),
+#     20: list(range(9,20)),
+#     30: list(range(13,30)),
+#     40: [18,19,20,21,22,23] + list(range(24,40,4)) + [37,38,39]
+# }
+
 q1s_q2 = {
-    10: list(range(4,10)),
-    20: list(range(9,20)),
-    30: list(range(13,30)),
-    40: [18,19,20,21,22,23] + list(range(24,40,4)) + [37,38,39]
+    5.0:[i/10 for i in range(22,50,3)],
+    7.0:[2.5, 2.8, 3.1, 3.4]+[i/10 for i in range(35,70,3)],
+    10.0:[4.3,4.6,4.9]+[i/10 for i in range(50,100,3)], 
+    20.0:[i/10 for i in range(90,200,5)],
+    30.0:[i/10 for i in range(130, 300, 5)],
+    40.0:[float(i) for i in range(18,23)]+[i/10 for i in range(240,400,5)]
 }
 
 def plot_lambda_threshold_delta(q2s, pi, x=2):
@@ -60,14 +71,13 @@ def plot_lambda_threshold_delta(q2s, pi, x=2):
         deltas, lambdas = [], []
         for q1 in q1s_q2[q2]:
             if not os.path.exists(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+                call(f'python find_Tlines_sym.py {q1} {q2} {x}', shell=True)
+            tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            lamb = float(tline.query('pi == @pi')['lambda'])
+            if np.isnan(lamb):
                 lambdas.append(0)
             else:
-                tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-                lamb = float(tline.query('pi == @pi')['lambda'])
-                if np.isnan(lamb):
-                    lambdas.append(0)
-                else:
-                    lambdas.append(lamb)
+                lambdas.append(lamb)
             deltas.append((q2-q1)/(q2+q1))
         ax.plot(deltas, lambdas, label=f'{q2}', color=color, marker='.', lw=0.8, markersize=3)
     ax.axvline(0.3333, color='xkcd:gray', ls=':', lw=0.8)
@@ -85,14 +95,13 @@ def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
         deltas, lambdas = [], []
         for q1 in q1s_q2[q2]:
             if not os.path.exists(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+                call(f'python find_Tlines_sym.py {q1} {q2} {x}', shell=True)
+            tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            lamb = float(tline.query('pi == @pi')['lambda'])
+            if np.isnan(lamb):
                 lambdas.append(0)
             else:
-                tline = pd.read_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
-                lamb = float(tline.query('pi == @pi')['lambda'])
-                if np.isnan(lamb):
-                    lambdas.append(0)
-                else:
-                    lambdas.append(lamb)
+                lambdas.append(lamb)
             deltas.append((q2-q1)/(q2+q1))
         ax.plot(deltas, lambdas, label=f'{pi}', color=color, marker='.', lw=0.8, markersize=3)
         if pi == pimax and linfit:
@@ -124,7 +133,7 @@ def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
 
 # plot_Qlines_manyDelta([0.053, 0.111, 0.176, 0.250])
 
-# plot_lambda_threshold_delta([10, 20, 30, 40], 0.01)
+plot_lambda_threshold_delta([5.0, 7.0, 10.0, 20.0, 30.0, 40.0], 0.05)
 
-plot_lambda_threshold_pis(40, [0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
+# plot_lambda_threshold_pis(40, [0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
 

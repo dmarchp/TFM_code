@@ -11,8 +11,8 @@ sys.path.append('../')
 from package_global_functions import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('q1', type=int, help='site 1 quality')
-parser.add_argument('q2', type=int, help='site 2 quality')
+parser.add_argument('q1', type=float, help='site 1 quality')
+parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument(
     'x', type=float, help='factor between f1 and f2, f2 = x*f1')
 args = parser.parse_args()
@@ -50,8 +50,6 @@ for pi in pis:
     if not np.isnan(lamb) and not first_pi_w_sol:
         first_pi_w_sol = pi
     lambs.append(lamb)
-
-print(first_pi_w_sol)
 
 # extra pis:
 if first_pi_w_sol:

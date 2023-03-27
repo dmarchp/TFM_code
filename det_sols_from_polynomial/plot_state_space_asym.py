@@ -3,9 +3,16 @@ import numpy as np
 import pandas as pd
 import argparse
 import matplotlib.pyplot as plt
+import os
+import sys
+sys.path.append('../')
+from package_global_functions import *
 
-# to do:
-# compute the fs map for ohter values of lambda than 0.9 upwards
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
+else:
+    path = '/res_files'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('q1', type=int, help='site 1 quality')
@@ -19,7 +26,7 @@ args = parser.parse_args()
 
 q1, q2, l, x = args.q1, args.q2, args.l, args.x
 
-fsMesh = np.load(f'res_files/map_asym_q1_{q1}_q2_{q2}_l_{l}.npz')
+fsMesh = np.load(f'{path}/map_asym_q1_{q1}_q2_{q2}_l_{l}.npz')
 Qmesh = fsMesh['fs'][2] - x*fsMesh['fs'][1]
 sumXY = fsMesh['x'] + fsMesh['y']
 
@@ -39,7 +46,7 @@ ax.set_ylabel('$\pi_2$')
 cb = fig.colorbar(im, ax=ax, aspect=25, shrink=0.75, pad=0.025)
 cb.ax.tick_params(labelsize=9)
 if args.Tline:
-    tline = pd.read_csv(f'res_files/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
+    tline = pd.read_csv(f'{path}/Tline_asym_pis_q1_{q1}_q2_{q2}_l_{l}_f2_{int(x)}f1.csv')
     tline = tline.query('pi2 >= 0.01')
     if args.mask:
         tline['suma'] = tline['pi1'] + tline['pi2']
