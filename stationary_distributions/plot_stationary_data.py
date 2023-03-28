@@ -7,6 +7,10 @@ import sys
 sys.path.append('../')
 from package_global_functions import *
 
+# sobre PDF (density) o probabilitat. Revisar
+# https://en.wikipedia.org/wiki/Probability_density_function
+# https://math.stackexchange.com/questions/1720053/how-can-a-probability-density-function-pdf-be-greater-than-1
+
 # global things
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -24,11 +28,17 @@ def plot_histoPDF_fs(N, pi1, pi2, q1, q2, l):
     df = pd.read_csv(filename)
     # ax.hist([df['f0'], df['f1'], df['f2']], bins='auto', color=['xkcd:red', 'xkcd:green', 'xkcd:blue'])
     # ax.hist(df['f2'], bins='auto', density=True, histtype='bar', color='xkcd:blue')
-    for f in zip(['f0', 'f1', 'f2']):
-        _, bins, _ = ax.hist(df[f], density=True, rwidth=0.8, color=fs_colors[f], alpha=0.75, label=fs_labels[f])
-        # binCenters = np.linspace(min(df[f]), max(df[f]), )
-        # binLims = np.linspace(min(df[f]), max(df[f])+1)
-        # binCenters, prob, dprob = hist1D(df[f], binLims, binCenters, isPDF = True)
+    #for f in ['f0', 'f1', 'f2']:
+    for f in ['f2',]:
+        _, bins, _ = ax.hist(df[f], bins=1, density=True, range=(0,1), rwidth=0.8, color=fs_colors[f], alpha=0.75, label=fs_labels[f])
+        binLims = np.linspace(0.0, 1.0, 11)
+        binCenters = binLims[:-1]+0.05
+        #print(binLims)
+        #print(binCenters)
+        binCenters, prob, dprob = hist1D(df[f], binLims, binCenters, isPDF = True)
+        print(f"Values for the PDF, dx = {binCenters[1]-binCenters[0]}: {prob}")
+        print(f"Values for the Probabilities: {np.array(prob)*(binCenters[1]-binCenters[0])}")
+        #print(np.array(prob)/len(df[f]))
     fig.legend(loc=(0.7, 0.75), fontsize=9)
     fig.text(0.25, 0.97, f'$N = {N}$, $(\pi_1, \pi_2) = ({pi1}, {pi2})$, $(q_1, q_2) = ({q1}, {q2})$, $\lambda = {l}$', fontsize=8)
     fig.tight_layout()
@@ -88,8 +98,8 @@ def replicaFiguraJulia():
     fig.savefig(f'fs_pis_sym_asym_multiplot_N_{N}_q1_{q1}_q2_{q2}.png')
 
 
-# plot_histoPDF_fs(500, 0.1, 0.1, 7, 10, 0.6)
+plot_histoPDF_fs(500, 0.3, 0.3, 7, 10, 0.6)
 
-plot_histoPDF_fi_difSystemSize('f2', [5000, 500, 35], [10, 10, 18], 0.3, 0.3, 7, 10, 0.9, detValue=True, xlim=(0,1))
+# plot_histoPDF_fi_difSystemSize('f2', [5000, 500, 35], [10, 10, 18], 0.3, 0.3, 7, 10, 0.9, detValue=True, xlim=(0,1))
 
 # replicaFiguraJulia()
