@@ -242,9 +242,16 @@ def plot_lambda_threshold_pi2s(pi2s, pi1, q2, x=2):
     for pi2, color in zip(pi2s, colors):
         deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
         ax.plot(deltas, lambdas, label=f'{pi2}', color=color, marker='.', lw=0.8, markersize=2)
+        # transició a lambda 0 teorica:
+        # deltas.reverse(), lambdas.reverse()
+        # delta_c = deltas[lambdas.index(0)]
+        delta_c = (2*pi1 - pi2)/(2*pi1 + pi2)
+        ax.axvline(delta_c, ymin=0, ymax=0.1, color='k', ls='--', lw=0.7)
     ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$')
-    fig.legend(loc=(0.85, 0.75), fontsize=8, title_fontsize=9, title='$\pi_2$')
+    fig.legend(loc=(0.85, 0.70), fontsize=8, title_fontsize=9, title='$\pi_2$')
     fig.text(0.45, 0.97, f'$\pi_1 = {pi1}, \; q_2 = {q2}$, $Q = f_2 - {x}f1$', fontsize=8)
+    fig.text(0.45, 0.7, r'Dashed lines: $\Delta_c = \frac{2\pi_1 - \pi_2}{2\pi_1 + \pi_2}$', fontsize=8)
+    fig.text(0.5, 0.66, r'or $q_2 = 2 \frac{\pi_1}{\pi_2} q_1$', fontsize=8)
     fig.tight_layout()
     fig.savefig(f'lambda_threshold_f2_{x}f1_asym_pi1_{pi1}_manyPi2_oneDelta_q2_{q2}.png')
 
@@ -268,13 +275,17 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
             deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
             deltas.reverse(), lambdas.reverse()
             deltas_c.append(deltas[lambdas.index(0)])
+        deltas_c_teo = np.array([(x*pi1-pi2)/(x*pi1+pi2) for pi2 in pi2s])
+        deltas_c_teo[deltas_c_teo < 0] = 0
         if piFraction:
             pinorm = pi2s/(pi2s + pi1)
-            ax.plot(pinorm, deltas_c, lw=0.8, marker=marker, color=color, label=f'{pi1}', markersize=5)
+            ax.plot(pinorm, deltas_c, lw=0.8, marker=marker, color=color, label=f'{pi1}', markersize=5, alpha=0.7)
+            ax.plot(pinorm, deltas_c_teo, ls='--', lw=0.7, color='k')
             ax.set_xlabel('$\pi_2 / (\pi_2 + \pi_1)$')
             figname = f'delta_threshold_f2_{x}f1_asym_manyPi1_xax_piFraction_q2_{q2}.png'
         else:
-            ax.plot(pi2s, deltas_c, lw=0.8, marker=marker, color=color, label=f'{pi1}', markersize=5)
+            ax.plot(pi2s, deltas_c, lw=0.8, marker=marker, color=color, label=f'{pi1}', markersize=5, alpha=0.7)
+            ax.plot(pi2s, deltas_c_teo, ls='--', lw=0.7, color='k')
             ax.set_xlabel('$\pi_2$')
             figname = f'delta_threshold_f2_{x}f1_asym_manyPi1_xax_pi2_q2_{q2}.png'
     fig.text(0.4, 0.97, f'$Q = f_2 - {x} f_1$', fontsize=9)
@@ -333,7 +344,7 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
 # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40.0)
 # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40.0)
 
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
-# plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)
+plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
+plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
+plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
+plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)
