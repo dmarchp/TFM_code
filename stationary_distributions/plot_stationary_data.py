@@ -30,9 +30,12 @@ def plot_histoPDF_fs(N, pi1, pi2, q1, q2, l):
     # ax.hist(df['f2'], bins='auto', density=True, histtype='bar', color='xkcd:blue')
     #for f in ['f0', 'f1', 'f2']:
     for f in ['f2',]:
-        _, bins, _ = ax.hist(df[f], bins=1, density=True, range=(0,1), rwidth=0.8, color=fs_colors[f], alpha=0.75, label=fs_labels[f])
+        _, bins, _ = ax.hist(df[f], bins=10, density=True, range=(0,1), rwidth=0.8, color=fs_colors[f], alpha=0.75, label=fs_labels[f])
+        print(bins)
+        print('---------------------------------')
         binLims = np.linspace(0.0, 1.0, 11)
         binCenters = binLims[:-1]+0.05
+        print(binCenters)
         #print(binLims)
         #print(binCenters)
         binCenters, prob, dprob = hist1D(df[f], binLims, binCenters, isPDF = True)

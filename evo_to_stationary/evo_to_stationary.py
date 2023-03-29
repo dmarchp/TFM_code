@@ -78,16 +78,16 @@ if ic=='N':
 elif ic=='T':
     base_value = int(N/3)
     bots_per_site = [base_value]*3
-    if (N - base_value) == 1:
+    if (N - 3*base_value) == 1:
         bots_per_site[0] += 1
-    elif (N - base_value) == 2:
+    elif (N - 3*base_value) == 2:
         bots_per_site[1] += 1
         bots_per_site[2] += 1
     else:
         print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
         exit()
 elif ic=='J':
-    bots_per_site = [int(round(0.14*N)), int(round(0.43*N)), int(round(0.43*N))] # probably int() is not necessary
+    bots_per_site = [round(0.14*N), round(0.43*N), round(0.43*N)] # probably int() is not necessary
     if (N - sum(bots_per_site)):
         print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
         exit()
@@ -109,22 +109,26 @@ call(f'mv {newFolderName} {path}', shell=True)
 
 
 # Make the Euler integration:
-pop_fraction = np.array(bots_per_site)/N
-fs_evo = [[pop_fraction[0]],[pop_fraction[1]],[pop_fraction[2]]]
-dt = 1
+if ic=='N':
+    intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_Euler.csv'
+elif ic=='T':
+    intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds_Euler.csv'
+elif ic=='J':
+    intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
 
 def fs_evo_eq(fs,pi1,pi2,q1,q2,l):
     df1dt = fs[0]*((1-l)*pi1+l*fs[1]) - fs[1]/q1
     df2dt = fs[0]*((1-l)*pi2+l*fs[2]) - fs[2]/q2
     return df1dt, df2dt
 
-for i in range(max_time):
-    df1dt, df2dt = fs_evo_eq(pop_fraction, pi1, pi2, q1, q2, l)
-    dfsdt = np.array([-df1dt-df2dt, df1dt, df2dt])
-    pop_fraction += dfsdt*dt
-    fs_evo[0].append(pop_fraction[0]), fs_evo[1].append(pop_fraction[1]), fs_evo[2].append(pop_fraction[2])
-
-df = pd.DataFrame({'iter':list(range(max_time+1)), 'f0':fs_evo[0], 'f1':fs_evo[1], 'f2':fs_evo[2]})
-filename = newFolderName + '_Euler.csv'
-df.to_csv(filename, index=False)
-call(f'mv {filename} {path}', shell=True)
+if not os.path.exists(intEvoName):
+    pop_fraction = np.array(bots_per_site)/N
+    fs_evo = [[pop_fraction[0]],[pop_fraction[1]],[pop_fraction[2]]]
+    dt = 1
+    for i in range(max_time):
+        df1dt, df2dt = fs_evo_eq(pop_fraction, pi1, pi2, q1, q2, l)
+        dfsdt = np.array([-df1dt-df2dt, df1dt, df2dt])
+        pop_fraction += dfsdt*dt
+        fs_evo[0].append(pop_fraction[0]), fs_evo[1].append(pop_fraction[1]), fs_evo[2].append(pop_fraction[2])
+    df = pd.DataFrame({'iter':list(range(max_time+1)), 'f0':fs_evo[0], 'f1':fs_evo[1], 'f2':fs_evo[2]})
+    df.to_csv(intEvoName, index=False)

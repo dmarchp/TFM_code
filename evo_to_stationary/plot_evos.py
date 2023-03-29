@@ -22,6 +22,39 @@ def getTimeEvosPath():
         path = '/time_evos_dif_cond'
     return path
 
+def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False):
+    fig, ax = plt.subplots()
+    ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='symlog', xlim=(0,2100), ylim=(0,1))
+    folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+    intEvoFile = f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+    figname = f'time_evo_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+    if ic == 'T':
+        folder += '_ic_thirds'
+        figname += '_ic_thirds'
+        intEvoFile += '_ic_thirds'
+    if ic == 'J':
+        folder += '_ic_julia'
+        figname += '_ic_julia'
+        intEvoFile += '_ic_julia'
+    intEvoFile += '_Euler.csv'
+    figname += '.png'
+    files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
+    dfs = [pd.read_csv(file) for file in files]
+    df_avg = get_avg_traj(dfs)
+    ax.plot(df_avg['iter'], df_avg['f0'], alpha=0.8, lw=0.7, label='$f_0$', color='xkcd:red')
+    ax.plot(df_avg['iter'], df_avg['f1'], alpha=0.8, lw=0.7, label='$f_1$', color='xkcd:green')
+    ax.plot(df_avg['iter'], df_avg['f2'], alpha=0.8, lw=0.7, label='$f_2$', color='xkcd:blue')
+    if integrated:
+        intEvo = pd.read_csv(f'{getTimeEvosPath()}/{intEvoFile}')
+        for f in ['f0', 'f1', 'f2']:
+            ax.plot(intEvo['iter'], intEvo[f], lw=0.7, ls='--', color='k')
+    ax.legend(fontsize=9)
+    fig.text(0.2, 0.97, f'$(\pi_1 , \pi_2) = ({pi1}, {pi2}), \; (q_1 , q_2) = ({q1}, {q2}), \; \lambda = {l}$')
+    fig.tight_layout() 
+    fig.savefig(figname)
+
+
+
 def plot_evos_dif_pis_sym(pis, q1, q2, l, N=500, statLine=False):
     fig, ax = plt.subplots()
     ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='log')
@@ -84,4 +117,10 @@ def plot_evos_dif_lambs_sym(lambs, pi, q1, q2, N=500, statLine=False):
 
 # plot_evos_dif_q1s_sym([3,5,7,9], 10, 0.3, 0.45, statLine=True)
 
-plot_evos_dif_lambs_sym([0.0, 0.3, 0.6, 0.9], 0.1, 9, 10, statLine=True)
+# plot_evos_dif_lambs_sym([0.0, 0.3, 0.6, 0.9], 0.1, 9, 10, statLine=True)
+
+
+
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, integrated=True)
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='T', integrated=True)
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='J', integrated=True)
