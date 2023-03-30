@@ -11,6 +11,7 @@ program main
     logical :: config_chosen, foo_exists
     character(5) :: file_id, config_file_id, Nstr, arstr, irstr, erstr
     character(15) :: push_folder_str
+    character(39) :: path
     character(2) :: auxi
     character(100) :: header, format_traj
     
@@ -67,7 +68,9 @@ program main
     if (.not. foo_exists) then
         call execute_command_line ("mkfifo foo")
     end if
-    call execute_command_line ("ls positions_and_contacts/"//trim(adjustl(Nstr))//"_bots/"//trim(adjustl(push_folder_str))//"/"&
+    !path = 'positions_and_contacts/'
+    path = '/media/david/KINGSTON/quenched_configs/'
+    call execute_command_line ("ls "//trim(adjustl(path))//trim(adjustl(Nstr))//"_bots/"//trim(adjustl(push_folder_str))//"/"&
     //"bots_xy_positions_*_ar_"//trim(adjustl(arstr))//"_er_"//trim(adjustl(erstr))//".txt | wc -l > foo&")
     open(100, file='foo', action='read')
     read(100, *) stored_configurations

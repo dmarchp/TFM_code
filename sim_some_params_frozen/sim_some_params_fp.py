@@ -1,19 +1,18 @@
 from sys import argv
+import numpy as np
 import subprocess
 import os
 import pandas as pd
 from random import seed, randint
 from tqdm import tqdm
+import argparse
 
-if len(argv)==1:
-    inSeed = int(input("Enter SEED: "))
-    #model = input("Simulate List or Galla? (List/Galla or L/G) ")
-else:
-    inSeed = int(argv[1])
-    #model = str(argv[2])
+parser = argparse.ArgumentParser()
+parser.add_argument('inSeed', type=int, help='seed')
+args = parser.parse_args()
     
 model = 'Galla'
-seed(inSeed)
+seed(args.inSeed)
 num_rea = 100
 
 # All the parameters to simulate:
@@ -21,26 +20,25 @@ num_rea = 100
 # radii
 push = ".false."
 arena_r = 20.0
-#interac_r = [10.0, 8.0, 3.0]
-interac_r = [4.2, 4.5, 4.8]
+#interac_r = [7.0, ]
+interac_r = np.linspace(3,12,19)
 exclusion_r = 1.5
-#interac_r = [20,13,12,11,10,9,8,7,6,5,4,3,2,1]
-#interac_r = [20,12,10,7,4,3,2]
-#interac_r = [11,9,8,6,5]
 
 # qualities, pis, lambdas
 q1s = [7, ]
 q2s = [10, ]
 lambs = []
-#for i in range(0,100,10):
-#    lambs.append(i/100)
-for i in range(0,100,5):
+for i in range(0,100,10):
     lambs.append(i/100)
+#for i in range(0,100,5):
+#    lambs.append(i/100)
+#lambs = [0.3, 0.6, 0.9]
+lambs = [0.0, ]
 pi1s = [0.3, ]
 pi2s = [0.3, ]
 
 # Number of bots
-N_bots = 35
+N_bots = 10
 
 wd = os.getcwd()
 # input to Fortran code route:

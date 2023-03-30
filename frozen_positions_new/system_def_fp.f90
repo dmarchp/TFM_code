@@ -181,14 +181,23 @@ module system_parameters
         implicit none
         character(5), intent(in) :: file_id, Nstr, arstr, erstr
         character(15), intent(in) :: push_folder_str
+        character(39) :: path
         integer :: i, read_stat
         real(8) :: x, y
+        logical :: file_exists
         if(allocated(bots_xy)) then
             continue
         else
             allocate(bots_xy(N_bots,2))
         endif
-        open(100, file='positions_and_contacts/'//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//&
+        !path = 'positions_and_contacts/'
+        path = '/media/david/KINGSTON/quenched_configs/'
+        !inquire(file=trim(adjustl(path))//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//&
+        !'/bots_xy_positions_'//trim(adjustl(file_id))//'_ar_'//trim(adjustl(arstr))//'_er_'//trim(adjustl(erstr))//'.txt',&
+        !exist=file_exists)
+        !print*, file_exists
+        !read(*,*)
+        open(100, file=trim(adjustl(path))//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//&
         '/bots_xy_positions_'//trim(adjustl(file_id))//'_ar_'//trim(adjustl(arstr))//'_er_'//trim(adjustl(erstr))//'.txt')
         do while(1.eq.1)
             read(100,*,iostat=read_stat) i, x, y
@@ -200,7 +209,7 @@ module system_parameters
         enddo
         close(100)
     end subroutine read_frozen_positions
-                
+
     subroutine get_contact_list(arstr,erstr,irstr,file_id)
         implicit none
         character(5), intent(in) :: file_id, arstr, erstr, irstr
@@ -260,6 +269,28 @@ module system_parameters
         !    read(*,*)
         !enddo
     end subroutine get_contact_list
+    
+
+    subroutine get_contact_list_file(Nstr,arstr,erstr,irstr,file_id,push_folder_str)
+    ! Looks if file already exists. If not, uses read_frozen_positions + get_contact_list to generate the the contact list.
+    ! The idea is that position must have been generated previously to execution, but contacts may not.
+        implicit none
+        character(5), intent(in) :: file_id, Nstr, arstr, erstr, irstr
+        character(15), intent(in) :: push_folder_str
+        character(200) :: path1, filename, fullname
+        logical :: file_exists
+        path1 = 'media/david/KINGSTON/quenched_configs/'//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//'/'
+        filename = "contact_list_"//trim(adjustl(file_id))//"_ar_"//trim(adjustl(arstr))//"_er_"//trim(adjustl(erstr))//&
+        "_ir_"//trim(adjustl(irstr))//".txt"
+        fullname = trim(adjustl(path1))//trim(adjustl(filename))
+        inquire(file=fullname, exist=file_exists)
+        if (file_exists.eqv..true.) then
+            ! read it and fill in the the neighbors, p_ini, p_fin vectors. S'ha de pensar bé com fer això, ja que no ser el degree de cada bot per preparar el p_ini...
+        else
+            ! read positions, generate contact list
+        endif
+    end subroutine
+            
     
     subroutine write_bot_degrees(file_id)
         implicit none
