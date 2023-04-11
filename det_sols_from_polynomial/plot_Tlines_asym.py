@@ -103,6 +103,32 @@ def plot_Qlines_pi2lam_difq1(q1s, q2, pi1, x=2, xlim=(0,0.5), ylim=(0,1)):
     fig.tight_layout()
     fig.savefig(f'Tlines_asym_pi2lam_q2_{q2}_pi1_{pi1}_f2_{int(x)}f1.png')
     plt.close(fig)
+    
+def plot_Qlines_pi2lam_piFrac_difipi1(q1s, q2, pi1s, x=2, xlim=(0,0.5), ylim=(0,1)):
+    fig, ax = plt.subplots(figsize=(4.8,4.8))
+    markers = ['.', 'x', '+', '1', '2'] # pi1s
+    markers = markers[:len(pi1s)]
+    colors = plt.cm.gnuplot(np.linspace(0.05,0.95,len(q1s)))
+    ax.set(xlabel='pifrac', ylabel=r'$\lambda$', ylim=(0,1), xscale='log') # 
+    for pi1,marker in zip(pi1s, markers):
+        for i,q1 in enumerate(q1s):
+            if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
+                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+            tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
+            # tline['pifrac'] = tline['pi2']/(pi1+tline['pi2'])
+            # tline['pifrac'] = pi1/tline['pi2']
+            tline['pifrac'] = 2*pi1*q1/tline['pi2']
+            ax.plot(tline['pifrac'], tline['lambda'], lw=0.8, color=colors[i], marker=marker, markersize=4) # , label=f'{q1}'
+    # for q1 in q1s:
+        # if pi fraction is pi2/(pi1+pi2)
+        # ax.axvline(2*q1/(2*q1+q2), ymin=0, ymax=0.1, color='k', lw=0.8, ls='--')
+        # if pi fraction is pi1/pi2
+        # ax.axvline(q2/(2*q1), ymin=0, ymax=0.1, color='k', lw=0.8, ls='--')
+    #fig.legend(title=r'$q_1$', fontsize=8, title_fontsize=9, loc=(0.7, 0.7))
+    #fig.text(0.4, 0.96, rf'$\pi_1= {pi1}, q_2 = {q2}$', fontsize=9)
+    fig.tight_layout()
+    fig.savefig(f'provant_colapse.png')
+    plt.close(fig)
 ##############################################################################################
 
 q_pairs_Delta = {
@@ -325,6 +351,8 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
 # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.3)
 # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.4)
 
+plot_Qlines_pi2lam_piFrac_difipi1([3.0,5.0,7.0,9.0], 10.0, [0.1, 0.2, 0.3, 0.4])
+
 # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.1)
 # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.2)
 # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.3)
@@ -344,7 +372,7 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
 # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40.0)
 # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40.0)
 
-plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
-plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
-plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
-plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)
+#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
+#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
+#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
+#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)

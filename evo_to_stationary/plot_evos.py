@@ -22,7 +22,11 @@ def getTimeEvosPath():
         path = '/time_evos_dif_cond'
     return path
 
-def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False):
+def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False, backg=False):
+    """
+    If backg != 0, plot the single (not averaged) trajectories in the background in a smooth fashion
+    plots the amount indicated, eg backg = 5
+    """
     fig, ax = plt.subplots()
     ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='symlog', xlim=(0,2100), ylim=(0,1))
     folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
@@ -41,9 +45,15 @@ def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False):
     files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
     dfs = [pd.read_csv(file) for file in files]
     df_avg = get_avg_traj(dfs)
-    ax.plot(df_avg['iter'], df_avg['f0'], alpha=0.8, lw=0.7, label='$f_0$', color='xkcd:red')
-    ax.plot(df_avg['iter'], df_avg['f1'], alpha=0.8, lw=0.7, label='$f_1$', color='xkcd:green')
-    ax.plot(df_avg['iter'], df_avg['f2'], alpha=0.8, lw=0.7, label='$f_2$', color='xkcd:blue')
+    if backg:
+        for file in files[:backg]:
+            df = pd.read_csv(file)
+            ax.plot(df['iter'], df['f0'], alpha=0.2, lw=0.6, color='xkcd:red')
+            ax.plot(df['iter'], df['f1'], alpha=0.2, lw=0.6, color='xkcd:green')
+            ax.plot(df['iter'], df['f2'], alpha=0.2, lw=0.6, color='xkcd:blue')
+    ax.plot(df_avg['iter'], df_avg['f0'], alpha=0.9, lw=0.7, label='$f_0$', color='xkcd:red')
+    ax.plot(df_avg['iter'], df_avg['f1'], alpha=0.9, lw=0.7, label='$f_1$', color='xkcd:green')
+    ax.plot(df_avg['iter'], df_avg['f2'], alpha=0.9, lw=0.7, label='$f_2$', color='xkcd:blue')
     if integrated:
         intEvo = pd.read_csv(f'{getTimeEvosPath()}/{intEvoFile}')
         for f in ['f0', 'f1', 'f2']:
@@ -121,6 +131,6 @@ def plot_evos_dif_lambs_sym(lambs, pi, q1, q2, N=500, statLine=False):
 
 
 
-plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, integrated=True)
-plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='T', integrated=True)
-plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='J', integrated=True)
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, integrated=True, backg=0)
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='T', integrated=True, backg=0)
+plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='J', integrated=True, backg=0)

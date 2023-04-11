@@ -30,23 +30,39 @@ for l,lcolor in zip(lambs,lambs_colors_r):
     ax[0].plot(dfl['interac_r'], dfl['f2'], color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
     #ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, lw=0.8)
     ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
+    
+# data to file:
+dfls = df.query('lamb in @lambs')
+dfls['Dc'] = N*dfl['interac_r']**2/(arena_r*perc_r)**2
+dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
+    
 ax[0].legend(title='$\lambda$', fontsize=8)
 
 # fix interaction radius, move N:
+lambsdf, Nsdf, f1df, f2df, dcdf = [], [], [], [], []
 interac_r = 7.0
 Ns = [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80]
 for l,lcolor in zip(lambs,lambs_colors_N):
-    f2_dif_N = []
+    f1_dif_N, f2_dif_N = [], []
     for N in Ns:
         df = pd.read_csv(f'{model}/{N}_bots/sim_fp_results_er_{exclusion_r}_NOPUSH.csv')
         df = df.rename(columns={"lambda":"lamb"})
         #df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1]) & (df['lambda']==l) & (df['interac_r']==interac_r)]
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
-        f2_dif_N.append(float(df['f2']))
+        f1_dif_N.append(float(df['f1'])), f2_dif_N.append(float(df['f2']))
     ax[1].plot(Ns, f2_dif_N, color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
     #ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, lw=0.8)
     ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    dc = np.array(Ns)*(interac_r/(arena_r*perc_r))**2
+    lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df(f2_dif_N), dcdf.extend(dc)
+
+# data to file:
+dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
+dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv')
+    
+    
 ax[1].legend(title='$\lambda$', fontsize=8)
+
 
 ax[0].set_xlabel('$r_i$')
 ax[1].set_xlabel('$N$')

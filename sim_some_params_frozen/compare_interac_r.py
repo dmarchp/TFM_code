@@ -19,7 +19,7 @@ exclusion_r = 1.5
 # interac_r = [12,10,8,7,6,5,4.8,4.5,4.2,4,3.9,3.8,3.7,3.6,3.5,3.4,3.3,3.2,3.1,3]
 #interac_r = [20,12,10,7,4,3,2]
 interac_r = linspace(3,12,19)
-N = 35
+N = 20
 
 df = pd.read_csv(f'{model}/{N}_bots/sim_fp_results_er_{exclusion_r}_NOPUSH.csv') # _NOPUSH
 df = df.loc[(df['arena_r'] == arena_r) & (df['pi1'] == pis[0]) & (df['pi2'] == pis[1]) & (df['q1'] == qs[0]) & (df['q2'] == qs[1])]
