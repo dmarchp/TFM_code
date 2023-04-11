@@ -9,6 +9,8 @@ import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
 
+ssdpath = getExternalSSDpath()
+
 # TO DO: d'alguna manera he de fer que el fortran tingui acces als fitxers que estan al ssd, o copiant-los o canviant la ruta opcional al fortran...
 
 # argumetnts to recieve: N_bots arena_r interac_r exclusion_r
@@ -30,7 +32,12 @@ else:
     push = ".false."
     push_folder = "configs_wo_push"
 max_time = 1
-N_rea = len(glob.glob(f'positions_and_contacts/{N_bots}_bots/{push_folder}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt'))
+
+N_rea_local = len(glob.glob(f'positions_and_contacts/{N_bots}_bots/{push_folder}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt'))
+N_rea_ssd = len(glob.glob(f'{ssdpath}/quenched_configs/{N_bots}_bots/{push_folder}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt'))
+
+if N_rea_local < N_rea_ssd:
+    call(f'cp {ssdpath}/quenched_configs/{N}_bots/{push_folder}/bots_xy_positions_*_ar_{arena_r}_er_{exclusion_r}.txt positions_and_contacts/{N_bots}_bots/{push_folder}/', shell=True)
 
 # make replacements in fortran input
 fin_file = 'input_template_fp.txt'
@@ -46,7 +53,7 @@ call(f"sed -i 's/^push = .*/push = {push}/' "+fin_file, shell=True)
 call(f"sed -i 's/^max_time.*/max_time = {max_time}/' "+fin_file, shell=True)
 call("sed -i 's/ call execute_command_line(\"python stationary_results.py F\")/ !call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
 call("make", shell=True)
-call("./"+fex_file+f" 1 {N_rea}", shell=True)
+call("./"+fex_file+f" 1 {N_rea_ssd}", shell=True)
 
 # restore stationary_results.py
 call("sed -i 's/ !call execute_command_line(\"python stationary_results.py F\")/ call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)

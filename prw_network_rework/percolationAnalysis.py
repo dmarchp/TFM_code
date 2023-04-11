@@ -88,11 +88,37 @@ def MollyReedCriterion(N, arena_r, irs, loops_l, quenched=False):
     fig.tight_layout()
     fig.savefig(f'MollyReedCriterion_N_{N}_ar_{arena_r}.png')
 
+# COMMUNITY SIZES DISTRIBUTION:
+def plotComSizes_dif_loops(N: int, ar: float, irs: "list[float]", loopsList: "list[int]", quench_ir: float, logBins: int, 
+                           excludeGiantComp=True, dataToFile = False, plotQuenched=True):
+    '''
+    comutes the ~power law~ like figure of the number of com of sizes s vs size s.
+    as each loop has a different critical percolation radius, a list irs has to be provided
+    '''
+    gcLabel = 'excludedGC' if excludeGiantComp else ''
+    fig, ax = plt.subplots()
+    ax.set(xlabel='s', ylabel='P(s)', xscale='log', yscale='log')
+    for ir, loops in zip(irs, loopsList):
+        if excludeGiantComp:
+            rawDataFilename = getConfigsPath() + '/raw_data/' + f'comSizesWoGc_N_{N}_ar_{ar}_ir_{ir}_loops_{loops}.parquet'
+        else:
+            rawDataFilename = getConfigsPath() + '/raw_data/' + f'comSizes_N_{N}_ar_{ar}_ir_{ir}_loops_{loops}.parquet'
+        df = pd.read_parquet(rawDataFilename)
+        binLims = np.geomspace(1,N-1,logBins)
+        binCenters = np.sqrt(binLims[1:]*binLims[:-1])
+        binCenters, pdf, stdpdf = hist1D(df['comSizes'], binLims, binCenters, isPDF=True)
+        ax.plot(binCenters, pdf, ls='None', marker='.', label=rf'$\Delta t = {loops}$, $r_{{int}}^{{*}} = {ir}$')
+    fig.text(0.35, 0.97, f'$excludeGiantComp = {excludeGiantComp}$')
+    fig.legend(fontsize=9, loc=(0.65,0.7)) #  
+    fig.tight_layout()
+    fig.savefig(f'comSizesProbs_difLoops_N_{N}_ar_{ar}_kilombo_{gcLabel}.png')
+
 
 # MEAN CLUSTER SIZE
 def computeMeanClusterSize(N, arena_r, interac_r, loops, maxCicles):
     """
     computes the mean cluster size for specific conditions: N, ar, ir, loops...
+    maxCicles per trajectory to use
     """
     rawDataFilename = getConfigsPath() + '/raw_data/' + f'comSizesWoGc_N_{N}_ar_{arena_r}_ir_{interac_r}_loops_{loops}.parquet'
     df = pd.read_parquet(rawDataFilename)
@@ -166,6 +192,10 @@ def plotMeanClusterSize(N, arena_r, loops_l, maxCicles, quenched=False):
 if __name__ == '__main__':
     # plotDegreeDistr_manyir_oneDeltat(35, 18.5, [3.5, 3.75, 5.0, 8.0], 800)
     # MollyReedCriterion(35, 18.5, [4.0, 5.0, 6.0, 7.0, 8.0], [0, 800], quenched=True)
-    N, ar, loops = 492, 73.5, 800
-    plotMeanClusterSize(N, ar, [0, 400, 800], 36, quenched=True)
+    # N, ar, loops = 492, 73.5, 800
+    # plotMeanClusterSize(N, ar, [0, 400, 800], 36, quenched=True)
+    N, ar, loops = 35, 18.5, 800
+    plotMeanClusterSize(N, ar, [0, 400, 800], 100, quenched=True)
+    # plotComSizes_dif_loops(35, 18.5, [7.0, 6.0, 3.75], [0,400,800], 7.0, 10, plotQuenched=False)
+    # plotComSizes_dif_loops(492, 73.5, [6.5, 4.5, 3.5], [0,400,800], 7.0, 20, plotQuenched=False)
 

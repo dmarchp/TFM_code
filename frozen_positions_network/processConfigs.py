@@ -40,7 +40,7 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
     existingConfigs = len(glob.glob(path + '/' + configsFilename(arena_r, exclusion_r)))
     existingContacts = len(glob.glob(path + '/' + contactsFilename(arena_r, exclusion_r, interac_r)))
     print(f'There are {existingConfigs} position files and {existingContacts} contact files for N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r} , push = {push}.')
-    input('enter ')
+    #input('enter ')
     if contactsToUse:
         existingContacts = contactsToUse if existingContacts > contactsToUse else existingContacts
     comSizesDic = {'configID':[], 'comSizes':[]}
@@ -64,5 +64,5 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
 if __name__ == '__main__':
     # getDegreesAllConfigs(35, 20.0, 8.0, 1.5)
     for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
-        getComSizesAllConfigs(492, 75.0, ir, 1.5)
+        getComSizesAllConfigs(35, 20.0, ir, 1.5)
         

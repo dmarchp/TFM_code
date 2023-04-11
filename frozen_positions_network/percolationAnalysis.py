@@ -81,5 +81,6 @@ if __name__ == '__main__':
     #irs = availableIrs(492, 75.0, 1.5, push=False)
     #print(irs)
     irs = [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]
-    getMeanClusterSize_ir(492, 75.0, 1.5, irs, maxConfigs=144)
+    #getMeanClusterSize_ir(492, 75.0, 1.5, irs, maxConfigs=144)
+    getMeanClusterSize_ir(35, 20.0, 1.5, irs, maxConfigs=100)
 
