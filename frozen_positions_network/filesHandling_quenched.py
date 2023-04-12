@@ -39,10 +39,8 @@ def getConfigsPath(N):
 def availableIrs(N, arena_r, exclusion_r, push):
     pushFolder = '/configs_w_push' if push else '/configs_wo_push'
     fullNameWc = getConfigsPath(N) + pushFolder + f'/contact_list_*_ar_{arena_r}_er_{exclusion_r}_ir_*.txt'
-    print(fullNameWc)
     files = glob.glob(fullNameWc)
     irs = []
-    print(len(files))
     for f in files:
         ir = float(f.split('_')[12][:-4]) # aixo nomes funciona si esta el ssd
         if ir not in irs:

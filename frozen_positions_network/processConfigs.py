@@ -63,6 +63,7 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
 
 if __name__ == '__main__':
     # getDegreesAllConfigs(35, 20.0, 8.0, 1.5)
-    for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
+    #for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
+    for ir in [6.1, 6.2, 6.8, 6.9]:
         getComSizesAllConfigs(35, 20.0, ir, 1.5)
         
