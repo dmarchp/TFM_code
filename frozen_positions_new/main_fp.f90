@@ -136,7 +136,7 @@ program main
     call execute_command_line('mkdir -p time_evo_csv')
     call execute_command_line('mv time_evo_rea_*.csv time_evo_csv/')
     
- ! triem aixo enrere que fa pal truncar linies   
+ ! tirem aixo enrere que fa pal truncar linies   
  call execute_command_line('mkdir -p positions_and_contacts/'//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//'/')
  call execute_command_line('mv contact_list_*.txt positions_and_contacts/'//trim(adjustl(Nstr))//'_bots/'//&
  trim(adjustl(push_folder_str))//'/')

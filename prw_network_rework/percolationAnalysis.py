@@ -93,7 +93,7 @@ def MollyReedCriterion(N, arena_r, irs, loops_l, quenched=False):
 def powerLaw(x,a,b):
     return a*x**b
 
-# funció gegant en que tot es fa a dins de la funció, a difèrencia del MCS o avg giant comp.
+# funció gegant en que tot es fa a dins de la funció (compute->get->plot), a difèrencia del MCS o avg giant comp.
 # també calculo la P(s) del cas quenched aqui inclús...
 # potser ho hauria de trencar tot en trossets, o no
 def plotComSizesDistr_dif_loops(N: int, ar: float, irs: "list[float]", loopsList: "list[int]", quench_ir: float, logBins: int, 

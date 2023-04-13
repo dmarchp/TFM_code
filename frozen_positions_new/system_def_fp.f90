@@ -178,6 +178,7 @@ module system_parameters
     end subroutine generate_frozen_positions
     
     subroutine read_frozen_positions(Nstr,push_folder_str,arstr,erstr,file_id)
+        ! Read the frozen positions from the SSD. Mind that the route is /media/david/... Igt should change if executing in another PC
         implicit none
         character(5), intent(in) :: file_id, Nstr, arstr, erstr
         character(15), intent(in) :: push_folder_str

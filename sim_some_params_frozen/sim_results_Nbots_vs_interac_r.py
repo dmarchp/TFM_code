@@ -15,8 +15,11 @@ lambs_colors_N = plt.cm.winter(np.linspace(0.1,0.9,len(lambs)))
 arena_r = 20
 exclusion_r = 1.5
 perc_r = 6.5
+perc_r = 103.67*35**(-0.76)
 
 fig, ax = plt.subplots(1,3, figsize=(9,5))
+figAlt, axAlt = plt.subplots()
+
 
 # fix N, move interaction radius:
 N = 35
@@ -28,14 +31,15 @@ for l,lcolor in zip(lambs,lambs_colors_r):
     #dfl = df.loc[(df['lambda']==l)]
     dfl = df.query('lamb == @l')
     ax[0].plot(dfl['interac_r'], dfl['f2'], color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    #ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, lw=0.8)
-    ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
+    ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, lw=0.8)
+    # ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
+    axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
     
 # data to file:
-dfls = df.query('lamb in @lambs').copy()
-dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
-dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
-dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
+# dfls = df.query('lamb in @lambs').copy()
+# dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
+# dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
+# dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
     
 ax[0].legend(title='$\lambda$', fontsize=8)
 
@@ -52,16 +56,18 @@ for l,lcolor in zip(lambs,lambs_colors_N):
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
         f1_dif_N.append(float(df['f1'])), f2_dif_N.append(float(df['f2']))
     ax[1].plot(Ns, f2_dif_N, color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    #ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, lw=0.8)
-    ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, lw=0.8)
+    # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*103.67))**2*(40**(3/2)), f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    # forma funcional de perc_r en funció de N: (103.7*np.array(Ns)**(-3/4)) o 103.67*N**(-0.76)
     dc = list(np.array(Ns)*(interac_r/(arena_r*perc_r))**2)
     lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
 
 # data to file:
-dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
-dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
-dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
-dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
+# dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
+# dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
+# dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
+# dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
     
     
 ax[1].legend(title='$\lambda$', fontsize=8)
@@ -71,9 +77,14 @@ ax[0].set_xlabel('$r_i$')
 ax[1].set_xlabel('$N$')
 #ax[2].set_xlabel('$N \cdot (r_i / r_a)^{2}$')
 ax[2].set_xlabel(r'$N \cdot (\frac{r_i}{r_i^{*} r_a})^{2}$')
-ax[2].set_xlim(0.02, 0.14)
+# ax[2].set_xlim(0.02, 0.14)
 ax[0].set_ylabel('$f_2$')
 #fig.legend(title='$\lambda$', bbox_to_anchor=(0.09, 0.87, 0.08, 0.08))
 
 fig.tight_layout()
 fig.savefig(f'f2_vs_ri_or_Nbots_ar_{arena_r}_er_{exclusion_r}.png')
+
+
+axAlt.set(xlabel=r'$(\frac{r_i}{r_i^{*}})^{2}$', ylabel='f2*dens')
+figAlt.tight_layout()
+figAlt.savefig('crowding_proves.png')
