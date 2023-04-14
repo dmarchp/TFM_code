@@ -31,7 +31,7 @@ for l,lcolor in zip(lambs,lambs_colors_r):
     #dfl = df.loc[(df['lambda']==l)]
     dfl = df.query('lamb == @l')
     ax[0].plot(dfl['interac_r'], dfl['f2'], color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, lw=0.8)
+    ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
     
@@ -45,7 +45,7 @@ ax[0].legend(title='$\lambda$', fontsize=8)
 
 # fix interaction radius, move N:
 lambsdf, Nsdf, f1df, f2df, dcdf = [], [], [], [], []
-interac_r = 7.0
+interac_r = 5.0
 Ns = [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80]
 for l,lcolor in zip(lambs,lambs_colors_N):
     f1_dif_N, f2_dif_N = [], []
@@ -54,9 +54,10 @@ for l,lcolor in zip(lambs,lambs_colors_N):
         df = df.rename(columns={"lambda":"lamb"})
         #df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1]) & (df['lambda']==l) & (df['interac_r']==interac_r)]
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
+        # print(df['f1'])
         f1_dif_N.append(float(df['f1'])), f2_dif_N.append(float(df['f2']))
     ax[1].plot(Ns, f2_dif_N, color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, lw=0.8)
+    ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*103.67))**2*(40**(3/2)), f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # forma funcional de perc_r en funció de N: (103.7*np.array(Ns)**(-3/4)) o 103.67*N**(-0.76)
@@ -77,7 +78,8 @@ ax[0].set_xlabel('$r_i$')
 ax[1].set_xlabel('$N$')
 #ax[2].set_xlabel('$N \cdot (r_i / r_a)^{2}$')
 ax[2].set_xlabel(r'$N \cdot (\frac{r_i}{r_i^{*} r_a})^{2}$')
-# ax[2].set_xlim(0.02, 0.14)
+# ax[2].set_xlim(0.02, 0.14) # when plotting as a function of N*(ri/rperc)**2 / R**2
+ax[2].set_xlim(None, 5) # when plotting as a function of N*(ri/R)**2
 ax[0].set_ylabel('$f_2$')
 #fig.legend(title='$\lambda$', bbox_to_anchor=(0.09, 0.87, 0.08, 0.08))
 

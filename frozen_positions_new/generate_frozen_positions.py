@@ -76,7 +76,7 @@ file_in.close()
 def distance(pos1,pos2):
     return np.sqrt((pos1[0]-pos2[0])**2+(pos1[1]-pos2[1])**2)
 
-def push(pos_to_move,pos_fixed):
+def pushBot(pos_to_move,pos_fixed):
     vector = (pos_to_move[0]-pos_fixed[0], pos_to_move[1]-pos_fixed[1])
     factor = 2*exclusion_r-distance(pos_to_move,pos_fixed)
     new_position = (pos_to_move[0]+factor*vector[0], pos_to_move[1]+factor*vector[1])
@@ -145,7 +145,7 @@ def generateConfiguration(pushFlag=True):
                 count_push_attempts = 0
                 while not positionAccepted and count_push_attempts < max_push_attempts_per_bot:
                     count_push_attempts += 1
-                    new_pos_bot, inside = push(new_pos_bot,positions[overlapped_bot])
+                    new_pos_bot, inside = pushBot(new_pos_bot,positions[overlapped_bot])
                     if not inside:
                         break
                     positionAccepted, overlapped_bot = checkDistNeighbors(i, new_pos_bot, positions)
@@ -172,6 +172,8 @@ print(f'There are already {existingConfigs} configurations generated with these 
       Generating {N_configs} more.')
 
 completedConfigsCounter = 0
+print(push)
+print(bool(push))
 for i in range(N_configs):
     positions, completed = generateConfiguration(pushFlag=bool(push))
     if completed:
