@@ -172,8 +172,6 @@ print(f'There are already {existingConfigs} configurations generated with these 
       Generating {N_configs} more.')
 
 completedConfigsCounter = 0
-print(push)
-print(bool(push))
 for i in range(N_configs):
     positions, completed = generateConfiguration(pushFlag=bool(push))
     if completed:

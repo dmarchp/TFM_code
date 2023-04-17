@@ -203,9 +203,9 @@ def main():
     getAvgGiantComp_ir(N, ar, er, irs, maxConfigs=1000)
     
 if __name__ == '__main__':
-    # plotMeanClusterSize_difN(20.0, 1.5, [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    plotMeanClusterSize_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
     # plotPercRadius_fromMCS_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
-    plotMeanClusterSize_funcN(20.0, 7.0, 1.5, [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    # plotMeanClusterSize_funcN(20.0, 7.0, 1.5, [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
 
 
 

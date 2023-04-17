@@ -6,6 +6,7 @@ from sys import argv
 import argparse
 from subprocess import call
 import glob
+import os
 import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
@@ -18,6 +19,7 @@ parser.add_argument('arena_r', type=float, help='radius of the arena')
 parser.add_argument('interac_r', type=float, help='radius of interaction')
 parser.add_argument('exclusion_r', type=float, help='radius of the agents body')
 parser.add_argument('push', type=int, help='generate configs w/wo push (1/0)')
+parser.add_argument('-ow', '--overwrite', help='Overwrite contacts even having been generated after configs', action='store_true')
 
 # for the moment I program so the contacts of all configurations are generated, even if they already exist
 # in the future I could implement so I specify to generate all/non_existing(+contacts older than positions, if positions have been regenerated for some reason)
@@ -50,8 +52,23 @@ def contactFilename(index):
     else:
         return f'contact_list_{str(index).zfill(3)}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}.txt'
     
-N_configs = len(glob.glob(f'{configsPath}/{positionFilename(0)}'))
-N_contacts = len(glob.glob(f'{configsPath}/{contactFilename(0)}'))
+configs = glob.glob(f'{configsPath}/{positionFilename(0)}')
+contacts = glob.glob(f'{configsPath}/{contactFilename(0)}')
+confNeedsContact = 0 # if it remains 0, all configs have their contact already generated, so stop execution
+N_configs = len(configs)
+N_contacts = len(contacts)
+
+if len(contacts) == len(configs): # check if every contact list is already up to date with every config position
+    for conf,cont in zip(configs, contacts):
+        if os.path.getmtime(conf) > os.path.getmtime(cont):
+            confNeedsContact += 1
+else:
+    confNeedsContact = 1 # there are no contacts or not as much as configs. Overwrite existing and generate non existing ones.
+        
+if confNeedsContact == 0 and not args.overwrite:
+    sys.exit(0)
+
+
 print(f'There are {N_configs} position files and {N_contacts} contact files for these parameters. \n \
       Generating {N_configs} contact files.')
 
