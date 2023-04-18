@@ -117,21 +117,76 @@ def plotPercRadius_fromMCS_difN(arena_r, exclusion_r, Ns, push=False):
     fig.tight_layout()
     fig.savefig('provant_percR_MCS_difN.png')
 
+
 # MCS en funció d'N mantentint el r_i fixe...
-def plotMeanClusterSize_funcN(arena_r, interac_r, exclusion_r, Ns, push=False):
-    mcss = []
-    for N in Ns:
-        irs = availableIrs(N, arena_r, exclusion_r, push)
-        if 7.0 not in irs:
-            irs.append(7.0)
-            irs = sorted(irs)
-        dfmcs = getMeanClusterSize_ir(N, arena_r, exclusion_r, irs, push)
-        mcss.append(float(dfmcs.query('interac_r == @interac_r')['mcs']))
+def getMeanClusterSize_N(interac_r, arena_r, exclusion_r, Ns, push=False):
+    '''
+    gets the MCS along N for a given interac_r
+    '''
+    pushLabel = 'push' if push else 'nopush'
+    path = getExternalSSDpath() + '/quenched_configs/manyN_processed_data/'
+    filename = path + f'meanClusterSize_{pushLabel}_ir_{interac_r}_ar_{arena_r}_er_{exclusion_r}.csv'
+    if not os.path.exists(path):
+        call(f'mkdir -p {path}', shell=True)
+    if os.path.exists(filename):
+        df = pd.read_csv(filename)
+        missing_Ns = [N for N in Ns if N not in list(df['N'])]
+        if missing_Ns:
+            mcs = []
+            for N in missing_Ns:
+                avIrs = availableIrs(N, arena_r, exclusion_r, push)
+                if interac_r not in avIrs:
+                    avIrs.append(interac_r)
+                    avIrs = sorted(avIrs)
+                dfmcs = getMeanClusterSize_ir(N, arena_r, exclusion_r, avIrs, push)
+                mcs.append(float(dfmcs.query('interac_r == @interac_r')['mcs']))
+            # concatenate dfs
+            df_missing_Ns = pd.DataFrame({'N':missing_Ns, 'mcs':mcs})
+            df = pd.concat([df, df_missing_Ns], ignore_index=True)
+            df = df.sort_values(by='N')
+            df.to_csv(filename, index=False)
+    else:
+        mcs = []
+        for N in Ns:
+            avIrs = availableIrs(N, arena_r, exclusion_r, push)
+            if interac_r not in avIrs:
+                avIrs.append(interac_r)
+                avIrs = sorted(avIrs)
+            dfmcs = getMeanClusterSize_ir(N, arena_r, exclusion_r, avIrs, push)
+            mcs.append(float(dfmcs.query('interac_r == @interac_r')['mcs']))
+        df = pd.DataFrame({'N':Ns, 'mcs':mcs})
+        df.to_csv(filename, index=False)
+    return df
+    
+
+def plotMeanClusterSize_funcN(arena_r, irs, exclusion_r, Ns, push=False):
     fig, ax = plt.subplots()
+    colors = plt.cm.brg(np.linspace(0,1,len(irs)))
     ax.set(xlabel='N', ylabel='MCS')
-    ax.plot(Ns, mcss, ls='-', lw=0.8, marker='.')
+    for ir, c in zip(irs, colors):
+        df = getMeanClusterSize_N(ir, arena_r, exclusion_r, Ns, push)
+        ax.plot(df['N'], df['mcs'], ls='-', color = c, lw=0.8, marker='.', label=f'{ir}')
+    fig.legend(title=r'$r_{int}$', fontsize=9)
     fig.tight_layout()
-    fig.savefig(f'provant_MCS_funcN_ir_{interac_r}.png')
+    fig.savefig(f'provant_MCS_funcN_difIr.png')
+
+def plotPercN_fromMCS_difir(arena_r, exclusion_r, irs, Ns, push=False):
+    perc_Ns = []
+    for ir in irs:
+        dfmcs = getMeanClusterSize_N(ir, arena_r, exclusion_r, Ns, push)
+        maxMCS = max(dfmcs['mcs'])
+        perc_N = int(dfmcs.query('mcs == @maxMCS')['N'])
+        perc_Ns.append(perc_N)
+    fig, ax = plt.subplots()
+    ax.set(xlabel='$r_{int}$', ylabel=r'$N^*$', xscale='log', yscale='log')
+    ax.plot(irs, perc_Ns, ls='-', lw=0.8, color='r', marker='.')
+    # fit:
+    paramfit, covfit = curve_fit(powerLaw, irs, perc_Ns)
+    fit = powerLaw(irs, *paramfit)
+    ax.plot(irs, fit, ls='--', lw=0.8, color='k')
+    ax.text(0.7, 0.6, rf'{round(paramfit[0],3)} $r_{{int}}$**({round(paramfit[1],3)})', fontsize=8, color='k', transform=ax.transAxes)
+    fig.tight_layout()
+    fig.savefig('provant_percN_MCS_difir.png')
 
 
 
@@ -203,9 +258,10 @@ def main():
     getAvgGiantComp_ir(N, ar, er, irs, maxConfigs=1000)
     
 if __name__ == '__main__':
-    plotMeanClusterSize_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
-    # plotPercRadius_fromMCS_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
-    # plotMeanClusterSize_funcN(20.0, 7.0, 1.5, [5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    # plotMeanClusterSize_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    plotPercRadius_fromMCS_difN(20.0, 1.5, [15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    # plotMeanClusterSize_funcN(20.0, [4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    # plotPercN_fromMCS_difir(20.0, 1.5, [5.0, 6.0, 7.0, 8.0, 9.0], [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
 
 
 

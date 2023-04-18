@@ -168,6 +168,7 @@ end program
         select case(floor(radius))
             case( : 9)
                 write(radstr, '(F3.1)') radius
+                !write(radstr, '(F4.2)') radius
             case(10 : 99)
                 write(radstr, '(F4.1)') radius
             case(100: 999)

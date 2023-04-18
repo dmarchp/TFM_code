@@ -24,21 +24,21 @@ Ns = {
 #    80:np.linspace(5.0, 9.0,9)
 }
 
-# around the peak
-#Ns = {
-#    10:np.linspace(5.0, 20.0,16),
-#    15:np.linspace(5.0, 17.0,13),
-#    20:np.linspace(5.0,14.0,10),
-#    25:np.linspace(5.0, 14.0,10),
-#    30:np.linspace(5.0, 11.0,13),
-#    40:np.linspace(5.0, 10.0,11),
-#    50:np.linspace(5.0, 9.0,9),
-#    60:np.linspace(5.0, 9.0,9),
-#    70:np.linspace(5.0, 9.0,9),
-#    80:np.linspace(5.0, 9.0,9)
-#}
+# around the peak or extras
+Ns = {
+    10:[4.0, ],
+    15:[4.0, ],
+    20:[4.0, ],
+    25:[4.0, ],
+    30:[4.0, ],
+    40:[4.0, ],
+    # 50:[4.2, 4.4, 4.6, 4.8],
+    # 60:[4.2, 4.4, 4.6, 4.8],
+    # 70:[3.5, 3.6, 3.8, 4.2, 4.4, 4.6, 4.8],
+    # 80:[3.5, 3.6, 3.8, 4.0, 4.2, 4.4, 4.5, 4.6 , 4.8]
+}
 
-maxConfigs = 2000
+maxConfigs = 1000
 
 for N,irs in Ns.items():
     # check the number of configurations already existing (in the SSD!):

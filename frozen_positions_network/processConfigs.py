@@ -42,8 +42,8 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
     path = getConfigsPath(N) + f'/{pushFolder}'
     rawDataPath = getConfigsPath(N) + '/raw_data'
     # check if file already exists and avoid repeating it:
-    #if os.path.exists(rawDataPath + f'/comSizes_N_{N}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}_{pushLabel}.parquet'):
-    #    return
+    if os.path.exists(rawDataPath + f'/comSizes_N_{N}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}_{pushLabel}.parquet'):
+       return
     existingConfigs = len(glob.glob(path + '/' + configsFilename(arena_r, exclusion_r)))
     existingContacts = len(glob.glob(path + '/' + contactsFilename(arena_r, exclusion_r, interac_r)))
     print(f'There are {existingConfigs} position files and {existingContacts} contact files for N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r} , push = {push}.')
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     #for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
     #for ir in [6.2, 6.4, 6.6, 6.8]:
     #    getComSizesAllConfigs(40, 20.0, ir, 1.5)
-    for N in [10, 15, 20]: # , 25, 30, 40, 50, 60, 70, 80
+    for N in [10, 15, 20, 25, 30, 40, 50, 60, 70, 80]: # , 25, 30, 40, 50, 60, 70, 80
         irs = availableIrs(N, 20.0, 1.5, False)
         for ir in irs:
             getComSizesAllConfigs(N, 20.0, ir, 1.5)
