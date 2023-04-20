@@ -39,8 +39,11 @@ if args.mask:
 
 max = abs(Qmesh).max()
 
+minn, maxx = fsMesh[0].min(), fsMesh[0].max()
+
 fig, ax = plt.subplots(figsize=(5.6,4.8))
-im = ax.pcolormesh(fsMesh['x'], fsMesh['y'], Qmesh, vmin = -max, vmax = max, cmap='seismic_r', shading='nearest')
+#im = ax.pcolormesh(fsMesh['x'], fsMesh['y'], Qmesh, vmin = -max, vmax = max, cmap='seismic_r', shading='nearest')
+im = ax.pcolormesh(fsMesh['x'], fsMesh['y'], fsMesh[0], vmin = minn, vmax = maxx, cmap='brg', shading='nearest')
 ax.set_xlabel('$\pi_1$')
 ax.set_ylabel('$\pi_2$')
 cb = fig.colorbar(im, ax=ax, aspect=25, shrink=0.75, pad=0.025)

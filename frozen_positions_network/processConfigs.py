@@ -76,9 +76,13 @@ if __name__ == '__main__':
     #for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
     #for ir in [6.2, 6.4, 6.6, 6.8]:
     #    getComSizesAllConfigs(40, 20.0, ir, 1.5)
-    for N in [10, 15, 20, 25, 30, 40, 50, 60, 70, 80]: # , 25, 30, 40, 50, 60, 70, 80
-        irs = availableIrs(N, 20.0, 1.5, False)
+    # for N in [10, 15, 20, 25, 30, 40, 50, 60, 70, 80]: # , 25, 30, 40, 50, 60, 70, 80
+        # irs = availableIrs(N, 20.0, 1.5, False)
+        # for ir in irs:
+            # getComSizesAllConfigs(N, 20.0, ir, 1.5)
+    for N in [352, 492, 633, 703, 844, 984]:
+        irs = availableIrs(N, 75.0, 1.5, False)
         for ir in irs:
-            getComSizesAllConfigs(N, 20.0, ir, 1.5)
+            getComSizesAllConfigs(N, 75.0, ir, 1.5)
     # for ir in [13.0, 14.0, 15.0, 16.0]:
     #     getComSizesAllConfigs(10, 20.0, ir, 1.5)

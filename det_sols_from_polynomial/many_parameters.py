@@ -160,12 +160,12 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeSymmetricMap_mesh(7, 10, pi_lims=(0.01, 0.5), parqDf=False)
-computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
+#computeSymmetricMap_mesh(7, 10, pi_lims=(0.01, 0.5), parqDf=False)
+#computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
-# computeAsymmetricMap_mesh(7, 10, 0.3)
-# computeAsymmetricMap_mesh(7, 10, 0.6)
-# computeAsymmetricMap_mesh(7, 10, 0.9)
+computeAsymmetricMap_mesh(12, 40, 0.3)
+computeAsymmetricMap_mesh(20, 40, 0.6)
+computeAsymmetricMap_mesh(38, 40, 0.9)
 
 # computeAsymmetricMap_mesh_fixPi1(0.3, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 

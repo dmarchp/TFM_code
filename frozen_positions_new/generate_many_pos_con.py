@@ -7,8 +7,9 @@ import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
 
-seed(7812)
+seed(96948484)
 arena_r = 75.0
+maxConfigs = 250
 
 
 ssdpath = getExternalSSDpath()
@@ -41,20 +42,33 @@ ssdpath = getExternalSSDpath()
 #}
 
 Ns = {
-    352:np.linspace(5.0, 14.0,10),
-    703:np.linspace(4.0, 9.0,11),
-    984:np.linspace(3.5, 8.0,10)
+    # 352:np.linspace(5.0, 14.0,10),
+    633:np.linspace(4.0, 9.0,11),
+    # 703:np.linspace(4.0, 9.0,11),
+    844:np.linspace(3.5, 8.0,10),
+    # 984:np.linspace(3.5, 8.0,10)
 }
 
-maxConfigs = 250
+# around the peak or extras:
+Ns = {
+    # 352:[7.7, 7.8, 7.9, 8.1, 8.2, 8.3],
+    633:[5.3, 5.4, 5.6, 5.7],
+    # 703:[4.7, 4.8, 4.9, 5.1, 5.2, 5.3],
+    # 844:[4.2,4.3,4.4,4.6,4.7,4.8],
+    # 984:[4.4,]
+}
+
+
 
 for N,irs in Ns.items():
     # check the number of configurations already existing (in the SSD!):
     configsPath = ssdpath + f'/quenched_configs/{N}_bots/configs_wo_push'
     if os.path.exists(configsPath):
-        existingConfigs = len(glob.glob(configsPath+f'/bots_xy_positions_*_ar_20.0_er_1.5.txt'))
+        existingConfigs = len(glob.glob(configsPath+f'/bots_xy_positions_*_ar_{arena_r}_er_1.5.txt'))
     else:
         existingConfigs = 0
+    if N == 984:
+        maxConfigs = existingConfigs # I don't want more configs even though there may be less than maxConfigs
     call(f'python generate_frozen_positions.py {N} {arena_r} 1.5 0 {randint(0,100000)} {maxConfigs-existingConfigs}', shell=True)
     for ir in irs:
         call(f'python generate_contact_list.py {N} {arena_r} {ir} 1.5 0', shell=True)
