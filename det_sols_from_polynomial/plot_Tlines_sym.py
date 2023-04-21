@@ -3,6 +3,7 @@ import numpy as np
 import os
 from scipy.stats import linregress
 from subprocess import call
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('../')
@@ -87,6 +88,9 @@ def plot_lambda_threshold_delta(q2s, pi, x=2):
     fig.tight_layout()
     fig.savefig(f'lambda_threshold_f2_{x}f1_sym_pi_{pi}_Delta.png')
 
+def powerLaw(x,a,b):
+    return a*x+b
+
 def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
     fig, ax = plt.subplots(figsize=(5.6,4.8))
     colors = plt.cm.gnuplot(np.linspace(0,1,len(pis)))
@@ -119,8 +123,18 @@ def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
             first0index = lambdas.index(0)
             firstToLast = ([deltas[0], deltas[first0index]],[lambdas[0], lambdas[first0index]])
             ax.plot(firstToLast[0], firstToLast[1], ls='--', color='k', lw=0.8)
+        # powerlaw fit to pi  = 0.1
+        # if pi == 0.1:
+        #     deltas.reverse(), lambdas.reverse()
+        #     first0index = lambdas.index(0)
+        #     deltas = deltas[:first0index-2]
+        #     lambdas = lambdas[:first0index-2]
+        #     params, pcov = curve_fit(powerLaw, deltas, lambdas)
+        #     fit = powerLaw(np.array(deltas), *params)
+        #     ax.plot(deltas, fit, color='k', ls='-.', lw=0.8)
+        #     print(params)
     ax.axvline(0.3333, color='xkcd:gray', ls=':', lw=0.8)
-    ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$', xlim=(0), ylim=(-0.01))
+    ax.set(xlabel='$\Delta$', ylabel='$\lambda_c$', xscale='log', yscale='log')
     fig.legend(loc=(0.7, 0.6), fontsize=8, title='$\pi_{1,2}$', title_fontsize=9)
     fig.text(0.45, 0.97, f'$\pi_{{1,2}} = {pi}$, $Q = f_2 - {x}f1$', fontsize=8)
     fig.tight_layout()
@@ -133,7 +147,7 @@ def plot_lambda_threshold_pis(q2, pis, x=2, linfit=False):
 
 # plot_Qlines_manyDelta([0.053, 0.111, 0.176, 0.250])
 
-plot_lambda_threshold_delta([5.0, 7.0, 10.0, 20.0, 30.0, 40.0], 0.05)
+# plot_lambda_threshold_delta([5.0, 7.0, 10.0, 20.0, 30.0, 40.0], 0.05)
 
-# plot_lambda_threshold_pis(40, [0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
+plot_lambda_threshold_pis(40.0, [0.01, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
 

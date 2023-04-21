@@ -124,6 +124,38 @@ def plot_evos_dif_lambs_sym(lambs, pi, q1, q2, N=500, statLine=False):
     fig.savefig(f'time_evos_sym_lambs_pi12_{pi}_q1_{q1}_q2_{q2}_N_{N}.png')
 
 
+# test pieron's law:
+def test_pieron_law(q_pairs, pi1, pi2, l, N=500, statLine=True):
+    fig, ax = plt.subplots()
+    ax.set(xlabel='Iteration / $q_2$', ylabel='$f_2$', xscale='log')
+    for q_pair in q_pairs:
+        q1, q2 = q_pair
+        files = glob.glob(f'{getTimeEvosPath()}/time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}/*')
+        dfs = [pd.read_csv(file) for file in files]
+        df_avg = get_avg_traj(dfs)
+        evoline, = ax.plot(df_avg['iter']/q2, df_avg['f2'], alpha=0.8, label=f'({q1}, {q2})', lw=0.7)
+        for df in dfs:
+            ax.plot(df['iter']/q2, df['f2'], alpha=0.4, lw=0.7, color=evoline.get_color())
+        if statLine:
+            call(f'python ../det_sols_from_polynomial/f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+            with open('sols.dat', 'r') as file:
+                sols = [float(f) for f in file.readline().split()]
+                ax.axhline(sols[2], color=evoline.get_color(), ls=':', lw=0.7)
+        # get first passage time:
+        fp_times = []
+        for df in dfs:
+            df['f2_minusStat'] = df['f2'] - sols[2]
+            df = df.query('f2_minusStat > 0')
+            fp_time = df['iter'].iloc[0]
+            fp_times.append(fp_time/q2)
+        print(f'First passage norm times for $(q_1, q_2) = ({q1}, {q2})$: \n {fp_times}')
+        print(f'Average first passage norm time for $(q_1, q_2) = ({q1}, {q2})$: {np.average(fp_times)} +- {np.std(fp_times)}')
+    fig.legend(title='$(q_1, q_2)$', fontsize=8, title_fontsize=9, loc=(0.7, 0.2))
+    fig.text(0.2, 0.8, f'$(\pi_1, \pi_2) = ({pi1}, {pi2}), \; q_1 = {q1}, \; q_2 = {q2}$', fontsize=8)
+    fig.tight_layout()
+    fig.savefig(f'time_evo_test_pieron_law.png')
+
+
 # plot_evos_dif_pis_sym([0.1, 0.2, 0.3, 0.4], 7, 10, 0.3, statLine=True)
 
 # plot_evos_dif_q1s_sym([3,5,7,9], 10, 0.3, 0.45, statLine=True)
@@ -134,5 +166,7 @@ def plot_evos_dif_lambs_sym(lambs, pi, q1, q2, N=500, statLine=False):
 
 # plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, integrated=True, backg=0)
 # plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='T', integrated=True, backg=0)
-plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='J', integrated=True, backg=1)
-plot_evos_simple(0.3, 0.3, 7, 10, 0.6, 35, ic='J', integrated=True, backg=1)
+# plot_evos_simple(0.4, 0.2, 7, 10, 0.6, 35, ic='J', integrated=True, backg=1)
+# plot_evos_simple(0.3, 0.3, 7, 10, 0.6, 35, ic='J', integrated=True, backg=1)
+
+test_pieron_law([(7,10), (28,40)], 0.1, 0.1, 0.6, 500)
