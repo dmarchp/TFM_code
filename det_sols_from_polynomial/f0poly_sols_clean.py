@@ -1,5 +1,6 @@
 import argparse
 import math #, cmath
+from numpy import isclose
 
 parser = argparse.ArgumentParser()
 
@@ -87,7 +88,7 @@ def main():
                     print(sol)
         else:
             for i,sol in enumerate(solutions):
-                if all(f >= 0 for f in sol):
+                if all(f >= 0 for f in sol) and isclose(sum(sol),1.0):
                     valid_sol = sol
             print(*valid_sol)
 
