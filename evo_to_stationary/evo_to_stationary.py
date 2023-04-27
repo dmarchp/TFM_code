@@ -11,7 +11,7 @@ from package_global_functions import *
 
 Nsites = 2
 Nrea = 25
-max_time = 2000
+max_time = 3000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
