@@ -28,7 +28,7 @@ def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False, backg=F
     plots the amount indicated, eg backg = 5
     """
     fig, ax = plt.subplots()
-    ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='symlog', xlim=(0,600), ylim=(0,1))
+    ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='symlog', ylim=(0,1)) # xlim=(0,600)
     folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
     intEvoFile = f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
     figname = f'time_evo_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
@@ -224,4 +224,4 @@ def test_pieron_law(q_pairs, pi1, pi2, l, N=500, statLine=True, normTime=False):
 
 # plot_evos_deriv(0.1, 0.1, 7, 10, 0.6, 500, True)
 # plot_evos_deriv(0.1, 0.1, 7, 10, 0.6, 5000, True)
-plot_evos_simple(0.1, 0.1, 7, 10, 0.6, 500, integrated=True, backg=5)
+plot_evos_simple(0.1, 0.1, 36, 40, 0.9, 5000, integrated=True, backg=5)

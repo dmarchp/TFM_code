@@ -22,6 +22,11 @@ def getTimeEvosPath():
         path = '/time_evos_dif_cond'
     return path
 
+def get_avg_traj(dfs):
+    df_avg = reduce(lambda a,b: a.add(b, fill_value=0), dfs)
+    df_avg = df_avg/len(dfs)
+    return df_avg
+
 def powerLaw(x, a, b):
     return a*x**b
 
@@ -57,7 +62,28 @@ def get_first_passage_times(qs: tuple, pis: tuple, l: float, N: int):
         fp_times_Q.append(fp_time_Q)
     return fp_times_f, fp_times_Q
 
-def get_nth_passage_times(n, qs: tuple, pis: tuple, l: float, N: int):
+def select_passage_time(n, df, i, pi1, pi2, q1, q2, l):
+    times = np.array(df['iter'])
+    passage_times_aux = [times[0], ]
+    gaps = times[1:] - times[:-1]
+    for j,g in enumerate(gaps):
+        if g > 1:
+            passage_times_aux.append(times[j])
+            passage_times_aux.append(times[j+1])
+        if len(passage_times_aux) >= n:
+            break
+    # select nth passage time:
+    if len(passage_times_aux) < n:
+        if i > 0:
+            print(f'Trajectory {i} with pi1 = {pi1}, pi2 = {pi2}, q1 = {q1}, q2 = {q2}, l = {l}, does not have a {n}th passage time.')
+        else:
+            print(f'Average trajectory with pi1 = {pi1}, pi2 = {pi2}, q1 = {q1}, q2 = {q2}, l = {l}, does not have a {n}th passage time.')
+        return 0
+    else:
+        # passage_times_f.append(passage_times_aux[n-1])
+        return passage_times_aux[n-1]
+
+def get_nth_passage_times(n, qs: tuple, pis: tuple, l: float, N: int, avgTraj=False):
     q1, q2 = qs
     pi1, pi2 = pis
     # get the analytical solution
@@ -79,24 +105,23 @@ def get_nth_passage_times(n, qs: tuple, pis: tuple, l: float, N: int):
         if len(dff) == 0:
             print(f'Trajectory {i} with pi1 = {pi1}, pi2 = {pi2}, q1 = {q1}, q2 = {q2}, l = {l}, does not have any passage time.')
             continue
-        times = np.array(dff['iter'])
-        passage_times_aux = [times[0], ]
-        gaps = times[1:] - times[:-1]
-        # gaps_gt_1 = gaps[gaps > 1]
-        for j,g in enumerate(gaps):
-            if g > 1:
-                passage_times_aux.append(times[j])
-                passage_times_aux.append(times[j+1])
-            if len(passage_times_aux) >= n:
-                break
-        # select nth passage time:
-        if len(passage_times_aux) < n:
-            print(f'Trajectory {i} with pi1 = {pi1}, pi2 = {pi2}, q1 = {q1}, q2 = {q2}, l = {l}, does not have a {n}th passage time.')
-        else:
-            passage_times_f.append(passage_times_aux[n-1])
+        npt = select_passage_time(n, dff, i+1, pi1, pi2, q1, q2, l)
+        if npt:
+            passage_times_f.append(npt)
         # Q:
         # not done yet
-    return passage_times_f, passage_times_Q
+    if avgTraj:
+        dfavg = get_avg_traj(dfs)
+        dfavg['f2_minusStat'] = dfavg['f2'] - sols[2]
+        dffavg = dfavg.query('f2_minusStat > 0')
+        if len(dffavg) == 0:
+            print(f'Average Trajectory with pi1 = {pi1}, pi2 = {pi2}, q1 = {q1}, q2 = {q2}, l = {l}, does not have any passage time.')
+        npt = select_passage_time(n, dffavg, 0, pi1, pi2, q1, q2, l)
+        if npt:
+            passage_time_avgTraj_f = npt
+        return passage_times_f, passage_times_Q, passage_time_avgTraj_f
+    else:
+        return passage_times_f, passage_times_Q
 
 
 
@@ -183,8 +208,8 @@ def nth_pt_equal_qs_and_pis(n, qs: list, pis:list, l:float, N:int, normPT = Fals
 
 # plots, but can be modified to return the values of passage time to a bigger function that plots for different ls or different pi_pairs!!
 # nice but not pieron's law (?)
-def nth_pt_q_pairs(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False):
-    npts_q_pairs, std_npts_q_pairs = [], []
+def nth_pt_q_pairs(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False, avgTraj=False):
+    npts_q_pairs, std_npts_q_pairs, npts_avgTraj_q_pairs = [], [], []
     deltas = []
     for q_pair in q_pairs:
         q1, q2 = q_pair
@@ -192,25 +217,34 @@ def nth_pt_q_pairs(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False):
         # deltas.append(q2-q1) # can't fit a powerlaw...
         if not os.path.exists(f'{getTimeEvosPath()}/time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'):
             call(f'python evo_to_stationary.py {pi1} {pi2} {q1} {q2} {l} {N} N {random.randint(0,10000000)}', shell=True)
-        npts_f, npts_Q = get_nth_passage_times(n, (q1,q2), (pi1, pi2), l , N)
+        npts_f, npts_Q, npt_f_avgTraj = get_nth_passage_times(n, (q1,q2), (pi1, pi2), l , N, avgTraj = True)
         npt_f, std_npt_f = np.average(npts_f), np.std(npts_f)
-        npts_q_pairs.append(npt_f), std_npts_q_pairs.append(std_npt_f)
+        npts_q_pairs.append(npt_f), std_npts_q_pairs.append(std_npt_f), npts_avgTraj_q_pairs.append(npt_f_avgTraj)
     fig, ax = plt.subplots()
     ax.set(xlabel=r'$\Delta$', ylabel=f'{n}th PT')
     if loglog:
         ax.set(xscale='log', yscale='log')
+    if avgTraj:
+        passage_times = npts_avgTraj_q_pairs
+    else:
+        passage_times = npts_q_pairs
     if powerLawFit:
-        paramfit, covfit = curve_fit(powerLaw, deltas, npts_q_pairs)
+        paramfit, covfit = curve_fit(powerLaw, deltas, passage_times)
         fit = powerLaw(deltas, *paramfit)
         ax.plot(deltas, fit, ls='-.', lw=0.7, marker='None', color='r')
         ax.text(0.70, 0.65, f'a = {round(paramfit[0],5)}+-{round(np.sqrt(covfit[0,0]),5)}', fontsize=9, color='r', transform=ax.transAxes)
         ax.text(0.70, 0.60, f'b = {round(paramfit[1],5)}+-{round(np.sqrt(covfit[1,1]),5)}', fontsize=9, color='r', transform=ax.transAxes)
-    ax.errorbar(deltas, npts_q_pairs, std_npts_q_pairs, marker='.', ls='-', lw=0.7, capsize=3)
+    if avgTraj:
+        ax.plot(deltas, passage_times, marker='.', ls='-', lw=0.7)
+    else:
+        ax.errorbar(deltas, npts_q_pairs, std_npts_q_pairs, marker='.', ls='-', lw=0.7, capsize=3)
     fig.text(0.3, 0.97, rf'$(\pi_1, \pi_2) = ({pi1}, {pi2})$, $\lambda = {l}$, $N = {N}$', fontsize=9)
     fig.tight_layout()
     figname = f'q_pairs_q2_{q_pairs[0][1]}_{n}th_pt_pi1_{pi1}_pi2_{pi2}_l_{l}_N_{N}'
     if loglog:
         figname += '_loglog'
+    if avgTraj:
+        figname += '_avgTraj'
     figname += '.png'
     fig.savefig(figname)
 
@@ -244,7 +278,41 @@ def nth_pt_Delta_difPi(n, q_pairs, pis, l, N, normPT = False):
     fig.text(0.3, 0.97, rf'$\lambda = {l}$, $N = {N}$, $\Delta = {round(delta,3)}$, $(q_1, q_2) = ({q_pairs[0][0]}, {q_pairs[0][1]})...$', fontsize=8)
     fig.tight_layout()
     fig.savefig(f'delta_{q_pairs[0][0]}_{q_pairs[0][1]}_difPi_{n}th_pt_l_{l}_N_{N}.png')
-        
+
+
+def expo(x,a,b,c):
+    return a*np.exp(b*x)+c
+
+def decay(x,a,b):
+    return a/x**b
+
+def relaxation_time(pi1, pi2, q1, q2, l):
+    intEvoFile = f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_Euler.csv'
+    intEvo = pd.read_csv(f'{getTimeEvosPath()}/{intEvoFile}')
+    # get the analytical solution
+    # call(f'python ../det_sols_from_polynomial/f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+    # with open('sols.dat', 'r') as file:
+        # sols = [float(f) for f in file.readline().split()]
+        # Q = sols[2]-2*sols[1]
+    # use the last point of the integration as the solution (it is, actually)
+    sols = [intEvo.iloc[-1][f'f{i}'] for i in range(3)]
+    intEvo['f2_minusStat'] = sols[2] - intEvo['f2']
+    
+    fig, ax = plt.subplots()
+    # ax.plot(intEvo['iter'], intEvo['f2_minusStat'], lw=0.8)
+    # fit:
+    time, data = np.array(intEvo['iter'])[10:400], np.array(intEvo['f2_minusStat'])[10:400]
+    # paramfit, covfit = curve_fit(expo,time,data)
+    # fit = expo(time, *paramfit)
+    paramfit, curvedit = curve_fit(decay, time, data)
+    fit = decay(time, *paramfit)
+    ax.plot(time, data)
+    ax.plot(time, fit, ls='-.', color='r', lw=0.8)
+    # fig.text(0.45, 0.6, f'{round(paramfit[0],3)} e**({round(paramfit[1],3)} * t)', fontsize=9)
+    fig.text(0.45, 0.6, f'{round(paramfit[0],3)} / (t ** {round(paramfit[1],3)})', fontsize=9)
+    ax.set(xlabel='iteration', ylabel=r'$f_2^{*} - f_2$', xlim=(10,400))
+    fig.tight_layout()
+    fig.savefig(f'relaxation_f2_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.png')
 
 
 
@@ -256,15 +324,17 @@ if __name__ == '__main__':
     # nth_pt_equal_qs_and_pis(1, [10, 20, 30, 40], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT = True)
 
     # nth_pt_q_pairs(1, [(3,10), (4,10), (5,10), (6,10), (7,10), (8,10), (9,10)], 0.1, 0.1, 0.6, 5000, loglog=True)
-    # nth_pt_q_pairs(1, [(3,10), (4,10), (5,10), (6,10), (7,10), (8,10), (9,10)], 0.1, 0.1, 0.9, 5000, loglog=True)
+    # nth_pt_q_pairs(1, [(3,10), (4,10), (5,10), (6,10), (7,10), (8,10), (9,10)], 0.1, 0.1, 0.9, 5000, loglog=True, powerLawFit=True)
     # nth_pt_q_pairs(1, [(3,10), (4,10), (5,10), (6,10), (7,10), (8,10), (9,10)], 0.1, 0.1, 0.99, 5000, loglog=True, powerLawFit=True)
     # nth_pt_q_pairs(1, [(3,10), (4,10), (5,10), (6,10), (7,10), (8,10), (9,10)], 0.1, 0.1, 0.999, 5000, loglog=True, powerLawFit=True)
     
 
-    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.6, 5000, loglog=True)
-    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.9, 5000, loglog=True)
-    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.99, 5000, loglog=True)
-    # nth_pt_Delta_difPi(5, [(7,10), (14,20), (21,30), (28,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)    
-    nth_pt_Delta_difPi(1, [(9,10), (18,20), (27,30), (36,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)    
+    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.6, 5000, loglog=True, avgTraj=True)
+    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.9, 5000, loglog=True, powerLawFit=True)
+    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.99, 5000, loglog=True, powerLawFit=True)
+    # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.999, 5000, loglog=True, powerLawFit=True)
+    # nth_pt_Delta_difPi(5, [(7,10), (14,20), (21,30), (28,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)
+    # nth_pt_Delta_difPi(1, [(9,10), (18,20), (27,30), (36,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)
+    relaxation_time(0.1, 0.1, 9, 10, 0.9)
 
 
