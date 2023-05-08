@@ -83,7 +83,7 @@ ax[1].set_xlabel('$N$')
 ax[2].set_xlabel(r'$(r_{{int}}/r_{{int}}^*)^2$')
 # ax[2].set_xlim(0.02, 0.14) # when plotting as a function of N*(ri/rperc)**2 / R**2
 # ax[2].set_xlim(None, 5) # when plotting as a function of N*(ri/R)**2
-# ax[2].set_xlim(None, 1.2) # when plotting as a function of (ri/ri*)**2
+ax[2].set_xlim(None, 1.2) # when plotting as a function of (ri/ri*)**2
 ax[0].set_ylabel('$f_2$')
 #fig.legend(title='$\lambda$', bbox_to_anchor=(0.09, 0.87, 0.08, 0.08))
 
