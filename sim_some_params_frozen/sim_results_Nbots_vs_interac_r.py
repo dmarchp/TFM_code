@@ -18,7 +18,7 @@ perc_r = 6.5
 perc_r = 103.67*35**(-0.76)
 
 fig, ax = plt.subplots(1,3, figsize=(9,5))
-figAlt, axAlt = plt.subplots()
+# figAlt, axAlt = plt.subplots()
 
 
 # fix N, move interaction radius:
@@ -34,7 +34,7 @@ for l,lcolor in zip(lambs,lambs_colors_r):
     # ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     ax[2].plot((dfl['interac_r']/perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
-    axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
+    # axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
     
 # data to file:
 # dfls = df.query('lamb in @lambs').copy()
@@ -57,12 +57,13 @@ for l,lcolor in zip(lambs,lambs_colors_N):
         #df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1]) & (df['lambda']==l) & (df['interac_r']==interac_r)]
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
         # print(df['f1'])
-        f1_dif_N.append(float(df['f1'])), f2_dif_N.append(float(df['f2']))
+        f1_dif_N.append(float(df['f1'].iloc[0])), f2_dif_N.append(float(df['f2'].iloc[0]))
     ax[1].plot(Ns, f2_dif_N, color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
     # ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot((interac_r/np.array(perc_rs))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    ax[2].plot((interac_r/(60.087*np.array(Ns)**(-0.627)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    # ax[2].plot((interac_r/(62.067*np.array(Ns)**(-0.633)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    ax[2].plot((interac_r/(42*np.array(Ns)**(-0.5)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     dc = list(np.array(Ns)*(interac_r/(arena_r*perc_r))**2)
     lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
 
@@ -91,6 +92,6 @@ fig.tight_layout()
 fig.savefig(f'f2_vs_ri_or_Nbots_ar_{arena_r}_er_{exclusion_r}.png')
 
 
-axAlt.set(xlabel=r'$(\frac{r_i}{r_i^{*}})^{2}$', ylabel='f2*dens')
-figAlt.tight_layout()
-figAlt.savefig('crowding_proves.png')
+# axAlt.set(xlabel=r'$(\frac{r_i}{r_i^{*}})^{2}$', ylabel='f2*dens')
+# figAlt.tight_layout()
+# figAlt.savefig('crowding_proves.png')
