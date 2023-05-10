@@ -63,7 +63,8 @@ for l,lcolor in zip(lambs,lambs_colors_N):
     # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot((interac_r/np.array(perc_rs))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot((interac_r/(62.067*np.array(Ns)**(-0.633)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    ax[2].plot((interac_r/(42*np.array(Ns)**(-0.5)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    # ax[2].plot((interac_r/(42*np.array(Ns)**(-0.5)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    ax[2].plot((interac_r/(58.11*np.array(Ns)**(-0.615)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     dc = list(np.array(Ns)*(interac_r/(arena_r*perc_r))**2)
     lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
 
