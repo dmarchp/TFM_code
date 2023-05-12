@@ -1,6 +1,7 @@
 import subprocess
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 import os
 import sys
 sys.path.append('../')
@@ -39,13 +40,13 @@ def computeSymmetricMap_mesh(q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, 
     xgrid_pi, ygrid_l = np.mgrid[pi_lims[0]:pi_lims[1]:complex(0,Npis), l_lims[0]:l_lims[1]:complex(0,Nls)]
     xgrid_pi, ygrid_l = np.around(xgrid_pi,2), np.around(ygrid_l,2)
     grid_fs = np.empty([3, Npis, Nls])
-    for i,pi in enumerate(xgrid_pi[:,0]):
+    for i,pi in tqdm(enumerate(xgrid_pi[:,0])):
         for j,l in enumerate(ygrid_l[0,:]):
             subprocess.call(f'python3 f0poly_sols_clean.py {pi} {pi} {q1} {q2} {l} > sols.dat', shell=True)
             with open('sols.dat', 'r') as file:
                 sols = [float(f) for f in file.readline().split()]
                 grid_fs[:,i,j] = sols
-                print(pi, l, sols)
+                # print(pi, l, sols)
     if npyMesh:
         np.savez(f'{path}/map_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, fs=grid_fs)
     if parqDf:
@@ -161,7 +162,7 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeSymmetricMap_mesh(5, 10, pi_lims=(0.01, 0.5), dpi=0.1, dl=0.1, parqDf=False)
+computeSymmetricMap_mesh(9, 10, pi_lims=(0.01, 0.5), parqDf=False)
 #computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
 # computeAsymmetricMap_mesh(12, 40, 0.3)
