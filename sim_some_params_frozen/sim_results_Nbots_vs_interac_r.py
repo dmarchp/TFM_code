@@ -37,10 +37,10 @@ for l,lcolor in zip(lambs,lambs_colors_r):
     # axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
     
 # data to file:
-# dfls = df.query('lamb in @lambs').copy()
-# dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
-# dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
-# dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
+dfls = df.query('lamb in @lambs').copy()
+dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
+dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
+dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
     
 ax[0].legend(title='$\lambda$', fontsize=8)
 
@@ -69,10 +69,10 @@ for l,lcolor in zip(lambs,lambs_colors_N):
     lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
 
 # data to file:
-# dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
-# dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
-# dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
-# dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
+dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
+dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
+dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
+dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
     
     
 ax[1].legend(title='$\lambda$', fontsize=8)
