@@ -11,6 +11,7 @@ extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
     path = extSSDpath + getProjectFoldername() + '/det_sols_from_polynomial/res_files'
 else:
+    print('CAREFUL! NO EXTERNAL SSD!')
     path = '/res_files'
 
 
@@ -111,12 +112,12 @@ def computeAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0
     for i,pi2 in enumerate(xgrid_pi2[:,0]):
         for j,l in enumerate(ygrid_l[0,:]):
             # print(f'{pi1} {pi2} {q1} {q2} {l}')
-            subprocess.call(f'python f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+            subprocess.call(f'python3 f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
             with open('sols.dat', 'r') as file:
                 sols = [float(f) for f in file.readline().split()]
                 grid_fs[:,i,j] = sols
     if npyMesh:
-        np.savez(f'res_files/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, fs=grid_fs)
+        np.savez(f'{path}/map_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, fs=grid_fs)
     if parqDf:
         # unpack all grids, fs into lists:
         pi2s = [pi for pi_row in xgrid_pi2 for pi in pi_row]
@@ -162,14 +163,16 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeSymmetricMap_mesh(9, 10, pi_lims=(0.01, 0.5), parqDf=False)
+# computeSymmetricMap_mesh(9, 10, pi_lims=(0.01, 0.5), parqDf=False)
 #computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
 # computeAsymmetricMap_mesh(12, 40, 0.3)
 # computeAsymmetricMap_mesh(20, 40, 0.6)
 # computeAsymmetricMap_mesh(38, 40, 0.9)
 
-# computeAsymmetricMap_mesh_fixPi1(0.3, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+computeAsymmetricMap_mesh_fixPi1(0.25, 5, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+computeAsymmetricMap_mesh_fixPi1(0.25, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 
 # computeLambdaEvo(0.4, 0.2, 5, 10)
 # computeLambdaEvo(0.4, 0.2, 10, 20)
