@@ -220,10 +220,10 @@ def lambda_threshold_line(q1s, q2, pi1, pi2, x):
     deltas, lambdas, last_q1_l0 = [], [], False
     for q1 in q1s:
         if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-            call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+            call(f'python3 find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
         tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
         deltas.append((q2-q1)/(q2+q1))
-        lamb = float(tline.query('pi2 == @pi2')['lambda'])
+        lamb = float(tline.query('pi2 == @pi2')['lambda'].iloc[0])
         if np.isnan(lamb):
             lambdas.append(0)
             last_q1_l0, qindex = q1, q1s_q2[q2].index(q1)
@@ -236,18 +236,21 @@ def lambda_threshold_line(q1s, q2, pi1, pi2, x):
         a, b, h = last_q1_l0+smaller_dq1, last_q1_l0+dq1-smaller_dq1, smaller_dq1
         extra_q1s = np.linspace(a, b, round((b-a)/h+1))
         extra_q1s = np.around(extra_q1s, 1)
+        q1s_def = np.concatenate([q1s[0:qindex+1], extra_q1s, q1s[qindex+1:]])
         for q1 in extra_q1s:
             if not os.path.exists(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv'):
-                call(f'python find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
+                call(f'python3 find_Tlines_asym_fixPi1.py {q1} {q2} {pi1} {x}', shell=True)
             tline = pd.read_csv(f'{path}/Tline_asym_fixPi1_pi1_{pi1}_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv')
             deltas.insert(qindex+1, (q2-q1)/(q2+q1))
-            lamb = float(tline.query('pi2 == @pi2')['lambda'])
+            lamb = float(tline.query('pi2 == @pi2')['lambda'].iloc[0])
             if np.isnan(lamb):
                 lambdas.insert(qindex+1, 0)
             else:
                 lambdas.insert(qindex+1, lamb)
             qindex += 1
-    return deltas, lambdas
+    else:
+        q1s_def = q1s
+    return deltas, lambdas, q1s_def
 
 def plot_lambda_threshold_delta(q2s, pi1, pi2, x=2):
     fig, ax = plt.subplots(figsize=(5.6,4.8))
@@ -266,7 +269,7 @@ def plot_lambda_threshold_pi2s(pi2s, pi1, q2, x=2):
     fig, ax = plt.subplots(figsize=(5.6,4.8))
     colors = plt.cm.gnuplot(np.linspace(0,1,len(pi2s)))
     for pi2, color in zip(pi2s, colors):
-        deltas, lambdas = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
+        deltas, lambdas, _ = lambda_threshold_line(q1s_q2[q2], q2, pi1, pi2, x)
         ax.plot(deltas, lambdas, label=f'{pi2}', color=color, marker='.', lw=0.8, markersize=2)
         # transició a lambda 0 teorica:
         # deltas.reverse(), lambdas.reverse()
@@ -320,59 +323,60 @@ def plot_Delta_threshold_manyPi1(pi1s, q2, x=2, piFraction=True):
     fig.savefig(figname)
 
 
-# plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(5)], 3, 10, 2)
-# plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(7)], 5, 10, 2)
-# plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(8)], 7, 10, 2)
-# plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(10)], 9, 10, 2)
+if __name__ == '__main__':
+    # plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(5)], 3, 10, 2)
+    # plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(7)], 5, 10, 2)
+    # plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(8)], 7, 10, 2)
+    # plot_Qlines_pi1pi2_dif_lambda([i/10 for i in range(10)], 9, 10, 2)
 
 
-# plot_Qlines_pi1pi2_dif_q1(list(range(1,10)), 10, 0.0)
-# plot_Qlines_pi1pi2_dif_q1(list(range(2,10)), 10, 0.3)
-# plot_Qlines_pi1pi2_dif_q1(list(range(5,10)), 10, 0.6)
-# plot_Qlines_pi1pi2_dif_q1(list(range(9,10)), 10, 0.9)
+    # plot_Qlines_pi1pi2_dif_q1(list(range(1,10)), 10, 0.0)
+    # plot_Qlines_pi1pi2_dif_q1(list(range(2,10)), 10, 0.3)
+    # plot_Qlines_pi1pi2_dif_q1(list(range(5,10)), 10, 0.6)
+    # plot_Qlines_pi1pi2_dif_q1(list(range(9,10)), 10, 0.9)
 
 
-# plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.0)
-# plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.3)
-# plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.6)
-# plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.9)
+    # plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.0)
+    # plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.3)
+    # plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.6)
+    # plot_Qlines_pi1pi2_dif_q1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.9)
 
 
-# s'apren el mateix dels seguents plots que dels anteriors...
-# plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.4, 0.8, 0.9], 0.053)
-# plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.3, 0.5, 0.7], 0.176)
-# plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.3, 0.5, 0.6], 0.333)
-# plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.1, 0.2, 0.3], 0.666)
+    # s'apren el mateix dels seguents plots que dels anteriors...
+    # plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.4, 0.8, 0.9], 0.053)
+    # plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.3, 0.5, 0.7], 0.176)
+    # plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.3, 0.5, 0.6], 0.333)
+    # plot_Qlines_pi1pi2_dif_lambda_Delta([0.0, 0.1, 0.2, 0.3], 0.666)
 
 
-# canviem l'espai d'estats que mirem a (pi2, lambda):
-# plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.1)
-# plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.2)
-# plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.3)
-# plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.4)
+    # canviem l'espai d'estats que mirem a (pi2, lambda):
+    # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.1)
+    # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.2)
+    # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.3)
+    # plot_Qlines_pi2lam_difq1([3,5,7,9], 10, 0.4)
 
-plot_Qlines_pi2lam_piFrac_difipi1([3.0,5.0,7.0,9.0], 10.0, [0.1, 0.2, 0.3, 0.4])
+    # plot_Qlines_pi2lam_piFrac_difipi1([3.0,5.0,7.0,9.0], 10.0, [0.1, 0.2, 0.3, 0.4])
 
-# plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.1)
-# plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.2)
-# plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.3)
-# plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.4)
-
-
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.1, 2)
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.2, 2)
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.3, 2)
-
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.05, 2)
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.1, 2)
-# plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.15, 2)
+    # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.1)
+    # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.2)
+    # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.3)
+    # plot_Qlines_pi2lam_difq1_manyDelta([0.053, 0.176, 0.333, 0.538], 0.4)
 
 
-# plot_lambda_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40.0)
-# plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40.0)
-# plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40.0)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.1, 2)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.2, 2)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.4, 0.3, 2)
 
-#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
-#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
-#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
-#plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.05, 2)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.1, 2)
+    # plot_lambda_threshold_delta([5.0,7.0,10.0,20.0,30.0,40.0], 0.2, 0.15, 2)
+
+    # plot_lambda_threshold_pi2s([0.01, 0.03, 0.05, 0.10, 0.15, 0.19], 0.2, 40.0)
+    # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.20, 0.22, 0.24, 0.26, 0.28], 0.3, 40.0)
+    # plot_lambda_threshold_pi2s([0.05, 0.10, 0.15, 0.2, 0.25, 0.35], 0.4, 40.0)
+    plot_lambda_threshold_pi2s([0.1, 0.2, 0.25, 0.3, 0.4], 0.25, 10.0)
+
+    #plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1)
+    #plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0)
+    #plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, x = 1, piFraction=False)
+    #plot_Delta_threshold_manyPi1([0.1, 0.2, 0.3, 0.4], 40.0, piFraction=False)
