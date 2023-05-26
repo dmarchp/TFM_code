@@ -5,17 +5,18 @@ import numpy as np
 model = 'Galla'
 pis = [0.3, 0.3]
 qs = [7, 10]
-#lamb = 0.6
 lambs = [0.3, 0.6, 0.9]
-#lambs_colors_r = plt.cm.YlOrBr(np.linspace(0.1,0.9,len(lambs)))
-#lambs_colors_N = plt.cm.BuGn(np.linspace(0.1,0.9,len(lambs)))
 lambs_colors_r = plt.cm.spring(np.linspace(0.1,0.9,len(lambs)))
 lambs_colors_N = plt.cm.winter(np.linspace(0.1,0.9,len(lambs)))
 #alpha_l = [0.4, 0.7, 1]
 arena_r = 20
 exclusion_r = 1.5
 perc_r = 6.5
-perc_r = 103.67*35**(-0.76)
+
+def perc_r(N):
+    return 58.11*N**(-0.615)
+
+exponent_rint_frac = 2
 
 fig, ax = plt.subplots(1,3, figsize=(9,5))
 # figAlt, axAlt = plt.subplots()
@@ -23,24 +24,23 @@ fig, ax = plt.subplots(1,3, figsize=(9,5))
 
 # fix N, move interaction radius:
 N = 35
+perc_r_fixN = perc_r(N)
 df = pd.read_csv(f'{model}/{N}_bots/sim_fp_results_er_{exclusion_r}_NOPUSH.csv')
 df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1])]
 df = df[df.interac_r != 20.0]
 df = df.rename(columns={"lambda":"lamb"})
 for l,lcolor in zip(lambs,lambs_colors_r):
-    #dfl = df.loc[(df['lambda']==l)]
     dfl = df.query('lamb == @l')
     ax[0].plot(dfl['interac_r'], dfl['f2'], color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    # ax[2].plot(N*dfl['interac_r']**2/arena_r**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(N*dfl['interac_r']**2/(arena_r*perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
-    ax[2].plot((dfl['interac_r']/perc_r)**2, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
+    ax[2].plot((dfl['interac_r']/perc_r_fixN)**exponent_rint_frac, dfl['f2'], color=lcolor, marker='2', markersize=3, lw=0.8)
     # axAlt.plot((dfl['interac_r']/perc_r)**2, (N/arena_r**2)*dfl['f2'], color=lcolor, marker='.', markersize=3, lw=0.8)
     
 # data to file:
-dfls = df.query('lamb in @lambs').copy()
-dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
-dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
-dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
+# dfls = df.query('lamb in @lambs').copy()
+# dfls['Dc'] = N*dfls['interac_r']**2/(arena_r*perc_r)**2
+# dfls = dfls.drop(columns=['m', 'sdm', 'k0', 'k1', 'k2', 'sdk0', 'sdk1', 'sdk2'])
+# dfls.to_csv(f'results_dif_ir_N_{N}.csv', index=False)
     
 ax[0].legend(title='$\lambda$', fontsize=8)
 
@@ -54,25 +54,21 @@ for l,lcolor in zip(lambs,lambs_colors_N):
     for N in Ns:
         df = pd.read_csv(f'{model}/{N}_bots/sim_fp_results_er_{exclusion_r}_NOPUSH.csv')
         df = df.rename(columns={"lambda":"lamb"})
-        #df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1]) & (df['lambda']==l) & (df['interac_r']==interac_r)]
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
-        # print(df['f1'])
         f1_dif_N.append(float(df['f1'].iloc[0])), f2_dif_N.append(float(df['f2'].iloc[0]))
     ax[1].plot(Ns, f2_dif_N, color=lcolor, marker='2', markersize=3, label=f'{l}', lw=0.8)
-    # ax[2].plot(np.array(Ns)*(interac_r/arena_r)**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot(np.array(Ns)*(interac_r/(arena_r*perc_r))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    # ax[2].plot((interac_r/np.array(perc_rs))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    # ax[2].plot((interac_r/(62.067*np.array(Ns)**(-0.633)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
     # ax[2].plot((interac_r/(42*np.array(Ns)**(-0.5)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    ax[2].plot((interac_r/(58.11*np.array(Ns)**(-0.615)))**2, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
-    dc = list(np.array(Ns)*(interac_r/(arena_r*perc_r))**2)
-    lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
+    interac_r_perc = perc_r(np.array(Ns))
+    ax[2].plot((interac_r/interac_r_perc)**exponent_rint_frac, f2_dif_N, color=lcolor, marker='2', markersize=3, lw=0.8)
+    # dc = list(np.array(Ns)*(interac_r/(arena_r*perc_r))**2)
+    # lambsdf.extend([l]*len(Ns)), Nsdf.extend(Ns), f1df.extend(f1_dif_N), f2df.extend(f2_dif_N), dcdf.extend(dc)
 
 # data to file:
-dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
-dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
-dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
-dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
+# dfNs = pd.DataFrame({'lambs':lambsdf, 'N':Nsdf, 'f1':f1df, 'f2':f2df, 'Dc':dcdf})
+# dfNs['Q'] = dfNs['f2'] - 2*dfNs['f1']
+# dfNs['Dc'] = dfNs['N']*interac_r**2/(arena_r*perc_r)**2
+# dfNs.to_csv(f'results_dif_N_ir_{interac_r}.csv', index=False)
     
     
 ax[1].legend(title='$\lambda$', fontsize=8)
