@@ -1,7 +1,7 @@
 objects = main.o mt19937.o system_def.o stoc_evo.o
 dep_objects = mt19937.o system_def.o stoc_evo.o
 mods = mtmod.mod ssa.mod system_parameters.mod
-compiler=gfortran-9
+compiler=gfortran
 #opt= -ffpe-trap=invalid -g -O -Wall -fcheck=all -fbacktrace -fbounds-check
 opt = -fbounds-check
 

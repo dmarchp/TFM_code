@@ -55,6 +55,7 @@ for l,lcolor in zip(lambs,lambs_colors):
         ax.plot((interac_r/interac_r_perc)**exponent_rint_frac, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.')
 
 
+factor = 4.0/6.5
 # KILOMBO
 # fix r_i, move N:
 interac_r = 5.0
@@ -63,7 +64,7 @@ df = df.rename(columns={"lambda":"lamb"})
 df = df.query("parameter == 'f2'")
 for l,lcolor in zip(lambs,lambs_colors):
     dfl = df.query('lamb == @l').copy()
-    dfl['frac_ir'] = interac_r/(0.5*perc_r(dfl['N']))
+    dfl['frac_ir'] = interac_r/(factor*perc_r(dfl['N']))
     if l==0.3:
         ax.plot(dfl['frac_ir']**exponent_rint_frac, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
     else:
@@ -72,13 +73,13 @@ for l,lcolor in zip(lambs,lambs_colors):
 
 # KILOBOTS
 # fix r_i, move N:
-interac_r = 5.0
+interac_r = 7.0
 df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
 df = df.rename(columns={"lambda":"lamb"})
 df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
 for l,lcolor in zip(lambs,lambs_colors):
     dfl = df.query('lamb == @l').copy()
-    dfl['frac_ir'] = interac_r/(0.5*perc_r(dfl['N']))
+    dfl['frac_ir'] = interac_r/(factor*perc_r(dfl['N']))
     if l==0.3:
         ax.plot(dfl['frac_ir']**exponent_rint_frac, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
     else:
