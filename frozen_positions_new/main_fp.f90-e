@@ -144,7 +144,7 @@ program main
  !call execute_command_line('mv bot_degree_*.csv positions_and_contacts/'//trim(adjustl(Nstr))//'_bots/')
     
     ! get the stationary results before creating the compressed file:
-    call execute_command_line("python stationary_results.py F")
+    !call execute_command_line("python stationary_results.py F")
     
     ! compress output folder:
     ! tar.gz, add -v for verbose

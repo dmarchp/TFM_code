@@ -16,9 +16,16 @@ module system_parameters
     real(8), dimension(:,:), allocatable :: bots_xy
     integer, dimension(:), allocatable :: bot_degree, p_ini, p_fin, neighbors
     logical :: push
-   
+    ! Path to the configurations:
+    character(39) :: path
 
     contains
+
+    subroutine init_path()
+      !path = 'positions_and_contacts/'
+      !path = '/media/david/KINGSTON/quenched_configs/'
+      path = '/Volumes/KINGSTON/quenched_configs/'
+    end subroutine init_path
 
     subroutine init_system_cts(input_unit)
       implicit none
@@ -182,7 +189,7 @@ module system_parameters
         implicit none
         character(5), intent(in) :: file_id, Nstr, arstr, erstr
         character(15), intent(in) :: push_folder_str
-        character(39) :: path
+        !character(39) :: path
         integer :: i, read_stat
         real(8) :: x, y
         logical :: file_exists
@@ -192,7 +199,8 @@ module system_parameters
             allocate(bots_xy(N_bots,2))
         endif
         !path = 'positions_and_contacts/'
-        path = '/media/david/KINGSTON/quenched_configs/'
+        !path = '/media/david/KINGSTON/quenched_configs/'
+        !path = '/Volumes/KINGSTON/quenched_configs/'
         !inquire(file=trim(adjustl(path))//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//&
         !'/bots_xy_positions_'//trim(adjustl(file_id))//'_ar_'//trim(adjustl(arstr))//'_er_'//trim(adjustl(erstr))//'.txt',&
         !exist=file_exists)

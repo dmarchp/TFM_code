@@ -135,6 +135,47 @@ def plotPercRadius_fromMCS_difN(arena_r, exclusion_r, Ns, push=False, logscale=F
     figname += '.png'
     fig.savefig(figname)
 
+def plotPercRadius_fromMCS_difN_FSC(arena_r, exclusion_r, Ns, push=False, logscale=False):
+    # Finite size scaling
+    nu, df = 4/3, 182/96
+    perc_rs, perc_rs_err = [], [[], []]
+    pushLabel = 'push' if push else 'nopush'
+    for N in Ns:
+        irs = availableIrs(N, arena_r, exclusion_r, push)
+        dfmcs = getMeanClusterSize_ir(N, arena_r, exclusion_r, irs, push)
+        maxMCS = max(dfmcs['mcs'])
+        perc_r = float(dfmcs.query('mcs == @maxMCS')['interac_r'].iloc[0])
+        perc_rs.append(perc_r)
+        # find lower, upper errors:
+        i = dfmcs[dfmcs.interac_r == perc_r].index[0]
+        perc_r_l, perc_r_u = dfmcs.iloc[i-1].interac_r, dfmcs.iloc[i+1].interac_r
+        perc_rs_err[0].append(perc_r-perc_r_l), perc_rs_err[1].append(perc_r_u - perc_r)
+    fig, ax = plt.subplots()
+    ax.set(xlabel=r'$N^{-1/(\nu d_f)}$', ylabel=r'$Nr_{int}^* / R^2$') # , xscale='log', yscale='log'
+    if logscale:
+        ax.set(xscale='log', yscale='log')
+    Ns_fsc = np.array(Ns)**(-1/(nu*df))
+    y_axis = [N*(ri/arena_r)**2 for N,ri in zip(Ns,perc_rs)]
+    ax.plot(Ns_fsc, y_axis, ls='-', lw=0.8, marker='.')
+    # ax.errorbar(Ns, perc_rs, perc_rs_err, lw=0.8, elinewidth=0.7, capsize=1.0)
+    # fit:
+    # perc_rs_sigma = [(l+u)/2 for l,u in zip(perc_rs_err[0],perc_rs_err[1])]
+    # paramfit, covfit = curve_fit(powerLaw, Ns, perc_rs, sigma=perc_rs_sigma)
+    # fit = powerLaw(Ns, *paramfit)
+    # ax.plot(Ns, fit, ls='--', lw=0.8, color='k')
+    # ax.text(0.7, 0.6, rf'{round(paramfit[0],3)} N**({round(paramfit[1],3)})', fontsize=8, color='k', transform=ax.transAxes)
+    # ax.text(0.7, 0.55, rf'{round(paramfit[1],8)} +- {round(np.sqrt(covfit[1,1]),8)}', fontsize=8, color='k', transform=ax.transAxes)
+    # theoretical value:
+    # ax.plot(Ns, 3.9*36*np.array(Ns)**(-1/2), ls='-.', color='xkcd:red', lw=0.9)
+    # ax.plot(Ns, 36*np.array(Ns)**(-1/2), ls='-.', color='xkcd:red', lw=0.9)
+    # ax.text(0.7, 0.65, rf'Theoretical, $r_{{int}}^* \sim N^{{-1/2}}$', fontsize=8, color='xkcd:red', transform=ax.transAxes)
+    # print(perc_rs)
+    fig.tight_layout()
+    figname = f'percR_MCS_difN_ar_{arena_r}_er_{exclusion_r}_{pushLabel}_FSC'
+    if logscale:
+        figname += '_logscale'
+    figname += '.png'
+    fig.savefig(figname)
 
 # MCS en funció d'N mantentint el r_i fixe...
 def getMeanClusterSize_N(interac_r, arena_r, exclusion_r, Ns, push=False):
@@ -292,7 +333,8 @@ def main():
     
 if __name__ == '__main__':
     # plotMeanClusterSize_difN(20.0, 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
-    plotPercRadius_fromMCS_difN(20.0, 1.5, [15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    # plotPercRadius_fromMCS_difN(20.0, 1.5, [15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
+    plotPercRadius_fromMCS_difN_FSC(20.0, 1.5, [15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
     # plotMeanClusterSize_funcN(20.0, [4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 1.5, [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
     # plotPercN_fromMCS_difir(20.0, 1.5, [5.0, 6.0, 7.0, 8.0, 9.0], [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
     # plotMeanClusterSize_difN(75.0, 1.5, [352, 492, 633, 703, 844, 984])

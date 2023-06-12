@@ -11,7 +11,7 @@
 ! System
 N_bots = 633
 N_sites = 2
-max_time = 5000
+max_time = 1
 
 ! Interdependence:
 lambda = 0.9

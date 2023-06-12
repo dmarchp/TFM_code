@@ -7,6 +7,7 @@ import argparse
 from subprocess import call
 import glob
 import os
+import socket
 import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
@@ -76,24 +77,41 @@ print(f'There are {N_configs} position files and {N_contacts} contact files for 
 fin_file = 'input_template_fp.txt'
 f_file = 'main_fp.f90'
 fex_file = 'main.x'
-call(f"sed -i 's/^N_bots.*/N_bots = {N_bots}/' "+fin_file, shell=True)
-call(f"sed -i 's/^bots_per_site.*/bots_per_site = {N_bots} 0 0/' "+fin_file, shell=True)
-call(f"sed -i 's/^arena_r.*/arena_r = {arena_r}/' "+fin_file, shell=True)
-call(f"sed -i 's/^interac_r.*/interac_r = {interac_r}/' "+fin_file, shell=True)
-call(f"sed -i 's/^exclusion_r.*/exclusion_r = {exclusion_r}/' "+fin_file, shell=True)
-call(f"sed -i 's/^push = .*/push = {pushFortran}/' "+fin_file, shell=True)
+hostName = socket.gethostname()
+if hostName == 'depaula.upc.es':
+    call(f"sed -i'' -e 's/^N_bots.*/N_bots = {N_bots}/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^bots_per_site.*/bots_per_site = {N_bots} 0 0/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^arena_r.*/arena_r = {arena_r}/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^interac_r.*/interac_r = {interac_r}/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^exclusion_r.*/exclusion_r = {exclusion_r}/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^push = .*/push = {pushFortran}/' "+fin_file, shell=True)
+    call(f"sed -i'' -e 's/^max_time.*/max_time = {max_time}/' "+fin_file, shell=True)
+    call("sed -i'' -e 's/ call execute_command_line(\"python stationary_results.py F\")/ !call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
+else: 
+    call(f"sed -i 's/^N_bots.*/N_bots = {N_bots}/' "+fin_file, shell=True)
+    call(f"sed -i 's/^bots_per_site.*/bots_per_site = {N_bots} 0 0/' "+fin_file, shell=True)
+    call(f"sed -i 's/^arena_r.*/arena_r = {arena_r}/' "+fin_file, shell=True)
+    call(f"sed -i 's/^interac_r.*/interac_r = {interac_r}/' "+fin_file, shell=True)
+    call(f"sed -i 's/^exclusion_r.*/exclusion_r = {exclusion_r}/' "+fin_file, shell=True)
+    call(f"sed -i 's/^push = .*/push = {pushFortran}/' "+fin_file, shell=True)
+    call(f"sed -i 's/^max_time.*/max_time = {max_time}/' "+fin_file, shell=True)
+    call("sed -i 's/ call execute_command_line(\"python stationary_results.py F\")/ !call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
 
-call(f"sed -i 's/^max_time.*/max_time = {max_time}/' "+fin_file, shell=True)
-call("sed -i 's/ call execute_command_line(\"python stationary_results.py F\")/ !call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
 call("make", shell=True)
 call("./"+fex_file+f" 1 {N_configs}", shell=True)
 
-# restore stationary_results.py
-call("sed -i 's/ !call execute_command_line(\"python stationary_results.py F\")/ call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
-call("make", shell=True)
-# reset max_time to an appropiate simulation time
-call(f"sed -i 's/max_time.*/max_time = 5000/' "+fin_file, shell=True)
 
+# restore stationary_results.py
+if hostName == 'depaula.upc.es':
+    call("sed -i'' -e 's/ !call execute_command_line(\"python stationary_results.py F\")/ call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
+    call("make", shell=True)
+    # reset max_time to an appropiate simulation time
+    call(f"sed -i'' -e 's/max_time.*/max_time = 5000/' "+fin_file, shell=True)
+else:
+    call("sed -i 's/ !call execute_command_line(\"python stationary_results.py F\")/ call execute_command_line(\"python stationary_results.py F\")/' "+f_file, shell=True)
+    call("make", shell=True)
+    # reset max_time to an appropiate simulation time
+    call(f"sed -i 's/max_time.*/max_time = 5000/' "+fin_file, shell=True)
 
 
 # By default, the fortran program moves the contact files to positions_and_contacts/N_bots/pushFolder/'
