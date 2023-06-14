@@ -210,10 +210,10 @@ def nth_pt_equal_qs_and_pis(n, qs: list, pis:list, l:float, N:int, normPT = Fals
 # nice but not pieron's law (?)
 def nth_pt_q_pairs(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False, avgTraj=False):
     npts_q_pairs, std_npts_q_pairs, npts_avgTraj_q_pairs = [], [], []
-    deltas = []
+    deltas, deltas2, q2s = [], [], []
     for q_pair in q_pairs:
         q1, q2 = q_pair
-        deltas.append((q2-q1)/(q2+q1))
+        deltas.append((q2-q1)/(q2+q1)), deltas2.append((q2-q1)/q2), q2s.append(q2)
         # deltas.append(q2-q1) # can't fit a powerlaw...
         if not os.path.exists(f'{getTimeEvosPath()}/time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'):
             call(f'python evo_to_stationary.py {pi1} {pi2} {q1} {q2} {l} {N} N {random.randint(0,10000000)}', shell=True)
@@ -228,16 +228,17 @@ def nth_pt_q_pairs(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False, 
         passage_times = npts_avgTraj_q_pairs
     else:
         passage_times = npts_q_pairs
+    xax = deltas2
     if powerLawFit:
-        paramfit, covfit = curve_fit(powerLaw, deltas, passage_times)
-        fit = powerLaw(deltas, *paramfit)
-        ax.plot(deltas, fit, ls='-.', lw=0.7, marker='None', color='r')
+        paramfit, covfit = curve_fit(powerLaw, xax, passage_times)
+        fit = powerLaw(xax, *paramfit)
+        ax.plot(xax, fit, ls='-.', lw=0.7, marker='None', color='r')
         ax.text(0.70, 0.65, f'a = {round(paramfit[0],5)}+-{round(np.sqrt(covfit[0,0]),5)}', fontsize=9, color='r', transform=ax.transAxes)
         ax.text(0.70, 0.60, f'b = {round(paramfit[1],5)}+-{round(np.sqrt(covfit[1,1]),5)}', fontsize=9, color='r', transform=ax.transAxes)
     if avgTraj:
-        ax.plot(deltas, passage_times, marker='.', ls='-', lw=0.7)
+        ax.plot(xax, passage_times, marker='.', ls='-', lw=0.7)
     else:
-        ax.errorbar(deltas, npts_q_pairs, std_npts_q_pairs, marker='.', ls='-', lw=0.7, capsize=3)
+        ax.errorbar(xax, npts_q_pairs, std_npts_q_pairs, marker='.', ls='-', lw=0.7, capsize=3)
     fig.text(0.3, 0.97, rf'$(\pi_1, \pi_2) = ({pi1}, {pi2})$, $\lambda = {l}$, $N = {N}$', fontsize=9)
     fig.tight_layout()
     figname = f'q_pairs_q2_{q_pairs[0][1]}_{n}th_pt_pi1_{pi1}_pi2_{pi2}_l_{l}_N_{N}'
@@ -315,6 +316,49 @@ def relaxation_time(pi1, pi2, q1, q2, l):
     fig.savefig(f'relaxation_f2_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.png')
 
 
+def pierons_law_nth_pt_q_pairs_weber_frac(n, q_pairs, pi1, pi2, l, N, loglog=False, powerLawFit=False, avgTraj=False):
+    '''
+    q pairs with equal Weber Fraction. Time as a function of q2.
+    '''
+    npts_q_pairs, std_npts_q_pairs, npts_avgTraj_q_pairs = [], [], []
+    wbfrac = (q_pairs[0][1] - q_pairs[0][0])/q_pairs[0][1]
+    q2s = []
+    for q_pair in q_pairs:
+        q1, q2 = q_pair
+        q2s.append(q2)
+        if not os.path.exists(f'{getTimeEvosPath()}/time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'):
+            call(f'python evo_to_stationary.py {pi1} {pi2} {q1} {q2} {l} {N} N {random.randint(0,10000000)}', shell=True)
+        npts_f, npts_Q, npt_f_avgTraj = get_nth_passage_times(n, (q1,q2), (pi1, pi2), l , N, avgTraj = True)
+        npt_f, std_npt_f = np.average(npts_f), np.std(npts_f)
+        npts_q_pairs.append(npt_f), std_npts_q_pairs.append(std_npt_f), npts_avgTraj_q_pairs.append(npt_f_avgTraj)
+    fig, ax = plt.subplots()
+    ax.set(xlabel=r'$\Delta$', ylabel=f'{n}th PT')
+    if loglog:
+        ax.set(xscale='log', yscale='log')
+    if avgTraj:
+        passage_times = npts_avgTraj_q_pairs
+    else:
+        passage_times = npts_q_pairs
+    xax = q2s
+    if powerLawFit:
+        paramfit, covfit = curve_fit(powerLaw, xax, passage_times)
+        fit = powerLaw(xax, *paramfit)
+        ax.plot(xax, fit, ls='-.', lw=0.7, marker='None', color='r')
+        ax.text(0.70, 0.65, f'a = {round(paramfit[0],5)}+-{round(np.sqrt(covfit[0,0]),5)}', fontsize=9, color='r', transform=ax.transAxes)
+        ax.text(0.70, 0.60, f'b = {round(paramfit[1],5)}+-{round(np.sqrt(covfit[1,1]),5)}', fontsize=9, color='r', transform=ax.transAxes)
+    if avgTraj:
+        ax.plot(xax, passage_times, marker='.', ls='-', lw=0.7)
+    else:
+        ax.errorbar(xax, npts_q_pairs, std_npts_q_pairs, marker='.', ls='-', lw=0.7, capsize=3)
+    fig.text(0.3, 0.97, rf'$(\pi_1, \pi_2) = ({pi1}, {pi2})$, $\lambda = {l}$, $N = {N}$, $\Delta = {wbfrac}$', fontsize=9)
+    fig.tight_layout()
+    figname = f'q_pairs_Delta_{q_pairs[0][0]}_{q_pairs[0][1]}_{n}th_pt_pi1_{pi1}_pi2_{pi2}_l_{l}_N_{N}'
+    if loglog:
+        figname += '_loglog'
+    if avgTraj:
+        figname += '_avgTraj'
+    figname += '.png'
+    fig.savefig(figname)
 
 
 
@@ -335,6 +379,7 @@ if __name__ == '__main__':
     # nth_pt_q_pairs(1, [(12,40), (16,40), (20,40), (24,40), (28,40), (32,40), (36,40)], 0.1, 0.1, 0.999, 5000, loglog=True, powerLawFit=True)
     # nth_pt_Delta_difPi(5, [(7,10), (14,20), (21,30), (28,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)
     # nth_pt_Delta_difPi(1, [(9,10), (18,20), (27,30), (36,40)], [0.1, 0.2, 0.3, 0.4], 0.9, 5000, normPT=True)
-    relaxation_time(0.1, 0.1, 9, 10, 0.9)
+    # relaxation_time(0.1, 0.1, 9, 10, 0.9)
+    pierons_law_nth_pt_q_pairs_weber_frac(1, [(9,10), (18,20), (27,30), (36,40)], 0.1, 0.1, 0.9, 5000, True, True)
 
 
