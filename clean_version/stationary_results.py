@@ -21,7 +21,7 @@ for line in rFile.readlines():
     if('pi(:) = ' in line):
         pi1, pi2 = float(line.split()[2]), float(line.split()[3])
     if('q(:) = ' in line):
-        q1, q2 = int(line.split()[2]), int(line.split()[3])
+        q1, q2 = float(line.split()[2]), float(line.split()[3])
 rFile.close()
 
 num_files = len(os.listdir('time_evo_csv/'))
