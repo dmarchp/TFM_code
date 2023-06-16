@@ -24,7 +24,7 @@ parser.add_argument('N', type=int, help='Number of bots to simulate')
 parser.add_argument('dataField', type=str, help='Which data to heatmap: f0,f1,f2,sdf0,sdf1,sdf2,Q,sdQ')
 parser.add_argument('--ic', type=str, help='Initial condition: (no (all uncomitted), pi, pi hard) -> (N/P/Phard)', default='N')
 parser.add_argument('-Tline', help='Add theoretical transition line to the colormap plot', action='store_true')
-parser.add_argument('-mask_ulc', help='Mask upper left corner', action='store_true')
+parser.add_argument('--mask_ulc', type=int, help='Mask upper left corner', default=0)
 args = parser.parse_args()
 
 q1, q2, N, dataField, ic  = args.q1, args.q2, args.N, args.dataField, args.ic
@@ -53,6 +53,13 @@ if dataField=='Q':
 else:
     vmin, vmax = None, None
 
+if args.mask_ulc == 1:
+    data_mesh[0][-1] = float('nan')
+elif args.mask_ulc == 2:
+    data_mesh[0][-2:] = float('nan')
+    data_mesh[1][-1] = float('nan')
+
+
 fig, ax = plt.subplots(figsize=(5.6,4.8))
 # im = ax.pcolormesh(mesh['x'], mesh['y'], Qmesh, vmin = -max, vmax = max, cmap='bwr_r', shading='nearest')
 im = ax.pcolormesh(mesh['x'], mesh['y'], data_mesh, cmap=dataField_dic[dataField]['cmap'], shading='nearest', vmin=vmin, vmax=vmax) #norm='log'
@@ -66,6 +73,8 @@ ax.set_ylabel('$\lambda$')
 cb = fig.colorbar(im, ax=ax, aspect=25, shrink=0.75, pad=0.025)
 cb.ax.tick_params(labelsize=9)
 fig.tight_layout(pad=0.1)
-# fig.savefig(f'stateSpace_sym_q1_{q1}_q2_{q2}_f2_{int(x)}f1.png')
+fig.text(0.87, 0.95, rf'$q_1 = {q1}$', fontsize=8)
+fig.text(0.87, 0.92, rf'$q_2 = {q2}$', fontsize=8)
+fig.text(0.87, 0.89, rf'$N = {N}$', fontsize=8)
 fig.savefig(f'stateSpaceSimulation_sym_q1_{q1}_q2_{q2}_N_{N}_ic_{ic}_{dataField}.png')
 plt.close(fig)
