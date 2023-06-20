@@ -35,14 +35,14 @@ mesh_file = f'q1_{q1}_q2_{q2}_phase_space_{model}_ic_{ic}_Nbots_{N}.npz'
 mesh = np.load(f'{path}/{mesh_file}')
 
 dataField_dic = {
-    'f0':{'cmap':'Reds', 'index':0},
-    'f1':{'cmap':'Greens', 'index':1},
-    'f2':{'cmap':'Blues', 'index':2},
-    'sdf0':{'cmap':'magma', 'index':3},
-    'sdf1':{'cmap':'magma', 'index':4},
-    'sdf2':{'cmap':'magma', 'index':5},
-    'Q':{'cmap':'bwr_r', 'index':6},
-    'sdQ':{'cmap':'gnuplot', 'index':7}
+    'f0':{'cmap':'Reds', 'index':0, 'tline_color':'xkcd:black'},
+    'f1':{'cmap':'Greens', 'index':1, 'tline_color':'xkcd:black'},
+    'f2':{'cmap':'Blues', 'index':2, 'tline_color':'xkcd:green'},
+    'sdf0':{'cmap':'magma', 'index':3, 'tline_color':'xkcd:green'},
+    'sdf1':{'cmap':'magma', 'index':4, 'tline_color':'xkcd:green'},
+    'sdf2':{'cmap':'magma', 'index':5, 'tline_color':'xkcd:black'},
+    'Q':{'cmap':'bwr_r', 'index':6, 'tline_color':'xkcd:black'},
+    'sdQ':{'cmap':'gnuplot', 'index':7, 'tline_color':'xkcd:green'}
 }
 
 data_mesh = mesh['fs'][dataField_dic[dataField]['index']]
@@ -58,6 +58,10 @@ if args.mask_ulc == 1:
 elif args.mask_ulc == 2:
     data_mesh[0][-2:] = float('nan')
     data_mesh[1][-1] = float('nan')
+elif args.mask_ulc == 3:
+    data_mesh[0][-3:] = float('nan')
+    data_mesh[1][-2:] = float('nan')
+    data_mesh[2][-1] = float('nan')
 
 
 fig, ax = plt.subplots(figsize=(5.6,4.8))
@@ -67,7 +71,7 @@ if args.Tline:
     x = 2
     tline = pd.read_csv(f'{tline_path}/Tline_sym_pis_q1_{float(q1)}_q2_{float(q2)}_f2_{int(x)}f1.csv')
     tline = tline.query('pi >= 0.01')
-    ax.plot(tline['pi'], tline['lambda'], color='xkcd:black', lw=0.7)
+    ax.plot(tline['pi'], tline['lambda'], color=dataField_dic[dataField]['tline_color'], lw=0.7)
 ax.set_xlabel('$\pi_{1,2}$')
 ax.set_ylabel('$\lambda$')
 cb = fig.colorbar(im, ax=ax, aspect=25, shrink=0.75, pad=0.025)

@@ -224,4 +224,4 @@ def test_pieron_law(q_pairs, pi1, pi2, l, N=500, statLine=True, normTime=False):
 
 # plot_evos_deriv(0.1, 0.1, 7, 10, 0.6, 500, True)
 # plot_evos_deriv(0.1, 0.1, 7, 10, 0.6, 5000, True)
-plot_evos_simple(0.1, 0.1, 36, 40, 0.9, 5000, integrated=True, backg=5)
+plot_evos_simple(0.2, 0.2, 7, 10, 0.9, 100, integrated=True, backg=5)
