@@ -24,10 +24,10 @@ q0 = 1
 &input_arrays
 
 ! Sites discovery prob:
-pi(:) = 0.2 0.2
+pi(:) = 0.5 0.5
 
 ! Sites qualities:
-q(:) = 7 10
+q(:) = 9.0 10.0
 
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P), pi hard (Phard). If yes/uniform/pi/pihard what is set in bots_per_site won't be used

@@ -2,6 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+# aqui la idea es que representem els resultats en funció de ri/ri*
+# a partri de l'scaling obtingut de ri* amb N
+
 model = 'Galla'
 pis = [0.3, 0.3]
 qs = [7, 10]
