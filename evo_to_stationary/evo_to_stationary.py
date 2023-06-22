@@ -45,13 +45,6 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
     wd = os.getcwd()
     change_sim_input(froute, fin_file, pis=(pi1, pi2), qs=(q1, q2), lamb=l, max_time=max_time, N_sites=Nsites, N_bots=N, 
                      bots_per_site=bots_per_site)
-    # call(f"sed -i '14s/.*/max_time = {max_time}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '17s/.*/lambda = {l}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '27s/.*/pi(:) = {pi1} {pi2}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '30s/.*/q(:) = {q1} {q2}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '13s/.*/N_sites = {Nsites}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '12s/.*/N_bots = {N}/' "+froute+fin_file, shell=True)
-    # call(f"sed -i '35s/.*/bots_per_site = {bots_per_site[0]} {bots_per_site[1]} {bots_per_site[2]} /' "+froute+fin_file, shell=True)
     # Execute simulations:
     os.chdir(froute)
     call("./"+fex_file+f" {randint(0,100000000)} {Nrea}", shell=True)

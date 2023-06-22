@@ -361,6 +361,19 @@ def pierons_law_nth_pt_q_pairs_weber_frac(n, q_pairs, pi1, pi2, l, N, loglog=Fal
     fig.savefig(figname)
 
 
+def stat_time_from_block_avg(t, w, N, pi1, pi2, q1, q2, l):
+    '''
+    t: derivative threshold
+    w: block size
+    '''
+    # get the dataframes with the time evolutions:
+    folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+    files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
+    dfs = [pd.read_csv(file) for file in files]
+    for df in dfs:
+        block_avgs = []
+        # testing implementation in jupyter notebook!
+
 
 
 if __name__ == '__main__':

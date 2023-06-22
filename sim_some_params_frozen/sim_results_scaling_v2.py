@@ -21,47 +21,16 @@ exclusion_r = 1.5
 # percolation exponents:
 nu, df_expo = 4/3, 182/96
 
-def perco_dens(N:int):
+def perc_dens(N:int):
     return 11.356*N**(-1/(nu*df_expo)) + 0.939
 
-def idiota(N:int):
-    return N+1
-
-
-# Ns = np.array([1,2,3])
-# print(Ns)
-# p = perc_dens(Ns)
-# # p = np.array([perc_dens(N) for N in Ns])
-# print(p)
-# print(p.shape)
-# input('aaa ')
-
-
 fig, ax = plt.subplots()
-
-print(perco_dens(1))
-input('eee ')
-print(idiota(1))
-input('aaa ')
-
 
 # QUENCHED
 # fix N, move interaction radius:
 N = 35
-perc_dens_fixN = perco_dens(N)
-
-print(perco_dens(1))
-input('eee ')
-print(idiota(1))
-input('aaa ')
-
+perc_dens_fixN = perc_dens(N)
 df = pd.read_csv(f'{model}/{N}_bots/sim_fp_results_er_{exclusion_r}_NOPUSH.csv')
-
-print(perco_dens(1))
-input('eee ')
-print(idiota(1))
-input('aaa ')
-
 df = df.loc[(df['arena_r']==arena_r) & (df['pi1']==pis[0]) & (df['pi2']==pis[1]) & (df['q1']==qs[0]) & (df['q2']==qs[1])]
 df = df[df.interac_r != 20.0]
 df = df.rename(columns={"lambda":"lamb"})
@@ -71,10 +40,6 @@ for l,lcolor in zip(lambs,lambs_colors):
         ax.plot((N*dfl['interac_r']**2/arena_r**2)/perc_dens_fixN, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8, label=r'Quenched, var $r_i$')
     else:
         ax.plot((N*dfl['interac_r']**2/arena_r**2)/perc_dens_fixN, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8)
-
-
-print(perco_dens(1))
-input('eee ')
 
 # QUENCHED
 # fix r_i, move N:
@@ -87,45 +52,43 @@ for l,lcolor in zip(lambs,lambs_colors):
         df = df.rename(columns={"lambda":"lamb"})
         df = df.query('arena_r == @arena_r & pi1 == @pis[0] & pi2 == @pis[1] & q1 == @qs[0] & q2 == @qs[1] & lamb == @l & interac_r == @interac_r')
         f1_dif_N.append(float(df['f1'].iloc[0])), f2_dif_N.append(float(df['f2'].iloc[0]))
-    print(np.array(Ns))
-    # perc_dens_q = perc_dens(np.array(Ns))
-    paca = [perc_dens(N) for N in Ns]
-    print(paca)
-    # if l==0.3:
-    #     ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.', label=r'Quenched, var $N$')
-    # else:
-    #     ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.')
+    perc_dens_q = perc_dens(np.array(Ns))
+    if l==0.3:
+        ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.', label=r'Quenched, var $N$')
+    else:
+        ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.')
 
 
-# factor = 4.0/6.5
-# # KILOMBO
-# # fix r_i, move N:
-# interac_r = 5.0
-# df = pd.read_csv('other_res_files/kilomboStatValues_variableN.csv')
-# df = df.rename(columns={"lambda":"lamb"})
-# df = df.query("parameter == 'f2'")
-# for l,lcolor in zip(lambs,lambs_colors):
-#     dfl = df.query('lamb == @l').copy()
-#     dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])*interac_r**2/arena_r**2
-#     if l==0.3:
-#         ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
-#     else:
-#         ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
+factor = 4.0/6.5
+# factor = 0.5
+# KILOMBO
+# fix r_i, move N:
+interac_r = 5.0
+df = pd.read_csv('other_res_files/kilomboStatValues_variableN.csv')
+df = df.rename(columns={"lambda":"lamb"})
+df = df.query("parameter == 'f2'")
+for l,lcolor in zip(lambs,lambs_colors):
+    dfl = df.query('lamb == @l').copy()
+    dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
+    if l==0.3:
+        ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
+    else:
+        ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
 
 
-# # KILOBOTS
-# # fix r_i, move N:
-# interac_r = 7.0
-# df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
-# df = df.rename(columns={"lambda":"lamb"})
-# df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
-# for l,lcolor in zip(lambs,lambs_colors):
-#     dfl = df.query('lamb == @l').copy()
-#     dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])*interac_r**2/arena_r**2
-#     if l==0.3:
-#         ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
-#     else:
-#         ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
+# KILOBOTS
+# fix r_i, move N:
+interac_r = 7.0
+df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
+df = df.rename(columns={"lambda":"lamb"})
+df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
+for l,lcolor in zip(lambs,lambs_colors):
+    dfl = df.query('lamb == @l').copy()
+    dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
+    if l==0.3:
+        ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
+    else:
+        ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
 
 ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$')
 fig.text(0.1,0.97, rf"$(\pi_1, \pi_2) = ({pis[0]}, {pis[1]})$, $\lambda = [0.3, 0.6, 0.9]$", fontsize=9)
