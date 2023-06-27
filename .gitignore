@@ -31,10 +31,10 @@ Qeq0_line/
 
 #sim_phase_space/
 sim_phase_space/qualities
-sim_phases_space/asymmetric_pi/plots
-sim_phases_space/asymmetric_pi/quenched_results
-sim_phases_space/symmetric/results_old/*
-sim_phases_space/symmetric/plots_old/*
+sim_phase_space/asymmetric_pi/plots/
+sim_phase_space/asymmetric_pi/quenched_results/
+sim_phase_space/symmetric/results_old/*
+sim_phase_space/symmetric/plots_old/*
 
 
 sim_phase_space_frozen/

@@ -63,7 +63,7 @@ factor = 4.0/6.5
 # factor = 0.5
 # KILOMBO
 # fix r_i, move N:
-interac_r = 5.0
+interac_r = 7.0
 df = pd.read_csv('other_res_files/kilomboStatValues_variableN.csv')
 df = df.rename(columns={"lambda":"lamb"})
 df = df.query("parameter == 'f2'")
@@ -78,7 +78,7 @@ for l,lcolor in zip(lambs,lambs_colors):
 
 # KILOBOTS
 # fix r_i, move N:
-interac_r = 7.0
+interac_r = 5.0
 df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
 df = df.rename(columns={"lambda":"lamb"})
 df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
@@ -90,7 +90,7 @@ for l,lcolor in zip(lambs,lambs_colors):
     else:
         ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
 
-ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$')
+ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$', xscale='log')
 fig.text(0.1,0.97, rf"$(\pi_1, \pi_2) = ({pis[0]}, {pis[1]})$, $\lambda = [0.3, 0.6, 0.9]$", fontsize=9)
 fig.legend(loc=(0.7,0.15), fontsize=10)
 fig.tight_layout()

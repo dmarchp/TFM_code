@@ -59,6 +59,8 @@ for l,lcolor in zip(lambs,lambs_colors):
 
 
 factor = 4.0/6.5
+factor = 3.75/7.0
+# factor = 0.5
 # KILOMBO
 # fix r_i, move N:
 interac_r = 5.0
@@ -88,7 +90,7 @@ for l,lcolor in zip(lambs,lambs_colors):
     else:
         ax.plot(dfl['frac_ir']**exponent_rint_frac, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
 
-ax.set(xlabel=r'$(r_i / r_i^{*})^{2}$', ylabel=r'$f_2$')
+ax.set(xlabel=r'$(r_i / r_i^{*})^{2}$', ylabel=r'$f_2$', xscale='log')
 fig.text(0.1,0.97, rf"$(\pi_1, \pi_2) = ({pis[0]}, {pis[1]})$, $\lambda = [0.3, 0.6, 0.9]$", fontsize=9)
 fig.legend(loc=(0.7,0.15), fontsize=10)
 fig.tight_layout()
