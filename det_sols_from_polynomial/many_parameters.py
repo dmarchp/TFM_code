@@ -157,6 +157,26 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
     else:
         df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
 
+def compute_results_many_params(pi_pairs, q2, q1s, ls):
+    df_cols = [[],[],[],[],[],[],[],[]] # pi1, pi2, q1, q2, l, f0, f1, f2
+    for pi_pair in pi_pairs:
+        pi1, pi2 = pi_pair
+        for q1 in q1s:
+            for l in ls:
+                subprocess.call(f'python f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
+                with open('sols.dat', 'r') as file:
+                    sols = [float(f) for f in file.readline().split()]
+                df_cols[0].append(pi1)
+                df_cols[1].append(pi2)
+                df_cols[2].append(q1)
+                df_cols[3].append(q2)
+                df_cols[4].append(round(l,2))
+                df_cols[5].append(sols[0])
+                df_cols[6].append(sols[1])
+                df_cols[7].append(sols[2])
+    df = pd.DataFrame({'pi1':df_cols[0], 'pi2':df_cols[1], 'q1':df_cols[2], 'q2':df_cols[3], 'lamb':df_cols[4], 
+                       'f0':df_cols[5], 'f1':df_cols[6], 'f2':df_cols[7]})
+    df.to_csv(f'{path}/analytic_res_many_params.csv', index=False)
 
 
 #for l in [0.9, 0.99, 0.999]:
@@ -170,9 +190,9 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
 # computeAsymmetricMap_mesh(20, 40, 0.6)
 # computeAsymmetricMap_mesh(38, 40, 0.9)
 
-computeAsymmetricMap_mesh_fixPi1(0.25, 5, 10, pi2_lims=(0.01, 0.5), parqDf=False)
-computeAsymmetricMap_mesh_fixPi1(0.25, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
-computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+# computeAsymmetricMap_mesh_fixPi1(0.25, 5, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+# computeAsymmetricMap_mesh_fixPi1(0.25, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+# computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 
 # computeLambdaEvo(0.4, 0.2, 5, 10)
 # computeLambdaEvo(0.4, 0.2, 10, 20)
@@ -188,3 +208,6 @@ computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False
 # computeLambdaEvo(0.4, 0.2, 18, 20)
 # computeLambdaEvo(0.4, 0.2, 27, 30)
 # computeLambdaEvo(0.4, 0.2, 36, 40)
+
+compute_results_many_params([(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4), (0.5, 0.5), (0.2, 0.1), (0.4, 0.2)],
+                            10, [1,2,3,4,5,6,7,8,9], np.arange(0.0, 0.9, 0.1))
