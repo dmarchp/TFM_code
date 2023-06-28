@@ -1,4 +1,3 @@
-from sys import argv
 import numpy as np
 import subprocess
 import os
@@ -6,6 +5,9 @@ import pandas as pd
 from random import seed, randint
 from tqdm import tqdm
 import argparse
+import sys
+sys.path.append('../')
+from package_global_functions import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('inSeed', type=int, help='seed')
@@ -20,29 +22,32 @@ num_rea = 100
 # radii
 push = ".false."
 arena_r = 20.0
-# interac_r = np.linspace(3,12,19)
-interac_r = [6.5, ]
+interac_r = np.linspace(3,12,19)
+# interac_r = [6.5, ]
 exclusion_r = 1.5
 
 # qualities, pis, lambdas
 q1s = [7, ]
 q2s = [10, ]
-lambs = []
 #for i in range(0,100,10):
 #    lambs.append(i/100)
 #for i in range(0,100,5):
 #    lambs.append(i/100)
 lambs = [0.3, 0.6, 0.9]
 # lambs = [0.0, ]
-pi1s = [0.3, ]
-pi2s = [0.3, ]
+pi1s = [0.1, ]
+pi2s = [0.1, ]
 
 # Number of bots
-N_bots = 50
+N_bots = 35
 
 wd = os.getcwd()
+
 # input to Fortran code route:
-froute = "/home/david/Desktop/Uni_code/TFM_code/frozen_positions_new/"
+if getPCname() == 'depaula.upc.es':
+    froute = '/Users/david/Desktop/Uni_code/TFM_code/frozen_positions_new/'
+else:
+    froute = "/home/david/Desktop/Uni_code/TFM_code/frozen_positions_new/"
 fin_file = 'input_template_fp.txt'
 fex_file = 'main.x'
 f_file = 'main_fp.f90'
@@ -63,14 +68,9 @@ f_file = 'main_fp.f90'
 #os.chdir(wd)
 
 subprocess.call(f"mkdir -p {model}/{N_bots}_bots/", shell=True)
-subprocess.call(f"sed -i '12s/.*/N_bots = {N_bots}/' "+froute+fin_file, shell=True)
-subprocess.call(f"sed -i '35s/.*/bots_per_site = {N_bots} 0 0/' "+froute+fin_file, shell=True)
+change_sim_input(froute, fin_file, N_bots=N_bots, bots_per_site = [N_bots, 0, 0],
+                 arena_r=arena_r, exclusion_r=exclusion_r, push=push)
 
-
-subprocess.call(f"sed -i 's/arena_r.*/arena_r = {arena_r}/' "+froute+fin_file, shell=True)
-# subprocess.call(f"sed -i 's/interac_r.*/interac_r = {interac_r}/' "+froute+fin_file, shell=True)
-subprocess.call(f"sed -i 's/exclusion_r.*/exclusion_r = {exclusion_r}/' "+froute+fin_file, shell=True)
-subprocess.call(f"sed -i 's/^push =.*/push = {push}/' "+froute+fin_file, shell=True)
 
 
 # OUTPUT DATA FRAME:
@@ -84,14 +84,14 @@ df_out = pd.DataFrame(columns=['arena_r','interac_r','pi1','pi2','q1','q2','lamb
 #for pi1 in tqdm(pi1s):
 for pi1 in pi1s:
     for pi2 in pi2s:
-        subprocess.call(f"sed -i '27s/.*/pi(:) = {pi1} {pi2}/' "+froute+fin_file, shell=True)
+        change_sim_input(froute, fin_file, pis=(pi1, pi2))
         for q1 in q1s:
             for q2 in q2s:
-                subprocess.call(f"sed -i '30s/.*/q(:) = {q1} {q2}/' "+froute+fin_file, shell=True)
-                for l in tqdm(lambs):
-                    subprocess.call(f"sed -i '17s/.*/lambda = {l}/' "+froute+fin_file, shell=True)
+                change_sim_input(froute, fin_file, qs=(q1, q2))
+                for l in lambs:
+                    change_sim_input(froute, fin_file, lamb=l)
                     for ir in interac_r:
-                        subprocess.call(f"sed -i 's/interac_r.*/interac_r = {ir}/' "+froute+fin_file, shell=True)
+                        change_sim_input(froute, fin_file, interac_r=ir)
                         # Change to the Fortran code directory and execute
                         os.chdir(froute)
                         subprocess.call("./"+fex_file+f" {randint(0,100000000)} {num_rea}", shell=True)

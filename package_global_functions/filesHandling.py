@@ -21,8 +21,8 @@ def getProjectFoldername():
     return '/TFM_code'
 
 
-def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=False, max_time=False, N_sites=False, N_bots=False,
-                     bots_per_site=False, ic=False):
+def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=False, N_sites=False, N_bots=False,
+                     bots_per_site=False, ic=False, arena_r=False, interac_r = False, exclusion_r = None, push=False):
     PCname = getPCname()
     if PCname == 'depaula.upc.es':
         sed_start = "sed -i'' -e "
@@ -36,7 +36,7 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=False, max_time
         qs_str = ' '.join(str(q) for q in qs)
         sed_command = sed_start + f"'s/^q(:) = .*/q(:) = {qs_str}/' "
         call(f'{sed_command}'+froute+fin_file, shell=True)
-    if lamb:
+    if lamb or lamb == 0.0:
         sed_command = sed_start + f"'s/^lambda = .*/lambda = {lamb}/' "
         call(f'{sed_command}'+froute+fin_file, shell=True)
     if max_time:
@@ -55,5 +55,19 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=False, max_time
     if ic:
         ic_call = f"sed -i'' -e '34s/.*/random_bots_per_site = \"{ic}\"/' "+froute+fin_file
         call(ic_call, shell=True)
+    # Quenched simulation parametrs only #
+    if arena_r:
+        sed_command = sed_start + f"'s/arena_r.*/arena_r = {arena_r}/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if interac_r:
+        sed_command = sed_start + f"'s/interac_r.*/interac_r = {interac_r}/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if exclusion_r or exclusion_r == 0.0:
+        sed_command = sed_start + f"'s/exclusion_r.*/exclusion_r = {exclusion_r}/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if push:
+        sed_command = sed_start + f"'s/push.*/push = {push}/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+
     
 

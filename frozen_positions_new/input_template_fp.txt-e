@@ -9,9 +9,9 @@
 &input_cts
 
 ! System
-N_bots = 633
+N_bots = 35
 N_sites = 2
-max_time = 1
+max_time = 5000
 
 ! Interdependence:
 lambda = 0.9
@@ -24,7 +24,7 @@ q0 = 1
 &input_arrays
 
 ! Sites discovery prob:
-pi(:) = 0.3 0.3
+pi(:) = 0.1 0.1
 
 ! Sites qualities:
 q(:) = 7 10
@@ -32,15 +32,15 @@ q(:) = 7 10
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P). If yes/uniform/pi what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 633 0 0
+bots_per_site = 35 0 0
 /
 
 &input_arena
 ! Arena radius and center measured in cm
-arena_r = 75.0
+arena_r = 20.0
 arena_x = 0.0
 arena_y = 0.0
-interac_r = 4.9
+interac_r = 11.5
 exclusion_r = 1.5
 push = .false.
 /
