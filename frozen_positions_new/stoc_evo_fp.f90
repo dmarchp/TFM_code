@@ -166,6 +166,21 @@ module SSA
         enddo
     end subroutine update_system_galla
 
+    subroutine output_individual_state(file_index,iter)
+        implicit none
+        integer :: i, file_index,iter
+        character(2) :: auxi
+        character(5) :: auxi2
+        !write(file_index, '(A)', advance='no') trim(adjustl(auxi2))//','
+        !write(auxi2, '(I5)') iter
+        do i=1,N_bots-1
+            write(auxi, '(I2)') system_state(i,1)
+            write(file_index, '(A)', advance='no') trim(adjustl(auxi))//','
+        enddo
+        write(auxi, '(I2)') system_state(N_bots,1)
+        write(file_index, '(A)') trim(adjustl(auxi))
+    end subroutine output_individual_state
+
     real(8) function rayleigh(alea,sigma)
         implicit none
         real(8), intent(in) :: alea,sigma

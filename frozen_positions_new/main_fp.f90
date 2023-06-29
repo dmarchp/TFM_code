@@ -97,6 +97,7 @@ program main
         ! integer to string:
         write(file_id, '(I4.3)') i
         open(11, file="time_evo_rea_"//trim(adjustl(file_id))//".csv")
+        open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_indv_states.csv")
 !        write(11,'(A13)') "iter,f0,f1,f2"
         write(11,'(A)') trim(header)
         call init_system_state()
@@ -120,11 +121,13 @@ program main
         !write(11,'(I7,3(",",F14.10))') j,pop_fraction(:)
         call compute_kparam(pop_fraction,pop_fraction_k)
         write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+        call output_individual_state(12,j)
         do j=1,max_time
             call update_system_galla()
             !call update_system()
             call compute_kparam(pop_fraction,pop_fraction_k)
             write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+            call output_individual_state(12,j)
         enddo
         close(11)
         deallocate(neighbors)
@@ -134,8 +137,11 @@ program main
     ! END SIMULATE DIFFERENT TRAJECTORIES ***************************
 
     ! group output files in a folder
+    call execute_command_line('mkdir -p time_evo_indv_states')
+    call execute_command_line('mv time_evo_rea_*_indv_states.csv time_evo_indv_states/')
     call execute_command_line('mkdir -p time_evo_csv')
     call execute_command_line('mv time_evo_rea_*.csv time_evo_csv/')
+
     
  ! tirem aixo enrere que fa pal truncar linies   
  call execute_command_line('mkdir -p positions_and_contacts/'//trim(adjustl(Nstr))//'_bots/'//trim(adjustl(push_folder_str))//'/')
@@ -149,6 +155,7 @@ program main
     ! compress output folder:
     ! tar.gz, add -v for verbose
     call execute_command_line('tar -czf time_evo_csv.tar.gz time_evo_csv')
+    call execute_command_line('tar -czf time_evo_indv_states.tar.gz time_evo_indv_states')
     ! uncompress with 'tar -xzvf time_evo.tar.gz'
     !call execute_command_line('tar -czf positions_and_contacts.tar.gz positions_and_contacts')
 
@@ -158,6 +165,7 @@ program main
 
     ! delete the folder:
     call execute_command_line('rm -r time_evo_csv')
+    call execute_command_line('rm -r time_evo_indv_states')
     !call execute_command_line('rm -r positions_and_contacts')
     call execute_command_line('rm foo')
 
