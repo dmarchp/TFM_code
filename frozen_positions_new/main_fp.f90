@@ -97,7 +97,6 @@ program main
         ! integer to string:
         write(file_id, '(I4.3)') i
         open(11, file="time_evo_rea_"//trim(adjustl(file_id))//".csv")
-        open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_indv_states.csv")
 !        write(11,'(A13)') "iter,f0,f1,f2"
         write(11,'(A)') trim(header)
         call init_system_state()
@@ -113,6 +112,7 @@ program main
         used_configurations(i) = config_int
         !print*, config_int
         write(config_file_id, '(I4.3)') config_int
+        open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_config_"//trim(adjustl(config_file_id))//"_indv_states.csv")
         call read_frozen_positions(Nstr,push_folder_str,arstr,erstr,config_file_id)
         call get_contact_list(arstr,erstr,irstr,config_file_id)
         !call write_bot_degrees(config_file_id) ! em serveix per fer histogrames sense haver de tornar a llegir la contact list amb un .py

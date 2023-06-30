@@ -22,9 +22,16 @@ module system_parameters
     contains
 
     subroutine init_path()
+      character(30) :: hostname
       !path = 'positions_and_contacts/'
       !path = '/media/david/KINGSTON/quenched_configs/'
-      path = '/Volumes/KINGSTON/quenched_configs/'
+      !path = '/Volumes/KINGSTON/quenched_configs/'
+      call hostnm(hostname)
+      if (trim(adjustl(hostname)).eq."david-X550LD") then
+          path = '/media/david/KINGSTON/quenched_configs/'
+      else if (trim(adjustl(hostname)).eq."depaula.upc.es") then
+          path = '/Volumes/KINGSTON/quenched_configs/'
+      endif
     end subroutine init_path
 
     subroutine init_system_cts(input_unit)

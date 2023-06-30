@@ -16,6 +16,9 @@ det_sols_from_polynomial/sols.dat
 
 clean_version/time_evos_julia
 
+evo_to_stationary_frozen/png_for_gif
+evo_to_stationary_frozen/gifs
+
 convergencia/
 deterministic_evolution/
 deterministic_f0_study/
