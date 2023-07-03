@@ -10,8 +10,11 @@ parser.add_argument('q1', type=float, help='site 1 quality')
 parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('l', type=float, help='interdependence (lambda)')
 
-parser.add_argument("-v", "--verbose", help="increase output verbosity",
-                    action="store_true")
+# parser.add_argument("-v", "--verbose", help="increase output verbosity",
+#                     action="store_true")
+
+parser.add_argument("-v", "--verbosity", action="count", default=0,
+                    help="increase output verbosity")
 
 
 # ------------ solution to the third degree poly, if lambda != 0.0 ----------
@@ -78,7 +81,7 @@ def main():
         f1s = [f_i(1,f0, pis, qs, l) for f0 in f0_roots_abs]
         f2s = [f_i(2,f0, pis, qs, l) for f0 in f0_roots_abs]
         solutions = [(f0,f1,f2) for f0,f1,f2 in zip(f0_roots_abs,f1s,f2s)]
-        if args.verbose:
+        if args.verbosity >= 2:
             print(f"All solutions from the polynomial; pi1, pi2 = {pi1}, {pi2}; q1, q2 = {q1}, {q2}, lambda = {l}")
             for sol in solutions:
                 print(sol)
@@ -86,6 +89,9 @@ def main():
                 if all(f >= 0 for f in sol):
                     print(f'Valid solution when m = {i}')
                     print(sol)
+        elif args.verbosity == 1:
+            for sol in solutions:
+                print(*sol)
         else:
             for i,sol in enumerate(solutions):
                 if all(f >= 0 for f in sol) and isclose(sum(sol),1.0):

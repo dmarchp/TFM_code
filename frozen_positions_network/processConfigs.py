@@ -19,12 +19,17 @@ def getDegreesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False):
     path = getExternalSSDpath() + f'/quenched_configs/{N}_bots/{pushFolder}'
     existingConfigs = len(glob.glob(path + '/' + configsFilename(arena_r, exclusion_r)))
     existingContacts = len(glob.glob(path + '/' + contactsFilename(arena_r, exclusion_r, interac_r)))
-    print(f'There are {existingConfigs} position files and {existingConfigs} contact files for N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r} , push = {push}.')
+    print(f'There are {existingConfigs} position files and {existingContacts} contact files for N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r}, push = {push}.')
     allDegrees = []
     for i in range(1, existingContacts+1):
         filename = contactsFilename(arena_r, exclusion_r, interac_r, i)
-        df = pd.read_csv(path + '/' + filename, sep='\s+', header=None)
-        _, degrees = getConfigDegrees(df, N, 1)
+        try:
+            df = pd.read_csv(path + '/' + filename, sep='\s+', header=None)
+            _, degrees = getConfigDegrees(df, N, 1)
+        except pd.errors.EmptyDataError:
+            print(f'here for i={i}')
+            input('enter ')
+            degrees = []
         allDegrees.extend(degrees)
     df = pd.DataFrame({'degrees':allDegrees})
     path = getExternalSSDpath() + f'/quenched_configs/{N}_bots/raw_data'
@@ -72,17 +77,6 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
     
 
 if __name__ == '__main__':
-    # getDegreesAllConfigs(35, 20.0, 8.0, 1.5)
-    #for ir in [3.5, 4.0, 5.0, 5.5, 6.0, 6.3, 6.4, 6.5, 6.6, 6.7, 7.0, 7.5, 8.0, 9.0, 10.0]:
-    #for ir in [6.2, 6.4, 6.6, 6.8]:
-    #    getComSizesAllConfigs(40, 20.0, ir, 1.5)
-    # for N in [10, 15, 20, 25, 30, 40, 50, 60, 70, 80]: # , 25, 30, 40, 50, 60, 70, 80
-        # irs = availableIrs(N, 20.0, 1.5, False)
-        # for ir in irs:
-            # getComSizesAllConfigs(N, 20.0, ir, 1.5)
-    for N in [633, ]: # 352, 492, 633, 703, 844, 984
-        irs = availableIrs(N, 75.0, 1.5, False)
-        for ir in irs:
-            getComSizesAllConfigs(N, 75.0, ir, 1.5)
-    # for ir in [13.0, 14.0, 15.0, 16.0]:
-    #     getComSizesAllConfigs(10, 20.0, ir, 1.5)
+   for ir in np.linspace(3.5,12,18):
+       getDegreesAllConfigs(35, 20.0, ir, 1.5)
+

@@ -17,7 +17,12 @@ def getConfigDegrees(dfconfig, N, firstID):
         on return nodes are numbered as entered in first ID
     """
     g = ig.Graph.DataFrame(dfconfig, directed=False)
-    nodes = [v['name'] for v in g.vs()]
+    # nodes = [v['name'] for v in g.vs()] # does not work in depaula, igraph==0.10.4
+    numNodes = len(g.vs)
+    nodes = list(range(g.vs[0].index,g.vs[numNodes-1].index+1))
+    # igrpah indexes nodes starting at 0, so:
+    if firstID == 1:
+        nodes = [n+1 for n in nodes]
     degrees = []
     for id in range(firstID,N+firstID):
         if id in nodes:
