@@ -44,10 +44,10 @@ for l,lcolor in zip(lambs,lambs_colors):
     dfl = df.query('lamb == @l')
     if l==0.3:
         # ax.plot((N*dfl['interac_r']**2/arena_r**2)/perc_dens_fixN, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8, label=r'Quenched, var $r_i$')
-        ax.plot((dfl['interac_r']/perc_r_fixN)**2, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8, label=r'Quenched, var $r_i$')
+        ax.plot((dfl['interac_r']/perc_r_fixN)**2, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8, alpha=0.75, label=r'Quenched, var $r_i$')
     else:
         # ax.plot((N*dfl['interac_r']**2/arena_r**2)/perc_dens_fixN, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8)
-        ax.plot((dfl['interac_r']/perc_r_fixN)**2, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8)
+        ax.plot((dfl['interac_r']/perc_r_fixN)**2, dfl['f2'], color=lcolor, marker='1', markersize=5, lw=0.8, alpha=0.75)
 
 # QUENCHED
 # fix r_i, move N:
@@ -66,10 +66,10 @@ for l,lcolor in zip(lambs,lambs_colors):
     perc_r_difN = perc_r(np.array(Ns))
     if l==0.3:
         # ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.', label=r'Quenched, var $N$')
-        ax.plot((interac_r/perc_r_difN)**2, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.', label=r'Quenched, var $N$')
+        ax.plot((interac_r/perc_r_difN)**2, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, alpha=0.75, ls='-.', label=r'Quenched, var $N$')
     else:
         # ax.plot((np.array(Ns)*interac_r**2/arena_r**2)/perc_dens_q, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.')
-        ax.plot((interac_r/perc_r_difN)**2, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, ls='-.')
+        ax.plot((interac_r/perc_r_difN)**2, f2_dif_N, color=lcolor, marker='.', markersize=5, lw=0.8, alpha=0.75, ls='-.')
 
 
 factor = 4.0/6.5
@@ -93,22 +93,44 @@ for l,lcolor in zip(lambs,lambs_colors):
         ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
 
 
-# KILOBOTS
+# KILOBOTS (Julia's Data)
+# fix r_i, move N:
+# interac_r = 7.0
+# df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
+# df = df.rename(columns={"lambda":"lamb"})
+# df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
+# for l,lcolor in zip(lambs,lambs_colors):
+#     dfl = df.query('lamb == @l').copy()
+#     dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
+#     dfl['perc_r'] = factor * perc_r(dfl['N'])
+#     if l==0.3:
+#         # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
+#         ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
+#     else:
+#         # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
+#         ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
+
+
+# KILOBOTS (David's Data)
 # fix r_i, move N:
 interac_r = 7.0
-df = pd.read_csv('other_res_files/KilobotsStatValues_VaryingN.csv')
-df = df.rename(columns={"lambda":"lamb"})
-df = df.query("parameter == 'f2' & pi1 == @pis[0] & pi2 == @pis[1]")
-for l,lcolor in zip(lambs,lambs_colors):
+jitterer_xax = [-0.04, 0.0, 0.04]
+df = pd.read_csv('other_res_files/kilobot_statVals_varN_varl_useLastIters_150_pi1_0.3_pi2_0.3_q1_7_q2_10.csv')
+for l,lcolor,jit in zip(lambs,lambs_colors,jitterer_xax):
     dfl = df.query('lamb == @l').copy()
-    dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
     dfl['perc_r'] = factor * perc_r(dfl['N'])
     if l==0.3:
-        # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
-        ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
+        # ax.plot((interac_r/dfl['perc_r'])**2, dfl['avg'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
+        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['avg'], dfl['std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
+                    elinewidth=0.7, capsize=2.0, label='Kilobots')
     else:
-        # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
-        ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='s', markersize=4, lw=0.0)
+        # ax.plot((interac_r/dfl['perc_r'])**2, dfl['avg'], color=lcolor, marker='s', markersize=4, lw=0.0)
+        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['avg'], dfl['std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
+                    elinewidth=0.7, capsize=2.0)
+
+
+
+
 
 ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$') # , xscale='log'
 fig.text(0.1,0.97, rf"$(\pi_1, \pi_2) = ({pis[0]}, {pis[1]})$, $\lambda = [0.3, 0.6, 0.9]$", fontsize=9)
