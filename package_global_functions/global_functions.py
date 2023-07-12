@@ -1,6 +1,6 @@
 # https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def histogramBinLog(data, lims, logBoxes):
     if lims[0] < 10 and lims[1] > 10:
@@ -70,5 +70,19 @@ def hist1D(x, Bins, binCenter, isPDF, isNonZero = True):
         dH = dH[nonZ]
     return binCenter, H, dH
     
+def latexFont(size= 15, labelsize=18, titlesize=20, ticklabelssize=15, legendsize = 18):
+    plt.rcParams.update({
+        "text.usetex": True})
+    plt.rcParams["text.latex.preamble"].join([
+        r"\usepackage{underscore}"
+    ])
+    plt.rcParams["font.family"] = 'STIXGeneral'
+    plt.rc('font', size=size)          # controls default text sizes
+    plt.rc('axes', titlesize=titlesize)     # fontsize of the axes title
+    plt.rc('axes', labelsize=labelsize)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=ticklabelssize)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=ticklabelssize)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=legendsize)    # legend fontsize
+    plt.rc('figure', titlesize=titlesize)  # fontsize of the figure title
     
     
