@@ -38,7 +38,7 @@ def perc_r(N):
 fig, ax = plt.subplots()
 # for the definitive ffigure:
 fig, ax = plt.subplots(1,1,figsize=(3.7,3.4))
-ax.set(xlim=(None,2.25))
+
 
 # QUENCHED
 # fix N, move interaction radius:
@@ -83,29 +83,29 @@ for l,lcolor in zip(lambs,lambs_colors):
 
 factor = 4.0/6.5
 factor = 4.0/7.0
-# factor = 0.5
+factor = 0.5
 # KILOMBO
 # fix r_i, move N:
 interac_r = 5.0
 
 # Julia's Data:
-df = pd.read_csv('other_res_files/kilomboStatValues_variableN.csv')
-df = df.rename(columns={"lambda":"lamb"})
-df = df.query("parameter == 'f2'")
-for l,lcolor in zip(lambs[0:1],lambs_colors[0:1]):
-    dfl = df.query('lamb == @l').copy()
-    dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
-    dfl['perc_r'] = factor * perc_r(dfl['N'])
-    if l==0.3:
-        # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
-        ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
-    else:
-        # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
-        ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
+# df = pd.read_csv('other_res_files/kilomboStatValues_variableN.csv')
+# df = df.rename(columns={"lambda":"lamb"})
+# df = df.query("parameter == 'f2'")
+# for l,lcolor in zip(lambs[0:1],lambs_colors[0:1]):
+#     dfl = df.query('lamb == @l').copy()
+#     dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
+#     dfl['perc_r'] = factor * perc_r(dfl['N'])
+#     if l==0.3:
+#         # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
+#         ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0, label='Kilombo')
+#     else:
+#         # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
+#         ax.plot((interac_r/dfl['perc_r'])**2, dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
 
 # Ezequiel's data:
-for l,lcolor in zip(lambs[1:],lambs_colors[1:]):
-    dfl = pd.read_csv(f'other_res_files/av_freq_vs_N_lambda{l}_c100.dat', sep='\s+', names=['N', 'f0', 'f1', 'f2', 'Ndata'])
+for l,lcolor in zip(lambs,lambs_colors):
+    dfl = pd.read_csv(f'other_res_files/av_freq_vs_N_lambda{l}_c100.dat', sep='\s+', names=['N', 'f0', 'sdf0', 'f1', 'sdf1', 'f2', 'sdf2', 'Ndata'])
     dfl['perc_dens'] = factor**2 * perc_dens(dfl['N'])
     dfl['perc_r'] = factor * perc_r(dfl['N'])
     if l==0.3:
@@ -114,6 +114,7 @@ for l,lcolor in zip(lambs[1:],lambs_colors[1:]):
     else:
         # ax.plot(dfl['N']*(interac_r/arena_r)**2/dfl['perc_dens'], dfl['stat.value'], color=lcolor, marker='x', markersize=4, lw=0.0)
         ax.plot((interac_r/dfl['perc_r'])**2, dfl['f2'], color=lcolor, marker='x', markersize=4, lw=0.0)
+    ax.fill_between((interac_r/dfl['perc_r'])**2, dfl['f2']-dfl['sdf2'], dfl['f2']+dfl['sdf2'], color=lcolor, alpha=0.2)
 
 
 # KILOBOTS (Julia's Data)
@@ -154,7 +155,10 @@ for l,lcolor,jit in zip(lambs,lambs_colors,jitterer_xax):
 
 
 
-
+if factor == 4.0/7.0:
+    ax.set(xlim=(None,2.25))
+elif factor == 0.5:
+    ax.set(xlim=(None,3.0))
 
 ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$') # , xscale='log'
 
