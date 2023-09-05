@@ -11,7 +11,7 @@ import glob
 import subprocess
 import sys
 sys.path.append('../')
-from package_global_functions import getExternalSSDpath
+from package_global_functions import getExternalSSDpath, change_sim_input
 
 # generate random points in a circular area:
 # https://stackoverflow.com/questions/30564015/how-to-generate-random-points-in-a-circular-distribution
@@ -44,7 +44,9 @@ else: # any push different from 0 is push.
     pushFortran = '.true.'
     pushFolder = 'configs_w_push'
 
-modifyInput(N_bots, arena_r, exclusion_r, pushFortran)
+# modifyInput(N_bots, arena_r, exclusion_r, pushFortran)
+change_sim_input(froute='./', fin_file='input_template_fp.txt',
+    arena_r = arena_r, exclusion_r=exclusion_r, push = pushFortran)
 random.seed(seed)
 effectiveArena_r = arena_r-exclusion_r
 ssdpath = getExternalSSDpath()

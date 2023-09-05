@@ -83,7 +83,7 @@ for l,lcolor in zip(lambs,lambs_colors):
 
 factor = 4.0/6.5
 factor = 4.0/7.0
-factor = 0.5
+# factor = 0.5
 # KILOMBO
 # fix r_i, move N:
 interac_r = 5.0
@@ -140,17 +140,17 @@ for l,lcolor in zip(lambs,lambs_colors):
 # factor = 0.5*7.0/5.0
 interac_r = 5.0
 jitterer_xax = [-0.04, 0.0, 0.04]
-df = pd.read_csv('other_res_files/kilobot_statVals_varN_varl_useLastIters_150_pi1_0.3_pi2_0.3_q1_7_q2_10.csv')
+df = pd.read_csv('other_res_files/kilobot_statVals_varN_varl_useLastIters_corrected_pi1_0.3_pi2_0.3_q1_7_q2_10.csv')
 for l,lcolor,jit in zip(lambs,lambs_colors,jitterer_xax):
     dfl = df.query('lamb == @l').copy()
     dfl['perc_r'] = factor * perc_r(dfl['N'])
     if l==0.3:
         # ax.plot((interac_r/dfl['perc_r'])**2, dfl['avg'], color=lcolor, marker='s', markersize=4, lw=0.0, label='Kilobots')
-        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['avg'], dfl['std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
+        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['f2_avg'], dfl['f2_std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
                     elinewidth=0.7, capsize=2.0, label='Kilobots')
     else:
         # ax.plot((interac_r/dfl['perc_r'])**2, dfl['avg'], color=lcolor, marker='s', markersize=4, lw=0.0)
-        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['avg'], dfl['std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
+        ax.errorbar((interac_r/dfl['perc_r'])**2+jit, dfl['f2_avg'], dfl['f2_std_trajs'], color=lcolor, marker='s', markersize=4, lw=0.0, 
                     elinewidth=0.7, capsize=2.0)
 
 
