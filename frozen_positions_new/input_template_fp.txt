@@ -40,7 +40,7 @@ bots_per_site = 965 0 0
 arena_r = 105.0
 arena_x = 0.0
 arena_y = 0.0
-interac_r = 6.5
+interac_r = 6.7
 exclusion_r = 1.5
 push = .false.
 /

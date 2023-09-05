@@ -38,7 +38,7 @@ def getDegreesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False):
     filename = path + f'/degrees_N_{N}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}_{pushLabel}.parquet'
     df.to_parquet(filename, index=False)
     
-def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contactsToUse=False):
+def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contactsToUse=False, replace = False):
     '''
     configsToUse == False, then use all available.
     '''
@@ -46,11 +46,13 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
     pushLabel = 'push' if push else 'nopush'
     path = getConfigsPath(N) + f'/{pushFolder}'
     rawDataPath = getConfigsPath(N) + '/raw_data'
-    # check if file already exists and avoid repeating it:
-    if os.path.exists(rawDataPath + f'/comSizes_N_{N}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}_{pushLabel}.parquet'):
-       return
     existingConfigs = len(glob.glob(path + '/' + configsFilename(arena_r, exclusion_r)))
     existingContacts = len(glob.glob(path + '/' + contactsFilename(arena_r, exclusion_r, interac_r)))
+    # check if file already exists and avoid repeating it:
+    if (os.path.exists(rawDataPath + f'/comSizes_N_{N}_ar_{arena_r}_er_{exclusion_r}_ir_{interac_r}_{pushLabel}.parquet') and not replace):
+        print(f'Exiting community sizes computing. N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r} , push = {push}.')
+        print(f'There are {existingConfigs} position files and {existingContacts} contact files.')
+        return
     print(f'There are {existingConfigs} position files and {existingContacts} contact files for N={N}, ra = {arena_r}, re = {exclusion_r}, ri = {interac_r} , push = {push}.')
     #input('enter ')
     if contactsToUse:
@@ -79,7 +81,9 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
 if __name__ == '__main__':
     # for ir in np.linspace(3.5,12,18):
     #    getDegreesAllConfigs(35, 20.0, ir, 1.5)
-    for ir in [4.0, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 9.0]:
-        for N,ar in zip([219, 709, 965], [50.0, 90.0, 105.0]):
-            getComSizesAllConfigs(219, 50.0, 12.0, 1.5)
+    for N,ar in zip([219, 709, 965], [50.0, 90.0, 105.0]):
+        irs = availableIrs(N, ar, 1.5, 0)
+        print(irs)
+        for ir in irs:
+            getComSizesAllConfigs(N, ar, ir, 1.5)
 
