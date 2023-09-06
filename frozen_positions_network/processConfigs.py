@@ -81,9 +81,6 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
 if __name__ == '__main__':
     # for ir in np.linspace(3.5,12,18):
     #    getDegreesAllConfigs(35, 20.0, ir, 1.5)
-    for N,ar in zip([219, 709, 965], [50.0, 90.0, 105.0]):
-        irs = availableIrs(N, ar, 1.5, 0)
-        print(irs)
-        for ir in irs:
-            getComSizesAllConfigs(N, ar, ir, 1.5)
-
+    irs = availableIrs(1479, 130.0, 1.5, 0)
+    for ir in irs:
+        getComSizesAllConfigs(1479, 130.0, ir, 1.5)
