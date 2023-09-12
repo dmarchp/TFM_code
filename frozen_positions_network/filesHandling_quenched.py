@@ -36,7 +36,7 @@ def getConfigsPath(N):
     return configsPath
     
     
-def availableIrs(N, arena_r, exclusion_r, push):
+def availableIrs(N: int, arena_r: float, exclusion_r: float, push: bool):
     pushFolder = '/configs_w_push' if push else '/configs_wo_push'
     fullNameWc = getConfigsPath(N) + pushFolder + f'/contact_list_*_ar_{arena_r}_er_{exclusion_r}_ir_*.txt'
     files = glob.glob(fullNameWc)
