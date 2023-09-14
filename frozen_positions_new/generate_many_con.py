@@ -4,7 +4,7 @@ sys.path.append('../')
 from frozen_positions_network.filesHandling_quenched import availableIrs
 
 
-N, arena_r = 709, 90.0
+N, arena_r = 703, 75.0
 exclusion_r = 1.5
 
 irs = availableIrs(N, arena_r, exclusion_r, push=False)
