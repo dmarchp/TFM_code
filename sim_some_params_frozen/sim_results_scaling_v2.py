@@ -30,8 +30,10 @@ exclusion_r = 1.5
 nu, df_expo = 4/3, 182/96
 
 def perc_dens(N:int):
-    # return 11.356*N**(-1/(nu*df_expo)) + 0.939
-    return 11.0*N**(-1/(nu*df_expo)) + 1.1
+    # return 11.0*N**(-1/(nu*df_expo)) + 1.1
+    return 14.0*N**(-1/(nu*df_expo)) + 0.4
+    # return np.exp(2.5638)*N**(-0.3747) + 0.4
+
 
 def perc_r(N):
     # return 58.11*N**(-0.615)
