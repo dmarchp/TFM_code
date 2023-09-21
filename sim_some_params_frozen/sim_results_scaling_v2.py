@@ -43,7 +43,7 @@ fig, ax = plt.subplots()
 # for the definitive ffigure:
 fig, ax = plt.subplots(1,1,figsize=(3.7,3.4))
 
-use_rstar = False
+use_rstar = True
 
 
 # QUENCHED
@@ -189,7 +189,7 @@ if factor == 4.0/7.0:
 elif factor == 0.5:
     ax.set(xlim=(None,3.0))
 
-ax.set(xlabel=r'$(p/ p_c)$', ylabel=r'$f_2$') # , xscale='log'
+ax.set(xlabel=r'$(\eta/ \eta_c)$', ylabel=r'$f_2$') # , xscale='log'
 
 # fig.text(0.1,0.97, rf"$(\pi_1, \pi_2) = ({pis[0]}, {pis[1]})$, $\lambda = [0.3, 0.6, 0.9]$", fontsize=9)
 
@@ -202,6 +202,6 @@ figname = 'provant_scaling_v2'
 if use_rstar:
     figname += '_reescale_rstar'
 else:
-    figname += '_reescale_pstar'
+    figname += '_reescale_etastar'
 figname += '.png'
 fig.savefig(figname)
