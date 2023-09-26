@@ -5,7 +5,7 @@ from subprocess import call
 import glob
 import os
 import sys
-sys.path.append('../../')
+sys.path.append('/../../')
 from package_global_functions import *
 
 # parameters:

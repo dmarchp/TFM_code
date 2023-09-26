@@ -1,0 +1,73 @@
+# sublot xungo:
+
+fig, ax = plt.subplots(2,2, figsize=(3.9*2,3.6*2))
+fig.subplots_adjust(wspace=0.2)
+
+# evo temporal cas simetric
+N, pi1, pi2, q1, q2, l = 35, 0.3, 0.3, 7, 10, 0.6
+ax[0,0].set(xlabel='$t$', ylabel='$f_j$', xscale='symlog', xlim=(0,2500), ylim=(0,0.8))
+ax[0,0].set_xlabel('$t$', labelpad=-0.0)
+ax[0,0].tick_params(right=True)
+folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia'
+intEvoFile = f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
+files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
+dfs = [pd.read_csv(file) for file in files]
+df_avg = get_avg_traj(dfs)
+ax[0,0].plot(df_avg['iter'], df_avg['f0'], alpha=0.9, lw=0.7, label='$f_0$', color='xkcd:red')
+ax[0,0].plot(df_avg['iter'], df_avg['f1'], alpha=0.9, lw=0.7, label='$f_1$', color='xkcd:green')
+ax[0,0].plot(df_avg['iter'], df_avg['f2'], alpha=0.9, lw=0.7, label='$f_2$', color='xkcd:blue')
+intEvo = pd.read_csv(f'{getTimeEvosPath()}/{intEvoFile}')
+ax[0,0].plot(intEvo['iter'], intEvo['f0'], lw=0.7, ls='--', color='xkcd:red')
+ax[0,0].plot(intEvo['iter'], intEvo['f1'], lw=0.7, ls='--', color='xkcd:green')
+ax[0,0].plot(intEvo['iter'], intEvo['f2'], lw=0.7, ls='--', color='xkcd:blue')
+
+
+# evo temporal cas asimetric
+N, pi1, pi2, q1, q2, l = 35, 0.4, 0.2, 7, 10, 0.6
+ax[0,1].set(xlabel='$t$', xscale='symlog', xlim=(0,2500), ylim=(0,0.8))
+# ax[0,1].set_ylabel('$f_j$', labelpad=-0.0)
+folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia'
+intEvoFile = f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
+files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
+dfs = [pd.read_csv(file) for file in files]
+df_avg = get_avg_traj(dfs)
+ax[0,1].plot(df_avg['iter'], df_avg['f0'], alpha=0.9, lw=0.7, label='$f_0$', color='xkcd:red')
+ax[0,1].plot(df_avg['iter'], df_avg['f1'], alpha=0.9, lw=0.7, label='$f_1$', color='xkcd:green')
+ax[0,1].plot(df_avg['iter'], df_avg['f2'], alpha=0.9, lw=0.7, label='$f_2$', color='xkcd:blue')
+intEvo = pd.read_csv(f'{getTimeEvosPath()}/{intEvoFile}')
+ax[0,1].plot(intEvo['iter'], intEvo['f0'], lw=0.7, ls='--', color='xkcd:red')
+ax[0,1].plot(intEvo['iter'], intEvo['f1'], lw=0.7, ls='--', color='xkcd:green')
+ax[0,1].plot(intEvo['iter'], intEvo['f2'], lw=0.7, ls='--', color='xkcd:blue')
+ax[0,1].legend(frameon=False, ncols=3, loc=(0.11,0.88), fontsize=11)
+
+
+
+fsMesh = np.load(f'{getColormapsPath()}/map_sym_q1_{q1}_q2_{q2}.npz')
+Qmesh = fsMesh['fs'][2] - 2*fsMesh['fs'][1]
+# colormap simetric f2
+ax[1,0].set(xlabel='$\pi_{1,2}$')
+im = ax[1,0].pcolormesh(fsMesh['x'], fsMesh['y'], fsMesh['fs'][2], vmin =0, vmax =1, cmap='Blues', shading='nearest')
+
+ax[1,0].tick_params(labelleft=False, left=False, right=True)
+box = ax[1,0].get_position()
+pad, width = 0.02, 0.01
+cax = fig.add_axes([box.xmin - pad, box.ymin, width, box.height])
+cb = fig.colorbar(im, cax=cax, location='left')
+# cb.ax.tick_params(labelsize=8)
+
+# colormap simetric Q
+maxQ = 1
+#maxQ = abs(Qmesh).max()
+ax[1,1].set(xlabel='$\pi_{1,2}$')
+ax[1,1].set_ylabel('$\lambda$', labelpad=0.0)
+im = ax[1,1].pcolormesh(fsMesh['x'], fsMesh['y'], Qmesh, vmin = -maxQ, vmax = maxQ, cmap='bwr_r', shading='nearest')
+box = ax[1,1].get_position()
+pad, width = 0.01, 0.01
+cax = fig.add_axes([box.xmax + pad, box.ymin, width, box.height])
+cb = fig.colorbar(im, cax=cax)
+
+
+ax[0,0].text(0.04,0.91, r'$\textbf{A}$', transform=ax[0,0].transAxes)
+ax[0,1].text(0.04,0.91, r'$\textbf{B}$', transform=ax[0,1].transAxes)
+ax[1,0].text(0.04,0.91, r'$\textbf{C}$', transform=ax[1,0].transAxes)
+ax[1,1].text(0.04,0.91, r'$\textbf{D}$', transform=ax[1,1].transAxes)
