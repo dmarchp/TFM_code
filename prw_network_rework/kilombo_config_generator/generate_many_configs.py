@@ -5,16 +5,19 @@ from subprocess import call
 import glob
 import os
 import sys
-sys.path.append('/../../')
+sys.path.append('../../')
 from package_global_functions import *
+sys.path.append('../')
+from filesHandling_kilombo import *
+# from '../filesHandling_kilombo.py' import *
 
 # parameters:
 inSeed = 78
 Nconfigs = 2
-arena_r = 18.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
+arena_r = 19.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
 
 # parameters to modify in the kilombo.json
-nBots = 35
+nBots = 20
 speed = 9
 speedVariation = 2
 timeStep = 0.0103
@@ -37,8 +40,17 @@ existingConfigs = len(glob.glob('configs/' + filenameRoot + '_*' + extension))
 
 def modify_arena_size_in_PRWDIS():
     global arena_r
-    call(f"sed -i 's/  double arena_r = .*/  double arena_r = {round(arena_r*10,2)};/' PRWDis.c", shell=True)
-    #call("make", shell=True)
+    if getPCname() == 'depaula.upc.es':
+        sed_start = "sed -i'' -e "
+    elif getPCname() == 'david-X550LD' or getPCname() == 'bestia':
+        sed_start = 'sed -i '
+    else:
+        print('Unrecognized PC! Check sed command in modify arena size function.')
+        exit
+    sed_command = sed_start + "'s/ double arena_r = .*/  double arena_r = {round(arena_r*10,2)};/' PRWDis.c"
+    call(f'{sed_command}', shell=True)
+    call("make clean", shell=True)
+    call("make", shell=True)
     
 def modify_kilombo_json():
     global nBots, speed, speedVariation, timeStep, simulationTime
@@ -74,9 +86,9 @@ def traj_json_to_csv_or_parquet(filename, ticksToDiscard=0, csv=False, parquet=T
     trajDF.to_parquet(filenameParquet, index=False)
     
 
-def move_traj_files(saveToExtSDD=True):
+def move_traj_files(saveToExtSSD=True):
     extSSDpath = getExternalSSDpath()
-    if os.path.exists(extSSDpath) and saveToExtSDD:
+    if os.path.exists(extSSDpath) and saveToExtSSD:
         call(f'mv configs/* {extSSDpath}/kilombo_configs', shell=True)
     elif not os.path.exists(extSSDpath) and saveToExtSSD:
         print('External SDD drive is not available. Leaving cofing trajectories in configs/')
@@ -111,7 +123,9 @@ def mainComplete():
     move_traj_files()
     
 def mainTesting():
-    move_traj_files()
+    # move_traj_files()
+    modify_arena_size_in_PRWDIS()
+
     
 if __name__ == '__main__':
     #mainComplete()
