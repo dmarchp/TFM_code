@@ -73,10 +73,10 @@ def getComSizesAllTraj(N, arena_r, interac_r, loops, maxCicles=False):
 
 if __name__ == '__main__':
     # getDegreesAllTraj(35, 18.5, 7.0, 800)
-    N, ar = 492, 73.5
-    # getComSizesAllTraj(N, ar, 3.5, 0)
-    getComSizesAllTraj(N, ar, 3.6, 800)
+    N, ar, loops = 35, 18.5, 800
     # for loops in [400, 800]:
     #     irs = availableIrs(N, ar, loops)
     #     for ir in irs:
     #         getComSizesAllTraj(N, ar, ir, loops)
+    for N in [40, 45]:
+        getComSizesAllTraj(N, ar, 3.4, loops)

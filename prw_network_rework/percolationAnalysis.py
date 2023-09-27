@@ -200,6 +200,7 @@ def computeMeanClusterSize(N, arena_r, interac_r, loops, maxCicles):
     for traj in list(trajs):
         dftraj = df.query('trajID == @traj')
         cicles = pd.unique(dftraj['cicleID'])
+        # print(len(cicles))
         if len(cicles) > maxCicles:
             sep = int(len(cicles)/maxCicles)
             ciclesToUse = list(cicles)[::sep]
@@ -358,12 +359,17 @@ if __name__ == '__main__':
     # plotDegreeDistr_manyir_oneDeltat(35, 18.5, [3.5, 3.75, 5.0, 8.0], 800)
     # MollyReedCriterion(35, 18.5, [4.0, 5.0, 6.0, 7.0, 8.0], [0, 800], quenched=True)
 
-    N, ar, loops = 35, 18.5, 800
-    # plotMeanClusterSize(N, ar, [0, 400, 800], maxCicles=100, quenched=True)
-    # plotAvgGiantComp(N, ar, [0, 400, 800], maxCicles=100, quenched=True)
-    plotComSizesDistr_dif_loops(N, ar, [7.0, 5.0, 4.0], [0,400,800], 6.5, 15, fitPL=True, fitPLindex=(5,9), dataToFile=True)
-    N, ar, loops = 492, 73.5, 800
-    # plotMeanClusterSize(N, ar, [0, 400, 800], maxCicles=36, quenched=True)
-    # plotAvgGiantComp(N, ar, [0, 400, 800], maxCicles=36, quenched=True)
-    plotComSizesDistr_dif_loops(492, 73.5, [6.0, 4.5, 3.5], [0,400,800], 6.5, 25, fitPL=True, fitPLindex=(6,16), dataToFile=True)
+    # N, ar, loops = 35, 18.5, 800
+    # # plotMeanClusterSize(N, ar, [0, 400, 800], maxCicles=100, quenched=True)
+    # # plotAvgGiantComp(N, ar, [0, 400, 800], maxCicles=100, quenched=True)
+    # plotComSizesDistr_dif_loops(N, ar, [7.0, 5.0, 4.0], [0,400,800], 6.5, 15, fitPL=True, fitPLindex=(5,9), dataToFile=True)
+    # N, ar, loops = 492, 73.5, 800
+    # # plotMeanClusterSize(N, ar, [0, 400, 800], maxCicles=36, quenched=True)
+    # # plotAvgGiantComp(N, ar, [0, 400, 800], maxCicles=36, quenched=True)
+    # plotComSizesDistr_dif_loops(492, 73.5, [6.0, 4.5, 3.5], [0,400,800], 6.5, 25, fitPL=True, fitPLindex=(6,16), dataToFile=True)
+
+    # for N in [10, 15, 20, 25, 30, 40, 45]:
+    #     irs = availableIrs(N, 18.5, 800)
+    #     getMeanClusterSize_ir(N, 18.5, 800, irs, 100000)
+    print('Hola')
 

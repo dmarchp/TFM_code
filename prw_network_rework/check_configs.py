@@ -9,13 +9,13 @@ sys.path.append('../')
 from filesHandling_kilombo import *
 
 # everything in milimeters
-arena_r = 735.0
+arena_r = 185.0
 exclusion_r = 15.0
 interac_r = 35.0
 cicle = 2
 loops = 800
 
-N = 492
+N = 40
 jumpTrajConfigs = 5
 
 
@@ -39,7 +39,7 @@ print(configs0)
 def dist2D(pos0, pos1):
     return np.sqrt((pos0[0]-pos1[0])**2+(pos0[1]-pos1[1])**2)
 
-def getDistances(positions, i, cicle):
+def getDistances(positions, i, cicle, interac_r):
     dists = []
     for k,pos0 in enumerate(positions[:-1]):
         for pos1 in positions[k+1:]:
@@ -71,7 +71,7 @@ for i in configs0:
     for j in vertices_ids:
         x, y = float(df_single_config.loc[df_single_config['ID']==j]['x_position']), float(df_single_config.loc[df_single_config['ID']==j]['y_position'])
         true_layout.append([x,y])
-    getDistances(true_layout, i, cicle)
+    getDistances(true_layout, i, cicle, interac_r)
     true_layout = ig.Layout(true_layout)
     fig, ax = plt.subplots(figsize=(5,5))
     ig.plot(
