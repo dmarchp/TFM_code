@@ -96,14 +96,14 @@ void random_walk(){
   }
 }
 
-void left_walk() {
-    // uint8_t rand
-    switch(mydata->current_motion_type){
-       case LEFT:
-          set_motion(LEFT);
+// void left_walk() {
+//     // uint8_t rand
+//     switch(mydata->current_motion_type){
+//        case LEFT:
+//           set_motion(LEFT);
     
-    }
-}
+//     }
+// }
 
 
 
@@ -136,7 +136,7 @@ void loop()
 /* Create circle barrier */
 int16_t circle_barrier(double x, double y, double * dx, double * dy)
 {
-   double arena_r = {round(arena_r*10,2)};
+  double arena_r = 185.0;
   double d = sqrt(x*x + y*y);
 
   if (d < arena_r)

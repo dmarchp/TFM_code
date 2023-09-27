@@ -47,6 +47,9 @@ all: sim hex
 clean :
 	rm *.o $(EXECUTABLE) *.elf *.hex
 
+cleansim:
+	rm *.o $(EXECUTABLE)
+
 # # # # # # # # # # The following should be generic and not need changes # # # # # # # # # # # # # 
 
 # compiling for the real bot

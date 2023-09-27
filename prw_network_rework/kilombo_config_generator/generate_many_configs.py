@@ -12,23 +12,24 @@ from filesHandling_kilombo import *
 # from '../filesHandling_kilombo.py' import *
 
 # parameters:
-inSeed = 78
-Nconfigs = 2
-arena_r = 19.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
+inSeed = 7817
+Nconfigs = 10
+arena_r = 18.5 # per el moment això no canvia (el canvi s'hauria de fer al codi, no al json)
 
 # parameters to modify in the kilombo.json
-nBots = 20
+nBots = 45
 speed = 9
 speedVariation = 2
 timeStep = 0.0103
-simulationTime = 700
-formation = "pile" # options are: "random", "pile", "line", "circle", "ellipse"
+# simulationTime = 700 # maybe that's ok for N=492
+simulationTime = 1000
+formation = "random" # options are: "random", "pile", "line", "circle", "ellipse"
 # for small sizes (N=35), random is ok
 # for a bigger szize (N=492), pile or ellipse produce a better inicial spread. Nvthless, a discarding time of about 400 seconds must be set
 # in order to decorrelate from the initial formation
 
 # discard initial configurations: (10? for N=35, 400 seconds for N=492)
-secondsToDiscard = 10.0
+secondsToDiscard = 12.0
 ticksPerSecond = 31.0
 ticksToDiscard = secondsToDiscard*ticksPerSecond
 #print(ticksToDiscard)
@@ -47,9 +48,9 @@ def modify_arena_size_in_PRWDIS():
     else:
         print('Unrecognized PC! Check sed command in modify arena size function.')
         exit
-    sed_command = sed_start + "'s/ double arena_r = .*/  double arena_r = {round(arena_r*10,2)};/' PRWDis.c"
+    sed_command = sed_start + f"'s/  double arena_r = .*/  double arena_r = {round(arena_r*10,2)};/' PRWDis.c"
     call(f'{sed_command}', shell=True)
-    call("make clean", shell=True)
+    call("make cleansim", shell=True)
     call("make", shell=True)
     
 def modify_kilombo_json():
@@ -80,16 +81,18 @@ def traj_json_to_csv_or_parquet(filename, ticksToDiscard=0, csv=False, parquet=T
     trajDF['y_position'] = trajDF['y_position'].astype('float32')
     trajDF['ticks'] = trajDF['ticks'].astype('int32')
     # sate to CSV or PARQUET... still figuring it out...
-    filenameCSV = filename[:-4] + 'csv'
-    filenameParquet = filename[:-4] + 'parquet'
-    trajDF.to_csv(filenameCSV, index=False)
-    trajDF.to_parquet(filenameParquet, index=False)
+    if csv:
+        filenameCSV = filename[:-4] + 'csv'
+        trajDF.to_csv(filenameCSV, index=False)
+    if parquet:
+        filenameParquet = filename[:-4] + 'parquet'
+        trajDF.to_parquet(filenameParquet, index=False)
     
 
 def move_traj_files(saveToExtSSD=True):
     extSSDpath = getExternalSSDpath()
     if os.path.exists(extSSDpath) and saveToExtSSD:
-        call(f'mv configs/* {extSSDpath}/kilombo_configs', shell=True)
+        call(f'mv configs/* {extSSDpath}/kilombo_configs/', shell=True)
     elif not os.path.exists(extSSDpath) and saveToExtSSD:
         print('External SDD drive is not available. Leaving cofing trajectories in configs/')
     
@@ -123,10 +126,9 @@ def mainComplete():
     move_traj_files()
     
 def mainTesting():
-    # move_traj_files()
-    modify_arena_size_in_PRWDIS()
+    move_traj_files()
 
     
 if __name__ == '__main__':
-    #mainComplete()
-    mainTesting()
+    mainComplete()
+    # mainTesting()
