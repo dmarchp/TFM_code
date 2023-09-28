@@ -25,20 +25,20 @@ N_bots = 35
 push = ".false."
 arena_r = 20.0
 interac_r = np.linspace(3,12,19)
-# interac_r = [6.5, ]
+interac_r = [6.5, ]
 exclusion_r = 1.5
 
 # qualities, pis, lambdas
 q1s = [7, ]
 q2s = [10, ]
-#for i in range(0,100,10):
-#    lambs.append(i/100)
+lambs = []
+for i in range(0,100,10):
+   lambs.append(i/100)
 #for i in range(0,100,5):
 #    lambs.append(i/100)
-lambs = [0.3, 0.6, 0.9]
-lambs = [0.0, 0.7, 0.8]
-pi1s = [0.3, ]
-pi2s = [0.3, ]
+# lambs = [0.3, 0.6, 0.9]
+pi1s = [0.4, ]
+pi2s = [0.2, ]
 
 
 
