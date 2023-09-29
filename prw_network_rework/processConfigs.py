@@ -39,6 +39,10 @@ def getDegreesAllTraj(N, arena_r, interac_r, loops):
 def getComSizesAllTraj(N, arena_r, interac_r, loops, maxCicles=False):
     fname = getFilenameRoot(N, arena_r)
     fnameSufix = getFilenameContactIntSufix(loops, interac_r)
+    if loops == 0:
+        extension = '.' + fnameSufix.split('.')[-1]
+        to_remove = '_' + fnameSufix.split('_')[-1]
+        fnameSufix = fnameSufix.replace(to_remove, extension, 1)
     contactsPath = getConfigsPath() + '/contacts'
     existingFiles = len(glob.glob(contactsPath + '/' + fname + '_*' + fnameSufix))
     call(f"mkdir -p {getConfigsPath()}/raw_data", shell=True)
@@ -78,5 +82,9 @@ if __name__ == '__main__':
     #     irs = availableIrs(N, ar, loops)
     #     for ir in irs:
     #         getComSizesAllTraj(N, ar, ir, loops)
-    for N in [40, 45]:
-        getComSizesAllTraj(N, ar, 3.4, loops)
+    # for N in [40, 45]:
+    #     getComSizesAllTraj(N, ar, 3.4, loops)
+    getComSizesAllTraj(492, 73.5, 4.5, 400, 999999)
+    getComSizesAllTraj(492, 73.5, 5.5, 400, 999999)
+    getComSizesAllTraj(492, 73.5, 6.5, 400, 999999)
+    getComSizesAllTraj(492, 73.5, 7.5, 400, 999999)
