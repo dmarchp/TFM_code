@@ -10,7 +10,7 @@ sys.path.append('../')
 from package_global_functions import *
 
 Nsites = 2
-Nrea = 25
+Nrea = 10
 max_time = 3000
 
 extSSDpath = getExternalSSDpath()

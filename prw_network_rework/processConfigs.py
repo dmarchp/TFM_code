@@ -64,6 +64,8 @@ def getComSizesAllTraj(N, arena_r, interac_r, loops, maxCicles=False):
         for cicle in cicles:
             dfcicle = df.query('cicleID == @cicle')
             dfcicle = dfcicle.drop('cicleID', axis=1)
+            if loops == 0:
+                dfcicle = dfcicle.drop('configID', axis=1)
             comSizes, comSizes_woGC, gc = getConfigComSizes(dfcicle, N)
             comSizesDic['trajID'].extend([i]*len(comSizes)), comSizesDic['cicleID'].extend([cicle]*len(comSizes)), comSizesDic['comSizes'].extend(comSizes)
             comSizesWoGcDic['trajID'].extend([i]*len(comSizes_woGC)), comSizesWoGcDic['cicleID'].extend([cicle]*len(comSizes_woGC)), comSizesWoGcDic['comSizes'].extend(comSizes_woGC)
@@ -84,7 +86,6 @@ if __name__ == '__main__':
     #         getComSizesAllTraj(N, ar, ir, loops)
     # for N in [40, 45]:
     #     getComSizesAllTraj(N, ar, 3.4, loops)
-    getComSizesAllTraj(492, 73.5, 4.5, 400, 999999)
-    getComSizesAllTraj(492, 73.5, 5.5, 400, 999999)
-    getComSizesAllTraj(492, 73.5, 6.5, 400, 999999)
-    getComSizesAllTraj(492, 73.5, 7.5, 400, 999999)
+    getComSizesAllTraj(492, 73.5, 4.5, 0, 999999)
+    getComSizesAllTraj(492, 73.5, 7.5, 0, 999999)
+    getComSizesAllTraj(35, 18.5, 3.5, 0, 999999)

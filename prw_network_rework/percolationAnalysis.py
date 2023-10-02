@@ -372,5 +372,14 @@ if __name__ == '__main__':
     #     irs = availableIrs(N, 18.5, 800)
     #     getMeanClusterSize_ir(N, 18.5, 800, irs, 100000)
     # a,b = computeAvgGiantComp(35, 18.5, 3.5, 0, maxCicles=999999)
-    getAvgGiantComp_ir(492, 73.5, 400, [6.5, 7.5], 9999999)
+    getAvgGiantComp_ir(492, 73.5, 0, [4.5, 7.5], 9999999)
+    getAvgGiantComp_ir(35, 18.5, 0, [3.5,], 9999999)
 
+    N, ar = 35, 18.5
+    for loops in [0, 400, 800]:
+        irs = availableIrs(N, ar, loops)
+        getMeanClusterSize_ir(N, ar, loops, irs, 999999)
+    N, ar = 492, 73.5
+    for loops in [0, 400, 800]:
+        irs = availableIrs(N, ar, loops)
+        getMeanClusterSize_ir(N, ar, loops, irs, 999999)

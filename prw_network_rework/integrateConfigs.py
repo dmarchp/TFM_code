@@ -154,6 +154,6 @@ if __name__ == '__main__':
     # for ir in [5.5, 6.5, 7.5, 8.0, 8.5, 9.0]:
     #     configs_to_contacts(25, 18.5, ir, 800, maxFiles=mFiles, jumpTrajConfigs=5)
     #     contacts_to_contactsInt(25, 18.5, ir, 800, maxFiles=mFiles)
-    for ir in [6.5, 7.5]:
+    for ir in [7.5, ]:
         configs_to_contacts(492, 73.5, ir, 800, maxFiles=mFiles, jumpTrajConfigs=5)
         contacts_to_contactsInt(492, 73.5, ir, 800, maxFiles=mFiles)
