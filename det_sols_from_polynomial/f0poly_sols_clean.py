@@ -70,7 +70,7 @@ def main():
     if l == 0.0:
         f0 = f0_lambda_eq_0(pi1, pi2, q1, q2, l)
         solution = (f0, f_i(1, f0, pis, qs, l), f_i(2, f0, pis, qs, l))
-        if args.verbose:
+        if args.verbosity:
             print(f"Exact solution, pi1, pi2 = {pi1}, {pi2}; q1, q2 = {q1}, {q2}, lambda = {l}")
             print(solution)
         else:
