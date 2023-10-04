@@ -63,7 +63,7 @@ def getComSizesAllConfigs(N, arena_r, interac_r, exclusion_r, push=False, contac
     for i in range(1,existingContacts+1):
         try:
             df = pd.read_csv(path + '/' + contactsFilename(arena_r, exclusion_r, interac_r, i), sep='\s+', header=None)
-            comSizes, comSizes_woGC, gc = getConfigComSizes(df, N)
+            comSizes, comSizes_woGC, gc = getConfigComSizes(df, N, firstID = 1)
         except pd.errors.EmptyDataError:
             # print(contactsFilename(arena_r, exclusion_r, interac_r, i))
             # input('enter ')
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     #     irs = availableIrs(N, 20.0, 1.5, 0)
     #     for ir in irs:
     #         getComSizesAllConfigs(N, 20.0, ir, 1.5)
-    # irs = availableIrs(633, 75.0, 1.5, 0)
-    # for ir in irs:
-    #     getComSizesAllConfigs(633, 75.0, ir, 1.5, replace=True)
-    getComSizesAllConfigs(492, 75.0, 4.5, 1.5)
+    irs = availableIrs(40, 20.0, 1.5, 0)
+    for ir in irs:
+        getComSizesAllConfigs(40, 20.0, ir, 1.5)
+    

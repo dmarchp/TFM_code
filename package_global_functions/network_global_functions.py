@@ -41,14 +41,17 @@ def getDegreeDistr(degrees):
     return binCenters, prob, dprob
     
     
-def getConfigComSizes(dfconfig, N):
+def getConfigComSizes(dfconfig, N, firstID = 0):
     """
     input:
-        - dfconfigs: df with columns 'contacts0' and 'contacts1'. IDs of the network vertices, 0...N-1 or 1...N
+        - dfconfigs: df with columns 'contacts0' and 'contacts1'. IDs of the network vertices, 0...N-1 by default; Indicate as argument if they start at 1!!!!!
         - N: number of vertices expected in the network
     output:
         - arrays with the community sizes, community sizes without giant component, and size of the giant component
     """
+    if firstID == 1:
+        for c in dfconfig.columns:
+            dfconfig[c] = dfconfig[c] - 1
     g = ig.Graph.DataFrame(dfconfig, directed=False)
     components = g.components()
     sum_check = 0

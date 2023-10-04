@@ -339,9 +339,9 @@ if __name__ == '__main__':
     # plotPercN_fromMCS_difir(20.0, 1.5, [5.0, 6.0, 7.0, 8.0, 9.0], [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80])
     # plotMeanClusterSize_difN(75.0, 1.5, [352, 492, 633, 703, 844, 984])
     # plotPercRadius_fromMCS_difN(75.0, 1.5, [352, 492, 633, 703, 844, 984])
-    # irs = availableIrs(709, 90.0, 1.5, 0)
-    # getMeanClusterSize_ir(709, 90.0, 1.5, irs, replace=True)
-    getAvgGiantComp_ir(492, 75.0, 1.5, [4.5, ])
+    irs = availableIrs(40, 20.0, 1.5, 0)
+    getMeanClusterSize_ir(40, 20.0, 1.5, irs)
+    # getAvgGiantComp_ir(492, 75.0, 1.5, [4.5, ])
     
 
 

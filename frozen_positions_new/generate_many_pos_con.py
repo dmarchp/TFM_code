@@ -7,9 +7,9 @@ import sys
 sys.path.append('../')
 from package_global_functions import getExternalSSDpath
 
-seed(96948484)
+seed(4113)
 arena_r = 75.0
-maxConfigs = 250
+maxConfigs = 1000
 
 
 ssdpath = getExternalSSDpath()
@@ -52,13 +52,15 @@ Ns = {
 # around the peak or extras:
 Ns = {
     # 352:[7.7, 7.8, 7.9, 8.1, 8.2, 8.3],
-    633:[5.3, 5.4, 5.6, 5.7],
+    # 633:[5.3, 5.4, 5.6, 5.7],
     # 703:[4.7, 4.8, 4.9, 5.1, 5.2, 5.3],
     # 844:[4.2,4.3,4.4,4.6,4.7,4.8],
     # 984:[4.4,]
+    # 2240: np.arange(5.4,6.8,0.1)
+    40: [4.0, 5.0, 5.2, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0]
 }
 
-
+arena_r = 20.0
 
 for N,irs in Ns.items():
     # check the number of configurations already existing (in the SSD!):
