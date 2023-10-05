@@ -85,7 +85,7 @@ if __name__ == '__main__':
     #     irs = availableIrs(N, 20.0, 1.5, 0)
     #     for ir in irs:
     #         getComSizesAllConfigs(N, 20.0, ir, 1.5)
-    irs = availableIrs(40, 20.0, 1.5, 0)
+    irs = availableIrs(95, 20.0, 1.5, 1)
     for ir in irs:
-        getComSizesAllConfigs(40, 20.0, ir, 1.5)
+        getComSizesAllConfigs(95, 20.0, ir, 1.5, push=True)
     
