@@ -184,6 +184,15 @@ def comSizesDiscard(df, N, interac_r, loops):
         if loops == 800:
             if interac_r == 4.5:
                 df = df.query('not (trajID == 1 and cicleID == 0)')
+    if N == 25:
+        if loops == 800:
+            df = df.query("""not ((trajID == 8 and cicleID in [42, 31]) or (trajID == 2 and cicleID == 111) \
+                          or (trajID == 1 and cicleID in [11, 12, 42]) or (trajID == 9 and cicleID == 44) \
+                          or (trajID == 10 and cicleID == 68))""")
+    if N == 30:
+        if loops == 800:
+            df = df.query("""not ((trajID == 1 and cicleID == 119) or (trajID == 3 and cicleID == 45) or (trajID == 9 and cicleID == 165) \
+                          or (trajID == 8 and cicleID == 82) or (trajID == 10 and cicleID == 133))""")
     return df
 
 # MEAN CLUSTER SIZE
