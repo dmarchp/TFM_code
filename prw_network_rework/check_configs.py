@@ -11,11 +11,11 @@ from filesHandling_kilombo import *
 # everything in milimeters
 arena_r = 185.0
 exclusion_r = 15.0
-interac_r = 35.0
-cicle = 2
+interac_r = 55.0
+cicle = 10
 loops = 800
 
-N = 40
+N = 25
 jumpTrajConfigs = 5
 
 
@@ -71,7 +71,7 @@ for i in configs0:
     for j in vertices_ids:
         x, y = float(df_single_config.loc[df_single_config['ID']==j]['x_position']), float(df_single_config.loc[df_single_config['ID']==j]['y_position'])
         true_layout.append([x,y])
-    getDistances(true_layout, i, cicle, interac_r)
+    # getDistances(true_layout, i, cicle, interac_r)
     true_layout = ig.Layout(true_layout)
     fig, ax = plt.subplots(figsize=(5,5))
     ig.plot(
