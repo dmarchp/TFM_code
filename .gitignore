@@ -11,6 +11,8 @@ prw_network/proves_fallides.py
 prw_network/prova_npy_files.py
 prw_network/script.py
 
+prw_network_rework/figures_for_video
+
 det_sols_from_polynomial/Untitled.ipynb
 det_sols_from_polynomial/sols.dat
 
