@@ -27,12 +27,12 @@ q0 = 1
 pi(:) = 0.0 0.0
 
 ! Sites qualities:
-q(:) = 10 10
+q(:) = 9 10
 
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P), pi hard (Phard). If yes/uniform/pi/pihard what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 334 333 333
+bots_per_site = 0 950 50
 
 /
 

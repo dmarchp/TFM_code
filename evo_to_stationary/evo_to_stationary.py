@@ -10,7 +10,7 @@ sys.path.append('../')
 from package_global_functions import *
 
 Nsites = 2
-Nrea = 100
+Nrea = 20
 max_time = 10000
 
 extSSDpath = getExternalSSDpath()
@@ -40,6 +40,8 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_halves'
     elif ic=='95f2':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2'
+    elif ic=='95f1':
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f1'
     if os.path.exists(f'{path}/{newFolderName}'):
         Nfiles = len(glob.glob(f'{path}/{newFolderName}/*'))
         df = pd.read_csv(f'{path}/{newFolderName}/time_evo_rea_001.csv')
@@ -82,6 +84,8 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_halves_Euler.csv'
     elif ic=='95f2':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2_Euler.csv'
+    elif ic=='95f1':
+        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f1_Euler.csv'
     if not os.path.exists(intEvoName):
         pop_fraction = np.array(bots_per_site)/N
         fs_evo = [[pop_fraction[0]],[pop_fraction[1]],[pop_fraction[2]]]
@@ -103,7 +107,7 @@ def main():
     parser.add_argument('q2', type=int, help='site 2 quality')
     parser.add_argument('l', type=float, help='interdependence (lambda)')
     parser.add_argument('N', type=int, help='Number of agents')
-    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43)")
+    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f1, 95f2")
     parser.add_argument('inSeed', type=int, help='seed')
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, N, ic, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic, args.inSeed
@@ -129,6 +133,11 @@ def main():
             bots_per_site = [0, int(N/2), int(N/2)+1]
     elif ic=='95f2':
         bots_per_site = [0, int(0.05*N), int(0.95*N)]
+        while sum(bots_per_site) != N:
+            randsite = np.random.randint(1,3)
+            bots_per_site[randsite] += 1
+    elif ic=='95f1':
+        bots_per_site = [0, int(0.95*N), int(0.05*N)]
         while sum(bots_per_site) != N:
             randsite = np.random.randint(1,3)
             bots_per_site[randsite] += 1

@@ -183,14 +183,14 @@ def compute_results_many_params(pi_pairs, q2, q1s, ls):
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-# computeSymmetricMap_mesh(9, 10, pi_lims=(0.01, 0.5), parqDf=False)
+computeSymmetricMap_mesh(1.75, 2.5, pi_lims=(0.01, 0.5), parqDf=False)
 #computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
 # computeAsymmetricMap_mesh(7, 10, 0.8)
 # computeAsymmetricMap_mesh(20, 40, 0.6)
 # computeAsymmetricMap_mesh(38, 40, 0.9)
 
-computeAsymmetricMap_mesh_fixPi1(0.4, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+# computeAsymmetricMap_mesh_fixPi1(0.4, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 # computeAsymmetricMap_mesh_fixPi1(0.25, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 # computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 
