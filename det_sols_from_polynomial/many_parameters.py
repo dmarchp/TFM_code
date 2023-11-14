@@ -111,7 +111,7 @@ def computeAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0
     grid_fs = np.empty([3, Npi2s, Nls])
     for i,pi2 in enumerate(xgrid_pi2[:,0]):
         for j,l in enumerate(ygrid_l[0,:]):
-            # print(f'{pi1} {pi2} {q1} {q2} {l}')
+            print(f'{pi1} {pi2} {q1} {q2} {l}')
             subprocess.call(f'python3 f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} > sols.dat', shell=True)
             with open('sols.dat', 'r') as file:
                 sols = [float(f) for f in file.readline().split()]
@@ -183,14 +183,14 @@ def compute_results_many_params(pi_pairs, q2, q1s, ls):
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeSymmetricMap_mesh(1.75, 2.5, pi_lims=(0.01, 0.5), parqDf=False)
+computeSymmetricMap_mesh(10, 10, pi_lims=(0.01, 0.5), parqDf=False)
 #computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
 # computeAsymmetricMap_mesh(7, 10, 0.8)
 # computeAsymmetricMap_mesh(20, 40, 0.6)
 # computeAsymmetricMap_mesh(38, 40, 0.9)
 
-# computeAsymmetricMap_mesh_fixPi1(0.4, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
+# computeAsymmetricMap_mesh_fixPi1(0.25, 10, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 # computeAsymmetricMap_mesh_fixPi1(0.25, 7, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 # computeAsymmetricMap_mesh_fixPi1(0.25, 9, 10, pi2_lims=(0.01, 0.5), parqDf=False)
 

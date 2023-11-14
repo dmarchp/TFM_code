@@ -14,15 +14,17 @@ def getTimeEvosPath():
         path = '/time_evos_dif_cond'
     return path
 
-pi1, pi2, q = 0.0, 0.0, 10
+pi1, pi2, q = 0.0, 0.0, 5
 
-np.random.seed(345)
+np.random.seed(349)
 
-for N in [35, 1000]:
+for N in [35, ]:
+    # ls = [0.01, 0.05, 0.1, 0.15, 0.18, 0.2, 0.22, 0.25, 0.3, 0.6, 0.9]
     # if N == 1000:
     #     ls = [0.01, 0.05, 0.09, 0.1, 0.11, 0.13, 0.15, 0.3, 0.6, 0.9]
     # elif N == 35:
     #     ls = [0.01, 0.05, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.17, 0.2, 0.23, 0.25, 0.3, 0.6, 0.9]
+    # Naux = 1000
     files = glob.glob(f'{getTimeEvosPath()}/time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q}_q2_{q}_l_*_ic_thirds')
     ls = sorted([float(file.split('/')[-1].split('_')[14]) for file in files])
     for l in ls:

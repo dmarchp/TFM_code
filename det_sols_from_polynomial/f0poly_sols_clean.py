@@ -92,7 +92,12 @@ def f0_lambda_eq_0(pi1, pi2, q1, q2, l):
 def f_i(i, f0, pis, qs, l):
     # global qs, rs, pis, l
     rs = [1/q for q in qs]
-    return (1-l)*pis[i-1]/(rs[i-1]/f0-l)
+    try:
+        fi = (1-l)*pis[i-1]/(rs[i-1]/f0-l)
+    except ZeroDivisionError:
+        fi = float('nan') 
+    # return (1-l)*pis[i-1]/(rs[i-1]/f0-l)
+    return fi
 
 def f2_pis_eq_0(f0,qs,l):
     rho, r1, r2 = 1-f0, 1/qs[0], 1/qs[1]
