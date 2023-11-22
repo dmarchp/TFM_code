@@ -73,7 +73,7 @@ def fs_evo_eq(fs,pi1,pi2,q1,q2,l):
     df2dt = fs[0]*((1-l)*pi2+l*fs[2]) - fs[2]/q2
     return df1dt, df2dt
 
-def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
+def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
     if ic=='N':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_Euler.csv'
     elif ic=='T':
@@ -86,7 +86,10 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2_Euler.csv'
     elif ic=='95f1':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f1_Euler.csv'
-    if not os.path.exists(intEvoName):
+    if os.path.exists(intEvoName):
+        df = pd.read_csv(intEvoName)
+        max_time_done = df['iter'].iloc[-1]
+    if not os.path.exists(intEvoName) or max_time > max_time_done:
         pop_fraction = np.array(bots_per_site)/N
         fs_evo = [[pop_fraction[0]],[pop_fraction[1]],[pop_fraction[2]]]
         dt = 1
@@ -146,7 +149,7 @@ def main():
         if (N - sum(bots_per_site)):
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
-    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site)
+    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
     intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site)
 
 
