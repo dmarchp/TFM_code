@@ -15,15 +15,16 @@ parser.add_argument('q1', type=float, help='site 1 quality')
 parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument(
     'x', type=float, help='factor between f1 and f2, f2 = x*f1')
+parser.add_argument('--mu', type=float, default=0.0, help='independence on the quality assesment; 0 full indep.')
 args = parser.parse_args()
 
-q1, q2, x = args.q1, args.q2, args.x
+q1, q2, x, mu = args.q1, args.q2, args.x, args.mu
 
-def consensus_eq(l, pi1, pi2, q1, q2, x):
+def consensus_eq(l, pi1, pi2, q1, q2, x, mu):
     'equation to be solved numerically'
     'instead of involving the strange F factor, this uses de usual f2-x*f1'
-    _, f0, _ = f0_lambda_neq_0(pi1, pi2, q1, q2, l)
-    f1, f2 = f_i(1, f0, [pi1, pi2], [q1, q2], l), f_i(2, f0, [pi1, pi2], [q1, q2], l)
+    _, f0, _ = f0_lambda_neq_0(pi1, pi2, q1, q2, l, mu)
+    f1, f2 = f_i(1, f0, [pi1, pi2], [q1, q2], l, mu), f_i(2, f0, [pi1, pi2], [q1, q2], l, mu)
     return f2 - x*f1
 
 # def pi2_lambda_eq_0(pi1, q1, q2):
@@ -44,7 +45,7 @@ lamb_solve_lims = (1e-10, 0.99)
 first_pi_w_sol = None
 for pi in pis:
     try:
-        lamb = bisect(consensus_eq, lamb_solve_lims[0], lamb_solve_lims[1], args=(pi, pi, q1, q2, x))
+        lamb = bisect(consensus_eq, lamb_solve_lims[0], lamb_solve_lims[1], args=(pi, pi, q1, q2, x, mu))
     except ValueError:
         lamb = float('nan')
     if not np.isnan(lamb) and not first_pi_w_sol:
@@ -61,7 +62,7 @@ if first_pi_w_sol:
     lambs_ex = []
     for pi in pis_ex:
         try:
-            lamb = bisect(consensus_eq, lamb_solve_lims[0], lamb_solve_lims[1], args=(pi, pi, q1, q2, x))
+            lamb = bisect(consensus_eq, lamb_solve_lims[0], lamb_solve_lims[1], args=(pi, pi, q1, q2, x, mu))
         except ValueError:
             lamb = float('nan')
         lambs_ex.append(lamb)
@@ -82,4 +83,8 @@ else:
 if not os.path.exists(path):
     call(f'mkdir -p {path}', shell=True)
 
-df.to_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv', index=False)
+
+if mu == 0.0:
+    df.to_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_f2_{int(x)}f1.csv', index=False)
+else:
+    df.to_csv(f'{path}/Tline_sym_pis_q1_{q1}_q2_{q2}_mu_{mu}_f2_{int(x)}f1.csv', index=False)

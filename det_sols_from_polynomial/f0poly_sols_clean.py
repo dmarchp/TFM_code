@@ -9,6 +9,7 @@ parser.add_argument('pi2', type=float, help='site 2 quality')
 parser.add_argument('q1', type=float, help='site 1 quality')
 parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('l', type=float, help='interdependence (lambda)')
+parser.add_argument('--mu', type=float, default=0.0, help='assessment indepencence; 0 for full indep.')
 
 # parser.add_argument("-v", "--verbose", help="increase output verbosity",
 #                     action="store_true")
@@ -18,8 +19,11 @@ parser.add_argument("-v", "--verbosity", action="count", default=0,
 
 
 # ------------ solution to the third degree poly, if lambda != 0.0 ----------
-def f0_lambda_neq_0(pi1, pi2, q1, q2, l):
-    r1, r2 = 1/q1, 1/q2
+def f0_lambda_neq_0(pi1, pi2, q1, q2, l, mu):
+    # r1, r2 = 1/q1, 1/q2
+    K, q0 = q2, 1.0
+    r1 = q0*(mu/K + (1-mu)/q1)
+    r2 = q0*(mu/K + (1-mu)/q2)
     # global pi1, pi2, q1, q2, r1, r2, l
     # a f0**3 + b f0**2 + c f0 + d = 0
     a = -l**2
@@ -51,8 +55,11 @@ def f0_lambda_neq_0(pi1, pi2, q1, q2, l):
     return f0_roots_abs
 
 # ------------ solution to the third degree poly, if lambda != 0.0 but pi1=pi2=0 ----------
-def f0_lambda_neq_0_pi_eq_0(q1, q2, l):
-    r1, r2 = 1/q1, 1/q2
+def f0_lambda_neq_0_pi_eq_0(q1, q2, l, mu):
+    # r1, r2 = 1/q1, 1/q2
+    K, q0 = q2, 1.0
+    r1 = q0*(mu/K + (1-mu)/q1)
+    r2 = q0*(mu/K + (1-mu)/q2)
     # global pi1, pi2, q1, q2, r1, r2, l
     # a f0**3 + b f0**2 + c f0 + d = 0
     a = -l**2
@@ -84,14 +91,20 @@ def f0_lambda_neq_0_pi_eq_0(q1, q2, l):
     return f0_roots_abs
 
 # ---------- exact solution to f0, when lambda == 0.0 --------------------------
-def f0_lambda_eq_0(pi1, pi2, q1, q2, l):
+def f0_lambda_eq_0(pi1, pi2, q1, q2, l, mu):
     # global pi1, pi2, q1, q2, r1, r2, l
-    return 1/(1+pi1*q1+pi2*q2)
+    K, q0 = q2, 1.0
+    r1 = q0*(mu/K + (1-mu)/q1)
+    r2 = q0*(mu/K + (1-mu)/q2)
+    # return 1/(1+pi1*q1+pi2*q2)
+    return 1/(1+pi1/r1+pi2/r2)
 
 # ----------------------- Rest of the populations ------------------------------
-def f_i(i, f0, pis, qs, l):
+def f_i(i, f0, pis, qs, l, mu):
     # global qs, rs, pis, l
-    rs = [1/q for q in qs]
+    # rs = [1/q for q in qs]
+    K, q0 = qs[-1], 1.0
+    rs = [q0*(mu/K + (1-mu)/q) for q in qs]
     try:
         fi = (1-l)*pis[i-1]/(rs[i-1]/f0-l)
     except ZeroDivisionError:
@@ -99,8 +112,12 @@ def f_i(i, f0, pis, qs, l):
     # return (1-l)*pis[i-1]/(rs[i-1]/f0-l)
     return fi
 
-def f2_pis_eq_0(f0,qs,l):
-    rho, r1, r2 = 1-f0, 1/qs[0], 1/qs[1]
+def f2_pis_eq_0(f0, qs, l, mu):
+    K, q0 = qs[-1], 1.0
+    rs = [q0*(mu/K + (1-mu)/q) for q in qs]
+    rho = 1 - f0
+    r1, r2 = rs
+    # rho, r1, r2 = 1-f0, 1/qs[0], 1/qs[1]
     if f0 == 1.0:
         return 0
     else:
@@ -109,11 +126,12 @@ def f2_pis_eq_0(f0,qs,l):
 
 def main():
     args = parser.parse_args()
-    pi1, pi2, q1, q2, l = args.pi1, args.pi2, args.q1, args.q2, args.l
+    pi1, pi2, q1, q2, l, mu = args.pi1, args.pi2, args.q1, args.q2, args.l, args.mu
+    print(f'mu = {mu}')
     qs, pis = [q1, q2], [pi1, pi2]
     if l == 0.0:
-        f0 = f0_lambda_eq_0(pi1, pi2, q1, q2, l)
-        solution = (f0, f_i(1, f0, pis, qs, l), f_i(2, f0, pis, qs, l))
+        f0 = f0_lambda_eq_0(pi1, pi2, q1, q2, l, mu)
+        solution = (f0, f_i(1, f0, pis, qs, l, mu), f_i(2, f0, pis, qs, l, mu))
         if args.verbosity:
             print(f"Exact solution, pi1, pi2 = {pi1}, {pi2}; q1, q2 = {q1}, {q2}, lambda = {l}")
             print(solution)
@@ -121,12 +139,12 @@ def main():
             print(*solution)
     else:
         if pi1 > 0.0 and pi2 > 0.0:
-            f0_roots_abs = f0_lambda_neq_0(pi1, pi2, q1, q2, l)
+            f0_roots_abs = f0_lambda_neq_0(pi1, pi2, q1, q2, l, mu)
             # f0_roots_abs = [round(f0,12) for f0 in f0_roots_abs]
-            f1s = [f_i(1,f0, pis, qs, l) for f0 in f0_roots_abs]
-            f2s = [f_i(2,f0, pis, qs, l) for f0 in f0_roots_abs]
+            f1s = [f_i(1,f0, pis, qs, l, mu) for f0 in f0_roots_abs]
+            f2s = [f_i(2,f0, pis, qs, l, mu) for f0 in f0_roots_abs]
         else: #pi1 == 0.0 and pi2 == 0.0:
-            f0_roots_abs = f0_lambda_neq_0_pi_eq_0(q1, q2, l)
+            f0_roots_abs = f0_lambda_neq_0_pi_eq_0(q1, q2, l, mu)
             f2s = [f2_pis_eq_0(f0,qs,l) for f0 in f0_roots_abs]
             f1s = [1-f0-f2 for f0,f2 in zip(f0_roots_abs,f2s)]
         # print(f0_roots_abs)
