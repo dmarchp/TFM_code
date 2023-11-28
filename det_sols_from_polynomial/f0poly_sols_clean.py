@@ -121,13 +121,26 @@ def f2_pis_eq_0(f0, qs, l, mu):
     if f0 == 1.0:
         return 0
     else:
-        return (l*rho-r1)/(2*l-1-r2/rho)
+        return (l*rho-r1)/(2*l-(r1+r2)/rho)
+    
+def f2_pis_eq_0_new(f0, qs, l, mu):
+    K, q0 = qs[-1], 1.0
+    rs = [q0*(mu/K + (1-mu)/q) for q in qs]
+    r1, r2 = rs
+    return (l*f0-r1)*(1-f0)/(r2-r1)
+
+def f1_pis_eq_0_new(f0, qs, l, mu):
+    K, q0 = qs[-1], 1.0
+    rs = [q0*(mu/K + (1-mu)/q) for q in qs]
+    r1, r2 = rs
+    return (r2-l*f0)*(1-f0)/(r2-r1)
+
 
 
 def main():
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, mu = args.pi1, args.pi2, args.q1, args.q2, args.l, args.mu
-    print(f'mu = {mu}')
+    # print(f'mu = {mu}')
     qs, pis = [q1, q2], [pi1, pi2]
     if l == 0.0:
         f0 = f0_lambda_eq_0(pi1, pi2, q1, q2, l, mu)
@@ -144,9 +157,11 @@ def main():
             f1s = [f_i(1,f0, pis, qs, l, mu) for f0 in f0_roots_abs]
             f2s = [f_i(2,f0, pis, qs, l, mu) for f0 in f0_roots_abs]
         else: #pi1 == 0.0 and pi2 == 0.0:
-            f0_roots_abs = f0_lambda_neq_0_pi_eq_0(q1, q2, l, mu)
-            f2s = [f2_pis_eq_0(f0,qs,l) for f0 in f0_roots_abs]
-            f1s = [1-f0-f2 for f0,f2 in zip(f0_roots_abs,f2s)]
+            # f0_roots_abs = f0_lambda_neq_0_pi_eq_0(q1, q2, l, mu)
+            f0_roots_abs = f0_lambda_neq_0(pi1, pi2, q1, q2, l, mu)
+            f2s = [f2_pis_eq_0_new(f0,qs,l,mu) for f0 in f0_roots_abs]
+            f1s = [f1_pis_eq_0_new(f0,qs,l,mu) for f0 in f0_roots_abs]
+            # f1s = [1-f0-f2 for f0,f2 in zip(f0_roots_abs,f2s)]
         # print(f0_roots_abs)
         solutions = [(f0,f1,f2) for f0,f1,f2 in zip(f0_roots_abs,f1s,f2s)]
         if args.verbosity >= 2:
