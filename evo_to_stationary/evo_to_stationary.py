@@ -1,17 +1,18 @@
 import os
 import glob
 from subprocess import call
-from random import seed, randint
 import numpy as np
 import pandas as pd
 import argparse
 import sys
 sys.path.append('../')
 from package_global_functions import *
+import random
+from datetime import datetime
 
 Nsites = 2
-Nrea = 50
-max_time = 10000
+Nrea = 25
+max_time = 1000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -29,7 +30,8 @@ fex_file = 'main.x'
 f_file = 'main.f90'
 
 # SIMULATION FUNCTION - Uses the fortran code in "clean_version":
-def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
+def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
+    random.seed(datetime.now().timestamp())
     if ic=='N':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
     elif ic=='T':
@@ -56,7 +58,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site):
                      bots_per_site=bots_per_site)
     # Execute simulations:
     os.chdir(froute)
-    call("./"+fex_file+f" {randint(0,100000000)} {Nrea}", shell=True)
+    call("./"+fex_file+f" {random.randint(0,100000000)} {Nrea}", shell=True)
     os.chdir(wd)
     # Save the time evolutions:
     call(f'tar -xzf {froute}time_evo_csv.tar.gz', shell=True)
@@ -111,10 +113,8 @@ def main():
     parser.add_argument('l', type=float, help='interdependence (lambda)')
     parser.add_argument('N', type=int, help='Number of agents')
     parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f1, 95f2")
-    parser.add_argument('inSeed', type=int, help='seed')
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, N, ic, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic, args.inSeed
-    seed(inSeed)
     # INITIAL CONDITIONS:
     if ic=='N':
         bots_per_site = [N, 0, 0]
@@ -150,7 +150,7 @@ def main():
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
     simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
-    intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site)
+    intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea)
 
 
 if __name__ == '__main__':
