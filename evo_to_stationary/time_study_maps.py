@@ -132,30 +132,64 @@ def computeTimesSymmetricMap_mesh(method, q1, q2, dpi=0.01, pi_lims = (0.01, 0.9
         np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, time=grid_time)
         # np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_int_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, time=grid_time)
     elif method == 'sim':
-        np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_sim_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, time=grid_time, counts=grid_counts)
+        np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_sim_sym_q1_{q1}_q2_{q2}.npz', x=xgrid_pi, y=ygrid_l, 
+                 time=grid_time, time_sd=grid_time_sd, counts=grid_counts)
 
 
-def computeTimesAsymmetricMap_mesh_fixPi1(pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.99), dl=0.01, l_lims = (0.0, 0.99), times_thresh=1e-4):
+def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.99), dl=0.01, l_lims = (0.0, 0.99), 
+                                          times_thresh=1e-4,
+                                          N=5000, blockSize=50, blockThresh=5e-4, sig=0):
+    """
+    method: 'int' for numerically integrated evolutim, 'sim' for the time evos
+    if method == 'int': times_thresh is used
+    if method == 'sim': N (system size), blockSize, blockThresh, sig (gaussian filter sigma) is used
+    """
     Npi2s = int((pi2_lims[1] - pi2_lims[0])/dpi2) + 1
     Nls = int((l_lims[1]-l_lims[0])/dl) + 1
     xgrid_pi2, ygrid_l = np.mgrid[pi2_lims[0]:pi2_lims[1]:complex(0,Npi2s), l_lims[0]:l_lims[1]:complex(0,Nls)]
     xgrid_pi2, ygrid_l = np.around(xgrid_pi2, 2), np.around(ygrid_l,2)
     grid_time = np.empty([Npi2s, Nls])
+    if method == 'sim':
+        grid_counts, grid_time_sd = np.empty([Npi2s, Nls]), np.empty([Npi2s, Nls])
     for i,pi2 in enumerate(xgrid_pi2[:,0]):
         for j,l in enumerate(ygrid_l[0,:]):
-            file = f'time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_Euler.csv'
-            if not os.path.exists(f'{getTimeEvosPath()}/{file}'):
-                intEvo(pi1, pi2, q1, q2, l, 100, ic='N', bots_per_site=(100, 0, 0), max_time = 1000)
-            df = pd.read_csv(f'{getTimeEvosPath()}/{file}')
-            df_dt = evoTimeDeriv(df)
-            # fetch stationary time, Q for each fj:
-            stat_time, Q_at_stat_time = getStatTime_evoTimeDeriv(df, df_dt, times_thresh)
-            grid_time[i,j] = stat_time
+            if method == 'int':
+                file = f'time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_Euler.csv'
+                if not os.path.exists(f'{getTimeEvosPath()}/{file}'):
+                    intEvo(pi1, pi2, q1, q2, l, 100, ic='N', bots_per_site=(100, 0, 0), max_time = 1000)
+                df = pd.read_csv(f'{getTimeEvosPath()}/{file}')
+                df_dt = evoTimeDeriv(df)
+                # fetch stationary time, Q for each fj:
+                stat_time, Q_at_stat_time = getStatTime_evoTimeDeriv(df, df_dt, times_thresh)
+                grid_time[i,j] = stat_time
+            elif method == 'sim':
+                folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+                if not os.path.exists(f'{getTimeEvosPath()}/{folder}'):
+                    # call(f'python evo_to_stationary.py {pi} {pi} {q1} {q2} {l} {N} N {np.random.randint(1,1000000)}', shell=True)
+                    simEvo(pi1, pi2, q1, q2, l, N, ic='N', bots_per_site = [N, 0, 0], max_time = 1000, Nrea=25)
+                files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
+                dfs = [pd.read_csv(file) for file in files]
+                grid_counts[i,j] = len(dfs)
+                times = []
+                for df in dfs:
+                    time = search_time(w=blockSize, t=blockThresh, evo=df['f2'], sig=sig)
+                    times.append(time)
+                grid_time[i,j], grid_time_sd = np.average(times), np.std(times)
     if not os.path.exists(f'{getTimeEvosPath()}/stat_times_maps/'):
         call(f'mkdir {getTimeEvosPath()}/stat_times_maps/', shell=True)
-    np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, time=grid_time)
+    if method == 'int':
+        np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, time=grid_time)
+        # np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_int_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, time=grid_time)
+    elif method == 'sim':
+        np.savez(f'{getTimeEvosPath()}/stat_times_maps/map_times_sim_asym_fixPi1_q1_{q1}_q2_{q2}_pi1_{pi1}.npz', x=xgrid_pi2, y=ygrid_l, 
+                 time=grid_time, time_sd=grid_time_sd, counts=grid_counts)
 
 
 
 if __name__ == '__main__':
-    computeTimesSymmetricMap_mesh('sim', 9, 10, dpi=0.025, pi_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
+    # computeTimesSymmetricMap_mesh('sim', 7, 10, dpi=0.025, pi_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
+    # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10, dpi2=0.025, pi2_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
+    # Maximal precision:
+    computeTimesSymmetricMap_mesh('sim', 7, 10)
+    print('Finished the symmetric map')
+    computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
