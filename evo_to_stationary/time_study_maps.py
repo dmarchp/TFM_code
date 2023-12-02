@@ -87,7 +87,7 @@ def search_time(w,t,evo,sig=0):
 #################################### Functions to generate stationary times heatmaps #####################################
 ##########################################################################################################################
 
-def computeTimesSymmetricMap_mesh(method, q1, q2, dpi=0.01, pi_lims = (0.01, 0.99), dl=0.01, l_lims = (0.00,0.99), 
+def computeTimesSymmetricMap_mesh(method, q1, q2, dpi=0.01, pi_lims = (0.01, 0.5), dl=0.01, l_lims = (0.00,0.99), 
                                   times_thresh=1e-4,
                                   N=5000, blockSize=50, blockThresh=5e-4, sig=0):
     """
@@ -136,7 +136,7 @@ def computeTimesSymmetricMap_mesh(method, q1, q2, dpi=0.01, pi_lims = (0.01, 0.9
                  time=grid_time, time_sd=grid_time_sd, counts=grid_counts)
 
 
-def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.99), dl=0.01, l_lims = (0.0, 0.99), 
+def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_lims = (0.01, 0.50), dl=0.01, l_lims = (0.0, 0.99), 
                                           times_thresh=1e-4,
                                           N=5000, blockSize=50, blockThresh=5e-4, sig=0):
     """
