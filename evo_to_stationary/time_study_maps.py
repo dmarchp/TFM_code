@@ -190,6 +190,11 @@ if __name__ == '__main__':
     # computeTimesSymmetricMap_mesh('sim', 7, 10, dpi=0.025, pi_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10, dpi2=0.025, pi2_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # Maximal precision:
-    computeTimesSymmetricMap_mesh('sim', 7, 10)
-    print('Finished the symmetric map')
-    computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
+    # computeTimesSymmetricMap_mesh('sim', 7, 10)
+    # print('Finished the symmetric map')
+    # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
+    for i in range(51,100):
+        for j in range(0,100):
+            if os.path.exists(f'{getTimeEvosPath()}/time_evo_csv_N_5000_pi1_0.{i}_pi2_0.{i}_q1_7_q2_10_l_0.{j}/'):
+                print(f'removing sim pi pi={i}, l={j}')
+                call(f'rm -r {getTimeEvosPath()}/time_evo_csv_N_5000_pi1_0.{i}_pi2_0.{i}_q1_7_q2_10_l_0.*/', shell=True)
