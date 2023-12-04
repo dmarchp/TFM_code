@@ -33,17 +33,17 @@ f_file = 'main.f90'
 def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
     random.seed(datetime.now().timestamp())
     if ic=='N':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}'
     elif ic=='T':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_thirds'
     elif ic=='J':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_julia'
     elif ic=='H':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_halves'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_halves'
     elif ic=='95f2':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f2'
     elif ic=='95f1':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f1'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f1'
     if os.path.exists(f'{path}/{newFolderName}'):
         Nfiles = len(glob.glob(f'{path}/{newFolderName}/*'))
         df = pd.read_csv(f'{path}/{newFolderName}/time_evo_rea_001.csv')

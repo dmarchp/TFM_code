@@ -163,9 +163,11 @@ def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_li
                 stat_time, Q_at_stat_time = getStatTime_evoTimeDeriv(df, df_dt, times_thresh)
                 grid_time[i,j] = stat_time
             elif method == 'sim':
-                folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'
+                folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}'
                 if not os.path.exists(f'{getTimeEvosPath()}/{folder}'):
                     # call(f'python evo_to_stationary.py {pi} {pi} {q1} {q2} {l} {N} N {np.random.randint(1,1000000)}', shell=True)
+                    print(f'Simulating {pi1} {pi2} {q1} {q2} {l} {N}')
+                    print(f'because folder {folder} was not found')
                     simEvo(pi1, pi2, q1, q2, l, N, ic='N', bots_per_site = [N, 0, 0], max_time = 1000, Nrea=25)
                 files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
                 dfs = [pd.read_csv(file) for file in files]
@@ -190,11 +192,6 @@ if __name__ == '__main__':
     # computeTimesSymmetricMap_mesh('sim', 7, 10, dpi=0.025, pi_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10, dpi2=0.025, pi2_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # Maximal precision:
-    # computeTimesSymmetricMap_mesh('sim', 7, 10)
-    # print('Finished the symmetric map')
+    computeTimesSymmetricMap_mesh('sim', 7, 10)
+    print('Finished the symmetric map')
     # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
-    for i in range(51,100):
-        for j in range(0,100):
-            if os.path.exists(f'{getTimeEvosPath()}/time_evo_csv_N_5000_pi1_0.{i}_pi2_0.{i}_q1_7_q2_10_l_0.{j}/'):
-                print(f'removing sim pi pi={i}, l={j}')
-                call(f'rm -r {getTimeEvosPath()}/time_evo_csv_N_5000_pi1_0.{i}_pi2_0.{i}_q1_7_q2_10_l_0.*/', shell=True)
