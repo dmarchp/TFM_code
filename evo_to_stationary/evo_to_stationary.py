@@ -12,7 +12,7 @@ from datetime import datetime
 
 Nsites = 2
 Nrea = 25
-max_time = 1000
+max_time = 10000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -50,7 +50,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
         lenSim = len(df['iter'])
         # if Nfiles == Nrea:
         if Nfiles == Nrea and lenSim >= max_time:
-            print(f'There are already {Nrea} trajectories with these parameters.')
+            print(f'There are already {Nrea} trajectories with these parameters and the same simulation length.')
             return
     # Working directory and simulation execution files  
     wd = os.getcwd()
@@ -108,13 +108,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pi1', type=float, help='site 1 prob')
     parser.add_argument('pi2', type=float, help='site 2 prob')
-    parser.add_argument('q1', type=int, help='site 1 quality')
-    parser.add_argument('q2', type=int, help='site 2 quality')
+    # parser.add_argument('q1', type=int, help='site 1 quality')
+    # parser.add_argument('q2', type=int, help='site 2 quality')
+    parser.add_argument('q1', type=float, help='site 1 quality')
+    parser.add_argument('q2', type=float, help='site 2 quality')
     parser.add_argument('l', type=float, help='interdependence (lambda)')
     parser.add_argument('N', type=int, help='Number of agents')
     parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f1, 95f2")
     args = parser.parse_args()
-    pi1, pi2, q1, q2, l, N, ic, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic, args.inSeed
+    pi1, pi2, q1, q2, l, N, ic = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic
     # INITIAL CONDITIONS:
     if ic=='N':
         bots_per_site = [N, 0, 0]
@@ -149,8 +151,8 @@ def main():
         if (N - sum(bots_per_site)):
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
-    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
-    intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea)
+    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea)
+    intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
 
 
 if __name__ == '__main__':
