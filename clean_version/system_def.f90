@@ -3,7 +3,7 @@ module system_parameters
     integer :: N_bots, N_sites, max_time
     real(8) :: lambda, q0
     ! To allocate & read from input arrays
-    integer, dimension(:), allocatable :: bots_per_site
+    real(8), dimension(:), allocatable :: bots_per_site
     real(8), dimension(:), allocatable :: pi, q, r
     character(5) :: random_bots_per_site
     ! To allocate & init once inputs are known
