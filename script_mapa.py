@@ -1,20 +1,31 @@
-import subprocess
+import matplotlib.pyplot as plt
 import numpy as np
 
+def plotSymmetricMap_mesh(q1, q2):
+    x = 2
+    fsMesh = np.load(f'map_sym_q1_{q1}_q2_{q2}_lattice.npz')
+    # Qmesh = fsMesh['fs'][2] - x*fsMesh['fs'][1]
+    fig, ax = plt.subplots(1,3,figsize=(12, 4), constrained_layout=True)
+    for i in range(3):
+        ax[i].set_xlim(-0.005, 0.505)
+        ax[i].set_ylim(-0.005, 1.005)
+        ax[i].set_xlabel('$\pi_{1,2}$')
+    ax[0].set_ylabel('$\lambda$')
 
-def computeSymmetricMap_mesh_amp(q1, q2, dpi=0.01, pi_lims = (0.00, 0.5), dl=0.01, l_lims = (0.00,1.00), npyMesh = True, parqDf = True):
-    Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
-    Nls = int((l_lims[1] - l_lims[0])/dl) + 1
-    xgrid_pi, ygrid_l = np.mgrid[pi_lims[0]:pi_lims[1]:complex(0,Npis), l_lims[0]:l_lims[1]:complex(0,Nls)]
-    xgrid_pi, ygrid_l = np.around(xgrid_pi,2), np.around(ygrid_l,2)
-    grid_fs = np.empty([3, Npis, Nls])
-    for i,pi in enumerate(xgrid_pi[:,0]):
-        for j,l in enumerate(ygrid_l[0,:]):
-            # por ejemplo aqui calculo las soluciones del polinomio, las guardo en un fichero y las leo
-            # para despues guardar los valores en el array de dimension (3, Npis, Nls)
-            subprocess.call(f'python3 f0poly_sols_clean.py {pi} {pi} {q1} {q2} {l} > sols.dat', shell=True)
-            with open('sols.dat', 'r') as file:
-                sols = [float(f) for f in file.readline().split()]
-                grid_fs[:,i,j] = sols
-                # print(pi, l, sols)
-    np.savez(f'map_sym_q1_{q1}_q2_{q2}_lattice.npz', x=xgrid_pi, y=ygrid_l, fs=grid_fs)
+    contour_levels = {'f0':[0.1, 0.2, 0.4, 0.6, 0.8],
+                  'f1':[0.0, 0.1, 0.2, 0.3, 0.4, 0.5],
+                  'f2':[0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.8999999]}
+
+    fs_cmaps = {'f0':'Reds', 'f1':'Greens', 'f2':'Blues'}
+    fs_labels_xpos = {'f0':0.06, 'f1':0.387, 'f2':0.715}
+    fs_labels_cbar = {'f0':r'\textbf{$f_0$}', 'f1':r'$f_1$', 'f2':r'$f_2$'}
+    fs_labels_fig = {'f0':r'$\textbf{A}$', 'f1':r'$\textbf{B}$', 'f2':r'$\textbf{C}$'}
+
+    for i,f in enumerate(['f0', 'f1', 'f2']):
+        im = ax[i].pcolormesh(fsMesh['x'], fsMesh['y'], fsMesh['fs'][i], vmin =0, vmax =1, cmap=fs_cmaps[f], shading='nearest', rasterized=True)
+        con = ax[i].contour(fsMesh['x'], fsMesh['y'], fsMesh['fs'][i], levels=contour_levels[f], linewidths=0.8)
+        fig.colorbar(im, ax=ax[i], location='top', fraction=0.05, aspect=35, pad=0.02, shrink=0.83, anchor=(0.96, 1.0))
+        ax[i].clabel(con)
+    fig.text(fs_labels_xpos[f], 0.92, fs_labels_cbar[f])
+    fig.text(fs_labels_xpos[f], 0.82, fs_labels_fig[f])
+    fig.savefig(f'fs_cmaps_lattice_isolines_sym_pi_q1_{q1}_q2_{q2}.pdf')
