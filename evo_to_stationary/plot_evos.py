@@ -23,10 +23,10 @@ def getTimeEvosPath():
     return path
 
 def plot_evos_simple(pi1, pi2, q1, q2, l, N, ic = 'N', integrated=False, backg=False):
-    """
+    '''
     If backg != 0, plot the single (not averaged) trajectories in the background in a smooth fashion
     plots the amount indicated, eg backg = 5
-    """
+    '''
     fig, ax = plt.subplots()
     ax.set(xlabel='Iteration', ylabel='$f_2$', xscale='symlog', ylim=(0,1)) # xlim=(0,600)
     folder = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}'

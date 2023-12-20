@@ -2,29 +2,30 @@ import pandas as pd
 import os
 from subprocess import call
 from random import seed, randint
+from datetime import datetime
 import argparse
 import sys
 sys.path.append('../')
 from package_global_functions import *
 
+seed(datetime.now().timestamp())
+
 parser = argparse.ArgumentParser()
 parser.add_argument('pi1', type=float, help='site 1 prob')
 parser.add_argument('pi2', type=float, help='site 2 prob')
-parser.add_argument('q1', type=int, help='site 1 quality')
-parser.add_argument('q2', type=int, help='site 2 quality')
+parser.add_argument('q1', type=float, help='site 1 quality')
+parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('l', type=float, help='interdependence (lambda)')
 parser.add_argument('N', type=int, help='Number of agents')
 parser.add_argument('Nrea', type=int, help='Number of realitzations to perform')
-parser.add_argument('inSeed', type=int, help='seed')
 
 args = parser.parse_args()
 
-pi1, pi2, q1, q2, l, N, Nrea, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.Nrea, args.inSeed
+pi1, pi2, q1, q2, l, N, Nrea = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.Nrea
 Nsites = 2
-seed(inSeed)
 statFrom = 1000
 simIters = 2000
-getEvery = 20
+getEvery = 50
 
 filename = f'stat_data_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}.csv'
 
@@ -51,16 +52,23 @@ fin_file = 'input_template.txt'
 fex_file = 'main.x'
 f_file = 'main.f90'
 
-call(f"sed -i '17s/.*/lambda = {l}/' "+froute+fin_file, shell=True)
-call(f"sed -i '27s/.*/pi(:) = {pi1} {pi2}/' "+froute+fin_file, shell=True)
-call(f"sed -i '30s/.*/q(:) = {q1} {q2}/' "+froute+fin_file, shell=True)
-call(f"sed -i '13s/.*/N_sites = {Nsites}/' "+froute+fin_file, shell=True)
-call(f"sed -i '12s/.*/N_bots = {N}/' "+froute+fin_file, shell=True)
-call(f"sed -i '14s/.*/max_time = {simIters}/' "+froute+fin_file, shell=True)
-zero_sites_str = ''
-for i in range(Nsites):
-    zero_sites_str += '0 '
-call(f"sed -i '35s/.*/bots_per_site = {N} "+zero_sites_str+"/' "+froute+fin_file, shell=True)
+if l < 1.0 and pi1 > 0.0 and pi2 > 0.0:
+    bots_per_site = [N, 0, 0]
+elif l == 1.0 or (pi1 == 0.0 and pi2 == 0.0):
+    bots_per_site = [0, N/2, N/2]
+
+change_sim_input(froute, fin_file, (pi1, pi2), (q1, q2), l, simIters, Nsites, N, bots_per_site, 'N')
+
+# call(f"sed -i '17s/.*/lambda = {l}/' "+froute+fin_file, shell=True)
+# call(f"sed -i '27s/.*/pi(:) = {pi1} {pi2}/' "+froute+fin_file, shell=True)
+# call(f"sed -i '30s/.*/q(:) = {q1} {q2}/' "+froute+fin_file, shell=True)
+# call(f"sed -i '13s/.*/N_sites = {Nsites}/' "+froute+fin_file, shell=True)
+# call(f"sed -i '12s/.*/N_bots = {N}/' "+froute+fin_file, shell=True)
+# call(f"sed -i '14s/.*/max_time = {simIters}/' "+froute+fin_file, shell=True)
+# zero_sites_str = ''
+# for i in range(Nsites):
+#     zero_sites_str += '0 '
+# call(f"sed -i '35s/.*/bots_per_site = {N} "+zero_sites_str+"/' "+froute+fin_file, shell=True)
 
 # Execute simulations:
 os.chdir(froute)
@@ -76,7 +84,7 @@ for i in range(1,Nrea+1):
     time_evo = time_evo.iloc[statFrom::getEvery, :]
     for j,label in enumerate(['f0', 'f1', 'f2']):
         fs[j].extend(list(time_evo[label]))
-    rea.extend([maxRea+i]*int((simIters-statFrom)/getEvery + 1)) 
+    rea.extend([maxRea+i]*int((simIters-statFrom)/getEvery + 1))
 
 newData = pd.DataFrame({'rea':rea})
 for i, label in enumerate(['f0', 'f1', 'f2']):
