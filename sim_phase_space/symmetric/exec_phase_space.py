@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('q1', type=float, help='site 1 quality')
 parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('N', type=int, help='Number of bots to simulate')
-parser.add_argument('maxTime', type=int, help='Simulation time; the script stationary_results.py computes from 1000 onwards, keep in mind...')
+parser.add_argument('maxTime', type=int, help='Simulation time; the script stationary_results.py computes stat values with the last 1000 iterations, keep in mind...')
 parser.add_argument('--ic', type=str, help='Initial condition: (no (all uncomitted), pi, pi hard) -> (N/P/Phard)', default='N')
 parser.add_argument('--num_rea', type=int, help='Number of realizations, default 50', default=50)
 parser.add_argument('--pi_lims', type=float, help='pi limits, defalt (0.0, 0.5)', nargs='+', default=[0.0, 0.5])
@@ -97,7 +97,8 @@ print(f"Model: {model}")
 print(f"Initial conditions: {ic}")
 
 # NEW WAY: SAVING TO A MESH !!
-of_name = f'q1_{q1}_q2_{q2}_phase_space_{model}_ic_{ic}_Nbots_{N}.npz'
+# of_name = f'q1_{q1}_q2_{q2}_phase_space_{model}_ic_{ic}_Nbots_{N}.npz'
+of_name = f'q1_{q1}_q2_{q2}_phase_space_{model}_ic_{ic}_Nbots_{N}_more_eq_time.npz'
 
 Npis = int((pi_lims[1] - pi_lims[0])/dpi) + 1
 Nls = int((l_lims[1] - l_lims[0])/dl) + 1

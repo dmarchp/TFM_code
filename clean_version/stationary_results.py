@@ -34,17 +34,22 @@ for i in range(N_sites+1):
     fs_labels.append(f'f{i}')
 Q = []
 m = []
-stat_from = 1000
+stat_from = 10000
+last_iters = 1000
 for i in range(1,num_files+1):
     df = pd.read_csv(f'time_evo_csv/time_evo_rea_'+str(i).zfill(3)+'.csv')
     df.drop('iter', axis=1, inplace=True)
     df['m'] = (3*df[fs_labels].max(axis=1)-1)/2
     df['Q'] = df['f2']-2*df['f1']
     for i in range(N_sites+1):
-        fs[i].extend(list(df[f'f{i}'])[stat_from:])
-        ks[i].extend(list(df[f'k{i}'])[stat_from:])
-    Q.extend(list(df['Q'])[stat_from:])
-    m.extend(list(df['m'])[stat_from:])
+        # fs[i].extend(list(df[f'f{i}'])[stat_from:])
+        # ks[i].extend(list(df[f'k{i}'])[stat_from:])
+        fs[i].extend(list(df[f'f{i}'])[-last_iters:])
+        ks[i].extend(list(df[f'k{i}'])[-last_iters:])
+    # Q.extend(list(df['Q'])[stat_from:])
+    # m.extend(list(df['m'])[stat_from:])
+    Q.extend(list(df['Q'])[-last_iters:])
+    m.extend(list(df['m'])[-last_iters:])
 
     
 w_file = open('stationary_results.csv', 'w')
