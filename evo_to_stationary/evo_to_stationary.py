@@ -39,7 +39,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
     elif ic=='J':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_julia'
     elif ic=='H':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_halves'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_H'
     elif ic=='95f2':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f2'
     elif ic=='95f1':
@@ -85,7 +85,7 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
     elif ic=='J':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
     elif ic=='H':
-        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_halves_Euler.csv'
+        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_H_Euler.csv'
     elif ic=='95f2':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2_Euler.csv'
     elif ic=='95f1':

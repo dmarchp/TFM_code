@@ -11,10 +11,10 @@
 ! System
 N_bots = 100
 N_sites = 2
-max_time = 10000
+max_time = 11000
 
 ! Interdependence:
-lambda = 0.20
+lambda = 0.14
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /

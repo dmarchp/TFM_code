@@ -88,7 +88,7 @@ def main():
         print('Input number of pis different from qualities. Aborting.')
         exit()
     Nsites = len(pis)
-    # assing the initial condition
+    # assign the initial condition
     bots_per_site = prepare_ic(N, Nsites, ic)
     check = False
     # check: print parameters
