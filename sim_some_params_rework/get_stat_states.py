@@ -72,8 +72,8 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
         # Get the average values from the execution:
         df = pd.read_csv(froute+'stationary_results.csv')
         for i in range(Nsites+1):
-            results[f'f{i}'].append(float(df[f'f{i}'])), results[f'sdf{i}'].append(float(df[f'sdf{i}']))
-        results['Q'].append(float(df['Q'])), results['sdQ'].append(float(df['sdQ']))
+            results[f'f{i}'].append(float(df[f'f{i}'].iloc[0])), results[f'sdf{i}'].append(float(df[f'sdf{i}'].iloc[0]))
+        results['Q'].append(float(df['Q'].iloc[0])), results['sdQ'].append(float(df['sdQ'].iloc[0]))
     # save the simulation results to the dataframe:
     results['Nrea'], results['simTime'], results['ic'] = [Nrea]*len(all_ls), [max_time]*len(all_ls), [ic]*len(all_ls)
     df_new = pd.DataFrame(results)

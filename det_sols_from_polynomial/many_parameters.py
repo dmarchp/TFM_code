@@ -175,6 +175,30 @@ def computeLambdaEvo(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99), noInterac
     else:
         df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
 
+def computeLambdaEvo_v2(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99)):
+    Nls = int((l_lims[1] - l_lims[0])/dl) + 1
+    ls = np.linspace(l_lims[0], l_lims[1], Nls)
+    lambdaEvo = [[],[],[]]
+    for l in ls:
+        subprocess.call(f'python f0poly_sols_clean.py {pi1} {pi2} {q1} {q2} {l} -v > sols.dat', shell=True)
+        sols = []
+        with open('sols.dat', 'r') as file:
+            for line in file.readlines():
+                sols_i = [float(f) for f in line.split()]
+                sols.append(sols_i)
+        sol_index=0 if l==0.0  else 1 
+        for i in range(3):
+            lambdaEvo[i].append(sols[sol_index][i])
+    df = pd.DataFrame({'l':list(ls), 'f0':lambdaEvo[0], 'f1':lambdaEvo[1], 'f2':lambdaEvo[2]})
+    # if os.path.exists('res_files/lambdaEvo_results.csv'):
+    #     dfglobal = pd.read_csv(f'res_files/lambdaEvo_results.csv')
+    #     dfglobal = pd.concat([dfglobal, df], ignore_index=True)
+    #     dfglobal = dfglobal.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'l'], ignore_index=True)
+    # else:
+    #     dfglobal = df
+    # dfglobal.to_csv(f'res_files/lambdaEvo_results.csv')
+    df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
+
 def compute_results_many_params(pi_pairs, q2, q1s, ls):
     df_cols = [[],[],[],[],[],[],[],[]] # pi1, pi2, q1, q2, l, f0, f1, f2
     for pi_pair in pi_pairs:
@@ -201,7 +225,7 @@ def compute_results_many_params(pi_pairs, q2, q1s, ls):
 #    computeAsymmetricMap_mesh(7, 10, l)
 #    print(f'done with l={l}')
 
-computeSymmetricMap_mesh(10, 10, pi_lims=(0.01, 0.5), parqDf=False)
+# computeSymmetricMap_mesh(10, 10, pi_lims=(0.01, 0.5), parqDf=False)
 #computeSymmetricMap_mesh(14, 20, pi_lims=(0.01, 0.5), parqDf=False)
 
 # computeAsymmetricMap_mesh(7, 10, 0.8)
@@ -229,3 +253,5 @@ computeSymmetricMap_mesh(10, 10, pi_lims=(0.01, 0.5), parqDf=False)
 
 # compute_results_many_params([(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4), (0.5, 0.5), (0.2, 0.1), (0.4, 0.2)],
                             # 10, [1,2,3,4,5,6,7,8,9], np.arange(0.0, 0.9, 0.1))
+    
+computeLambdaEvo_v2(0.0, 0.0, 7.0, 10.0, 0.01, l_lims=(0.0,1.0))
