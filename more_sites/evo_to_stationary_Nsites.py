@@ -11,7 +11,7 @@ import random
 from datetime import datetime
 
 Nrea = 24
-max_time = 10000
+max_time = 5000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
