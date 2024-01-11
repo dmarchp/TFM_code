@@ -12,7 +12,7 @@ from datetime import datetime
 
 Nsites = 2
 Nrea = 25
-max_time = 10000
+max_time = 100000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -46,6 +46,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f1'
     elif ic=='60f1':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_60f1'
+    print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
         Nfiles = len(glob.glob(f'{path}/{newFolderName}/*'))
         df = pd.read_csv(f'{path}/{newFolderName}/time_evo_rea_001.csv')

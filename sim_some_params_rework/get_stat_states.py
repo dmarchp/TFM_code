@@ -52,19 +52,26 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
     all_ls = np.around(all_ls, len(str(dl).split('.')[-1]))
     # prepare the results dictionary (later df) PART1
     results = {}
-    results['N'] = [N]*len(all_ls)
-    for i in range(1,Nsites+1):
-        results[f'pi{i}'] = [pis[i-1]]*len(all_ls)
-    for i in range(1,Nsites+1):
-        results[f'q{i}'] = [qs[i-1]]*len(all_ls)
-    results['l'] = list(all_ls)
     for i in range(Nsites+1):
         results[f'f{i}'] = []
     for i in range(Nsites+1):
         results[f'sdf{i}'] = []
     results['Q'], results['sdQ'] = [], []
+    if os.path.exists(path + '/' + resFile):
+        df_old = pd.read_csv(path + '/' + resFile)
     for l in all_ls:
         change_sim_input(froute, fin_file, lamb=l)
+        # check if the simulation with this parameters is arlredy performed and stored in the df:
+        if os.path.exists(path + '/' + resFile):
+            bool_series = (df_old['N']==N) & (df_old['l']==l) & (df_old['ic'] == ic)
+            for i in range(Nsites):
+                bool_series = bool_series & (df_old[f'pi{i+1}']==pis[i]) & (df_old[f'q{i+1}']==qs[i])
+            if not(df_old.loc[bool_series].empty):
+                # compare the number of realization and/or the length of the simulations(?)
+                # if (row['Nrea'] > df_old.loc[bool_series]['Nrea']) and (row['simTime'] > df_old.loc[bool_series]['simTime']):
+                if not ow_hard and not (ow_geq_Nrea and (Nrea > int(df_old.loc[bool_series]['Nrea'].iloc[0]))):
+                    print('There are already simulations with these parameters')
+                    continue
         # Execute simulations:
         os.chdir(froute)
         call("./"+fex_file+f" {random.randint(0,100000000)} {Nrea}", shell=True)
@@ -74,13 +81,19 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
         for i in range(Nsites+1):
             results[f'f{i}'].append(float(df[f'f{i}'].iloc[0])), results[f'sdf{i}'].append(float(df[f'sdf{i}'].iloc[0]))
         results['Q'].append(float(df['Q'].iloc[0])), results['sdQ'].append(float(df['sdQ'].iloc[0]))
+        results['l'].append(l)
+    N_stored_results = len(results[f'f{i}'])
+    results['N'] = [N]*N_stored_results
+    for i in range(1,Nsites+1):
+        results[f'pi{i}'] = [pis[i-1]]*N_stored_results
+    for i in range(1,Nsites+1):
+        results[f'q{i}'] = [qs[i-1]]*N_stored_results
     # save the simulation results to the dataframe:
-    results['Nrea'], results['simTime'], results['ic'] = [Nrea]*len(all_ls), [max_time]*len(all_ls), [ic]*len(all_ls)
+    results['Nrea'], results['simTime'], results['ic'] = [Nrea]*N_stored_results, [max_time]*N_stored_results, [ic]*N_stored_results
     df_new = pd.DataFrame(results)
     call(f'mkdir -p {path}', shell=True)
     # Replace values if already present in the old df and simTime > old_simTime,  or Nrea > old_Nrea
     if os.path.exists(path + '/' + resFile):
-        df_old = pd.read_csv(path + '/' + resFile)
         for index,row in df_new.iterrows():   
             bool_series = (df_old['N']==row['N']) & (df_old['l']==row['l']) & (df_old['ic'] == row['ic'])
             for i in range(1,Nsites+1):
@@ -88,7 +101,7 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
             if not(df_old.loc[bool_series].empty):
                 # compare the number of realization and/or the length of the simulations(?)
                 # if (row['Nrea'] > df_old.loc[bool_series]['Nrea']) and (row['simTime'] > df_old.loc[bool_series]['simTime']):
-                if ((ow_geq_Nrea and (row['Nrea'] > df_old.loc[bool_series]['Nrea'].index)) or ow_hard):
+                if ((ow_geq_Nrea and (row['Nrea'] > (df_old.loc[bool_series]['Nrea'].iloc[0]))) or ow_hard):
                     df_old.drop(df_old.loc[bool_series].index,inplace=True)
         # append the new results to the csv dataframe
         df_old = pd.concat([df_old,df_new],ignore_index=True)
