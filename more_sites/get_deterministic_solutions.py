@@ -29,7 +29,7 @@ def fs_evo_eq(fs,pis,qs,l):
     dfsdt[0] = -1*sum(dfsdt[1:])
     return dfsdt
 
-def sols_from_intEvo(pis, qs, l, fs0, max_time=1000):
+def sols_from_intEvo(pis, qs, l, fs0, max_time=2000):
     fs = fs0
     dt = 1
     for _ in range(max_time):
@@ -54,7 +54,7 @@ def main():
     Nsites = len(pis)
     # assign the initial condition
     fs0 = prepare_ic_int(Nsites, ic)
-    check = True
+    check = False
     # check: print parameters
     if check == True:
         print('Geting the deterministic solutions with the following parameters:')
@@ -63,7 +63,7 @@ def main():
         print(f'lambda: {l}')
         print(f'ic: {ic}, fs0 = {fs0}')
     fs = sols_from_intEvo(pis, qs, l, fs0)
-    print(fs)
+    print(*fs)
 
 if __name__ == '__main__':
     main()

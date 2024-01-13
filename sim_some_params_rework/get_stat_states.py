@@ -37,6 +37,7 @@ fin_file = 'input_template.txt'
 fex_file = 'main.x'
 f_file = 'main.f90'
 
+### ATENTION: as it is now the order of the columns when creating a new dataframe will be messed up!!!!!!!!!
 def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nrea=True, ow_geq_simTime=False, ow_hard=False):
     '''
     Overwriting old results control:
@@ -101,7 +102,7 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
             if not(df_old.loc[bool_series].empty):
                 # compare the number of realization and/or the length of the simulations(?)
                 # if (row['Nrea'] > df_old.loc[bool_series]['Nrea']) and (row['simTime'] > df_old.loc[bool_series]['simTime']):
-                if ((ow_geq_Nrea and (row['Nrea'] > (df_old.loc[bool_series]['Nrea'].iloc[0]))) or ow_hard):
+                if ((ow_geq_Nrea and (row['Nrea'] > int(df_old.loc[bool_series]['Nrea'].iloc[0]))) or ow_hard):
                     df_old.drop(df_old.loc[bool_series].index,inplace=True)
         # append the new results to the csv dataframe
         df_old = pd.concat([df_old,df_new],ignore_index=True)

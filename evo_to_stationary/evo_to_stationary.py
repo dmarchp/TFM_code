@@ -11,7 +11,7 @@ import random
 from datetime import datetime
 
 Nsites = 2
-Nrea = 25
+Nrea = 6
 max_time = 100000
 
 extSSDpath = getExternalSSDpath()
@@ -30,22 +30,22 @@ fex_file = 'main.x'
 f_file = 'main.f90'
 
 # SIMULATION FUNCTION - Uses the fortran code in "clean_version":
-def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea):
+def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround):
     random.seed(datetime.now().timestamp())
     if ic=='N':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}'
     elif ic=='T':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_thirds'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_thirds'
     elif ic=='J':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_julia'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_julia'
     elif ic=='H':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_H'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_H'
     elif ic=='95f2':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f2'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_95f2'
     elif ic=='95f1':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_95f1'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_95f1'
     elif ic=='60f1':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,2)}_ic_60f1'
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_60f1'
     print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
         Nfiles = len(glob.glob(f'{path}/{newFolderName}/*'))
@@ -122,6 +122,7 @@ def main():
     parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f1, 95f2, 60f1")
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, N, ic = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic
+    lround = len(str(l).split('.')[1])
     # INITIAL CONDITIONS:
     if ic=='N':
         bots_per_site = [N, 0, 0]
@@ -161,7 +162,7 @@ def main():
         if (N - sum(bots_per_site)):
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
-    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea)
+    simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround)
     intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
 
 

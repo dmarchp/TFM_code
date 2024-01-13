@@ -34,7 +34,7 @@ for i in range(N_sites+1):
     fs_labels.append(f'f{i}')
 Q = []
 m = []
-stat_from = 10000
+# stat_from = 10000
 last_iters = 1000
 for i in range(1,num_files+1):
     df = pd.read_csv(f'time_evo_csv/time_evo_rea_'+str(i).zfill(3)+'.csv')
