@@ -27,10 +27,10 @@ rFile.close()
 num_files = len(os.listdir('time_evo_csv/'))
 fs_labels = []
 fs = []
-ks = []
+# ks = []
 for i in range(N_sites+1):
     fs.append([])
-    ks.append([])
+    # ks.append([])
     fs_labels.append(f'f{i}')
 Q = []
 m = []
@@ -45,7 +45,7 @@ for i in range(1,num_files+1):
         # fs[i].extend(list(df[f'f{i}'])[stat_from:])
         # ks[i].extend(list(df[f'k{i}'])[stat_from:])
         fs[i].extend(list(df[f'f{i}'])[-last_iters:])
-        ks[i].extend(list(df[f'k{i}'])[-last_iters:])
+        # ks[i].extend(list(df[f'k{i}'])[-last_iters:])
     # Q.extend(list(df['Q'])[stat_from:])
     # m.extend(list(df['m'])[stat_from:])
     Q.extend(list(df['Q'])[-last_iters:])
@@ -59,23 +59,24 @@ for i in range(N_sites+1):
     header += f'f{i},'
 for i in range(N_sites+1):
     header += f'sdf{i},'
-header += 'Q,sdQ,m,sdm,'
-for i in range(N_sites+1):
-    header += f'k{i},'
-for i in range(N_sites):
-    header += f'sdk{i},'
-header += f'sdk{N_sites}\n'
+# header += 'Q,sdQ,m,sdm,'
+header += 'Q,sdQ,m,sdm\n'
+# for i in range(N_sites+1):
+#     header += f'k{i},'
+# for i in range(N_sites):
+#     header += f'sdk{i},'
+# header += f'sdk{N_sites}'
 #w_file.write('f0,f1,f2,sdf0,sdf1,sdf2,Q,sdQ,m,sdm,k0,k1,k2,sdk0,sdk1,sdk2\n',) # two sites fixed format
 w_file.write(header)
 fs_st = []
-ks_st = []
+# ks_st = []
 sdfs_st = []
-sdks_st = []
+# sdks_st = []
 for i in range(N_sites+1):
     fs_st.append(np.array(fs[i]).mean())
-    ks_st.append(np.array(ks[i]).mean())
+    # ks_st.append(np.array(ks[i]).mean())
     sdfs_st.append(np.array(fs[i]).std())
-    sdks_st.append(np.array(ks[i]).std())
+    # sdks_st.append(np.array(ks[i]).std())
 Q_st = np.array(Q).mean()
 sdQ_st = np.array(Q).std()
 m_st = np.array(m).mean()
@@ -87,12 +88,12 @@ for i in range(N_sites+1):
     results += f'{round(fs_st[i],decimals)},'
 for i in range(N_sites+1):
     results += f'{round(sdfs_st[i],decimals)},'
-results += f'{round(Q_st,decimals)},{round(sdQ_st,decimals)},{round(m_st,decimals)},{round(sdm_st,decimals)},'
-for i in range(N_sites+1):
-    results += f'{round(ks_st[i],decimals)},'
-for i in range(N_sites):
-    results += f'{round(sdks_st[i],decimals)},'
-results += f'{round(sdks_st[N_sites],decimals)}'
+results += f'{round(Q_st,decimals)},{round(sdQ_st,decimals)},{round(m_st,decimals)},{round(sdm_st,decimals)}'
+# for i in range(N_sites+1):
+#     results += f'{round(ks_st[i],decimals)},'
+# for i in range(N_sites):
+#     results += f'{round(sdks_st[i],decimals)},'
+# results += f'{round(sdks_st[N_sites],decimals)}'
 
 w_file.write(results)
     

@@ -37,16 +37,19 @@ program main
         write(auxi,'(I2)') i
         write(10,fmt='(A)',advance="no") ",f"//trim(adjustl(auxi))
     enddo
-    do i=0,N_sites
-        write(auxi,'(I2)') i
-        write(10,fmt='(A)',advance="no") ",k"//trim(adjustl(auxi))
-    enddo
+    ! do i=0,N_sites
+    !     write(auxi,'(I2)') i
+    !     write(10,fmt='(A)',advance="no") ",k"//trim(adjustl(auxi))
+    ! enddo
     rewind(10)
     read(10,fmt="(A)") header
     close(10)
     call execute_command_line('rm header_aux.txt')
-    ! format for the output trajectories:
-    write(auxi, '(I2)') 2*(N_sites+1)
+    ! format for the output trajectories, if writtin k:
+    ! write(auxi, '(I2)') 2*(N_sites+1)
+    ! format_traj = "(I7,"//trim(adjustl(auxi))//'(",",F16.10))'
+    ! if not writing k:
+    write(auxi, '(I2)') N_sites+1
     format_traj = "(I7,"//trim(adjustl(auxi))//'(",",F16.10))'
     ! END INITIALIZATION ********************************************
 
@@ -66,12 +69,14 @@ program main
         call compute_probs()
         call compute_kparam(pop_fraction,pop_fraction_k)
         j=0
-        write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+        !write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+        write(11,format_traj) j,pop_fraction(:)
         do j=1,max_time
             call update_system_galla()
             !call update_system()
             call compute_kparam(pop_fraction,pop_fraction_k)
-            write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+            !write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
+            write(11,format_traj) j,pop_fraction(:)
         enddo
         close(11)
     enddo

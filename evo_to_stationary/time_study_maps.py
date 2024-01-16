@@ -125,7 +125,7 @@ def computeTimesSymmetricMap_mesh(method, q1, q2, dpi=0.01, pi_lims = (0.01, 0.5
                 for df in dfs:
                     time = search_time(w=blockSize, t=blockThresh, evo=df['f2'], sig=sig)
                     times.append(time)
-                grid_time[i,j], grid_time_sd = np.average(times), np.std(times)
+                grid_time[i,j], grid_time_sd[i,j] = np.average(times), np.std(times)
     if not os.path.exists(f'{getTimeEvosPath()}/stat_times_maps/'):
         call(f'mkdir {getTimeEvosPath()}/stat_times_maps/', shell=True)
     if method == 'int':
@@ -168,7 +168,8 @@ def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_li
                     # call(f'python evo_to_stationary.py {pi} {pi} {q1} {q2} {l} {N} N {np.random.randint(1,1000000)}', shell=True)
                     print(f'Simulating {pi1} {pi2} {q1} {q2} {l} {N}')
                     print(f'because folder {folder} was not found')
-                    simEvo(pi1, pi2, q1, q2, l, N, ic='N', bots_per_site = [N, 0, 0], max_time = 1000, Nrea=25)
+                    lround = len(str(l).split('.')[1])
+                    simEvo(pi1, pi2, q1, q2, l, N, ic='N', bots_per_site = [N, 0, 0], max_time = 1000, Nrea=25, lround=lround)
                 files = glob.glob(f'{getTimeEvosPath()}/{folder}/*')
                 dfs = [pd.read_csv(file) for file in files]
                 grid_counts[i,j] = len(dfs)
@@ -176,7 +177,7 @@ def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_li
                 for df in dfs:
                     time = search_time(w=blockSize, t=blockThresh, evo=df['f2'], sig=sig)
                     times.append(time)
-                grid_time[i,j], grid_time_sd = np.average(times), np.std(times)
+                grid_time[i,j], grid_time_sd[i,j] = np.average(times), np.std(times)
     if not os.path.exists(f'{getTimeEvosPath()}/stat_times_maps/'):
         call(f'mkdir {getTimeEvosPath()}/stat_times_maps/', shell=True)
     if method == 'int':
@@ -192,6 +193,6 @@ if __name__ == '__main__':
     # computeTimesSymmetricMap_mesh('sim', 7, 10, dpi=0.025, pi_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10, dpi2=0.025, pi2_lims=(0.05, 0.5), dl=0.05, l_lims=(0.0, 0.95))
     # Maximal precision:
-    computeTimesSymmetricMap_mesh('sim', 7, 10)
-    print('Finished the symmetric map')
-    # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
+    # computeTimesSymmetricMap_mesh('sim', 7, 10)
+    # print('Finished the symmetric map')
+    computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)

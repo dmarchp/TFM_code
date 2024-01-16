@@ -11,7 +11,7 @@ import random
 from datetime import datetime
 
 Nsites = 2
-Nrea = 6
+Nrea = 25
 max_time = 100000
 
 extSSDpath = getExternalSSDpath()
