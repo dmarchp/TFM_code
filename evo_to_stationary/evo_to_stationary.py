@@ -9,6 +9,7 @@ sys.path.append('../')
 from package_global_functions import *
 import random
 from datetime import datetime
+from more_sites import prepare_ic
 
 Nsites = 2
 Nrea = 25
@@ -38,14 +39,8 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_thirds'
     elif ic=='J':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_julia'
-    elif ic=='H':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_H'
-    elif ic=='95f2':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_95f2'
-    elif ic=='95f1':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_95f1'
-    elif ic=='60f1':
-        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_60f1'
+    elif ic in ['H', '95f2', '95f1', '60f1', '80f1']:
+        newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_{ic}'
     print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
         Nfiles = len(glob.glob(f'{path}/{newFolderName}/*'))
@@ -85,14 +80,8 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds_Euler.csv'
     elif ic=='J':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
-    elif ic=='H':
-        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_H_Euler.csv'
-    elif ic=='95f2':
-        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f2_Euler.csv'
-    elif ic=='95f1':
-        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_95f1_Euler.csv'
-    elif ic=='60f1':
-        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_60f1_Euler.csv'
+    elif ic in ['H', '95f2', '95f1', '60f1', '80f1']:
+        intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_{ic}_Euler.csv'
     if os.path.exists(intEvoName):
         df = pd.read_csv(intEvoName)
         max_time_done = df['iter'].iloc[-1]
@@ -123,6 +112,15 @@ def main():
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, N, ic = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic
     lround = len(str(l).split('.')[1])
+    # INITIAL CONDITIONS: better ?
+    # if ic == 'julia':
+    #     ...
+    # elif ic == 'T':
+    #     bots_per_site = prepare_ic(N, 2, 'E0')
+    # elif ic == 'H':
+    #     bots_per_site = prepare_ic(N, 2, 'E')
+    # else:
+    #     bots_per_site = prepare_ic(N, 2, ic)
     # INITIAL CONDITIONS:
     if ic=='N':
         bots_per_site = [N, 0, 0]
@@ -147,16 +145,22 @@ def main():
         while sum(bots_per_site) != N:
             randsite = np.random.randint(1,3)
             bots_per_site[randsite] += 1
-    elif ic=='95f1':
-        bots_per_site = [0, int(0.95*N), int(0.05*N)]
+    elif ic in ['95f1', '80f1', '60f1']:
+        perc  = int(ic[:-2])/100
+        bots_per_site = [0, int(perc*N), int((1-perc)*N)]
         while sum(bots_per_site) != N:
             randsite = np.random.randint(1,3)
             bots_per_site[randsite] += 1
-    elif ic=='60f1':
-        bots_per_site = [0, int(0.60*N), int(0.40*N)]
-        while sum(bots_per_site) != N:
-            randsite = np.random.randint(1,3)
-            bots_per_site[randsite] += 1
+    # elif ic=='95f1':
+    #     bots_per_site = [0, int(0.95*N), int(0.05*N)]
+    #     while sum(bots_per_site) != N:
+    #         randsite = np.random.randint(1,3)
+    #         bots_per_site[randsite] += 1
+    # elif ic=='60f1':
+    #     bots_per_site = [0, int(0.60*N), int(0.40*N)]
+    #     while sum(bots_per_site) != N:
+    #         randsite = np.random.randint(1,3)
+    #         bots_per_site[randsite] += 1
     elif ic=='J':
         bots_per_site = [round(0.14*N), round(0.43*N), round(0.43*N)] # probably int() is not necessary
         if (N - sum(bots_per_site)):

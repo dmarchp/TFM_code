@@ -14,7 +14,7 @@ N_sites = 2
 max_time = 100000
 
 ! Interdependence:
-lambda = 0.6
+lambda = 0.905
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /
@@ -24,7 +24,7 @@ q0 = 1
 &input_arrays
 
 ! Sites discovery prob:
-pi(:) = 1e-08 1e-08
+pi(:) = 1e-05 1e-05
 
 ! Sites qualities:
 q(:) = 9.9 10.0
