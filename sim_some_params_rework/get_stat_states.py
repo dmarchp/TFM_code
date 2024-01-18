@@ -52,12 +52,20 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
     all_ls = np.arange(ls[0], ls[1]+dl, dl)
     all_ls = np.around(all_ls, len(str(dl).split('.')[-1]))
     # prepare the results dictionary (later df) PART1
+    colOrder = ['N',]
+    colOrder.extend([f'pi{i}' for i in range(1,Nsites+1)])
+    colOrder.extend([f'q{i}' for i in range(1,Nsites+1)])
+    colOrder.append('l')
+    colOrder.extend([f'f{i}' for i in range(Nsites+1)])
+    colOrder.extend([f'sdf{i}' for i in range(Nsites+1)])
+    colOrder.extend(['Q','sdQ','Nrea','simTime','ic'])
     results = {}
     for i in range(Nsites+1):
         results[f'f{i}'] = []
     for i in range(Nsites+1):
         results[f'sdf{i}'] = []
     results['Q'], results['sdQ'] = [], []
+    results['l'] = []
     if os.path.exists(path + '/' + resFile):
         df_old = pd.read_csv(path + '/' + resFile)
     for l in all_ls:
@@ -92,6 +100,8 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
     # save the simulation results to the dataframe:
     results['Nrea'], results['simTime'], results['ic'] = [Nrea]*N_stored_results, [max_time]*N_stored_results, [ic]*N_stored_results
     df_new = pd.DataFrame(results)
+    # order the columns of the df:
+    df_new = df_new[colOrder]
     call(f'mkdir -p {path}', shell=True)
     # Replace values if already present in the old df and simTime > old_simTime,  or Nrea > old_Nrea
     if os.path.exists(path + '/' + resFile):
