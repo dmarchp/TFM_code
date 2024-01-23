@@ -17,15 +17,16 @@ parser.add_argument('q2', type=float, help='site 2 quality')
 parser.add_argument('pi1', type=float, help='site 1 probability discovery (pi1)')
 parser.add_argument(
     'x', type=float, help='factor between f1 and f2, f2 = x*f1')
+parser.add_argument('--mu', type=float, default=0.0, help='independence on the quality assesment; 0 full indep.')
 args = parser.parse_args()
 
-q1, q2, pi1, x = args.q1, args.q2, args.pi1, args.x
+q1, q2, pi1, x, mu = args.q1, args.q2, args.pi1, args.x, args.mu
 
 
-def consensus_eq(l, pi1, pi2, q1, q2, x):
-    _, f0, _ = f0_lambda_neq_0(pi1, pi2, q1, q2, l)
-    f1, f2 = f_i(1, f0, [pi1, pi2], [q1, q2], l), f_i(
-        2, f0, [pi1, pi2], [q1, q2], l)
+def consensus_eq(l, pi1, pi2, q1, q2, x, mu):
+    _, f0, _ = f0_lambda_neq_0(pi1, pi2, q1, q2, l, mu)
+    f1, f2 = f_i(1, f0, [pi1, pi2], [q1, q2], l, mu), f_i(
+        2, f0, [pi1, pi2], [q1, q2], l, mu)
     return f2 - x*f1
 
 
@@ -43,7 +44,7 @@ lambdas_solve_lims = (1e-10, 0.99)
 last_pi2_w_sol = None
 for pi2 in pi2s:
     try:
-        lamb = bisect(consensus_eq, lambdas_solve_lims[0], lambdas_solve_lims[1], args=(pi1, pi2, q1, q2, x))
+        lamb = bisect(consensus_eq, lambdas_solve_lims[0], lambdas_solve_lims[1], args=(pi1, pi2, q1, q2, x, mu))
     except ValueError:
         lamb = float('nan')
     if not last_pi2_w_sol and np.isnan(lamb):
@@ -60,7 +61,7 @@ if last_pi2_w_sol:
     lambdas_extra = []
     for pi2 in pi2s_extra:
         try:
-            lamb = bisect(consensus_eq, lambdas_solve_lims[0], lambdas_solve_lims[1], args=(pi1, pi2, q1, q2, x))
+            lamb = bisect(consensus_eq, lambdas_solve_lims[0], lambdas_solve_lims[1], args=(pi1, pi2, q1, q2, x, mu))
         except ValueError:
             lamb = float('nan')
         lambdas_extra.append(lamb)
