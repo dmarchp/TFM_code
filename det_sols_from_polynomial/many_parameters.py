@@ -254,4 +254,4 @@ def compute_results_many_params(pi_pairs, q2, q1s, ls):
 # compute_results_many_params([(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4), (0.5, 0.5), (0.2, 0.1), (0.4, 0.2)],
                             # 10, [1,2,3,4,5,6,7,8,9], np.arange(0.0, 0.9, 0.1))
     
-computeLambdaEvo_v2(0.0, 0.0, 7.0, 10.0, 0.01, l_lims=(0.0,1.0))
+computeLambdaEvo_v2(0.0, 0.0, 7.0, 10.0, 0.001, l_lims=(0.0,1.0))
