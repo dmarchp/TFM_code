@@ -153,4 +153,4 @@ if __name__ == '__main__':
         print(f'lambda: from {ls[0]} to {ls[1]} on {dl} steps')
         print(f'N: {N}')
         print(f'ic: {ic}, bots_per_site = {bots_per_site}')
-    simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea)
+    simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea) # , ow_hard=True

@@ -198,6 +198,7 @@ def computeLambdaEvo_v2(pi1, pi2, q1, q2, dl=0.01, l_lims = (0.01, 0.99)):
     #     dfglobal = df
     # dfglobal.to_csv(f'res_files/lambdaEvo_results.csv')
     df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}.csv', index=False)
+    # df.to_csv(f'{path}/lambdaEvo_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_around_trans.csv', index=False)
 
 def compute_results_many_params(pi_pairs, q2, q1s, ls):
     df_cols = [[],[],[],[],[],[],[],[]] # pi1, pi2, q1, q2, l, f0, f1, f2
@@ -254,4 +255,4 @@ def compute_results_many_params(pi_pairs, q2, q1s, ls):
 # compute_results_many_params([(0.1, 0.1), (0.2, 0.2), (0.3, 0.3), (0.4, 0.4), (0.5, 0.5), (0.2, 0.1), (0.4, 0.2)],
                             # 10, [1,2,3,4,5,6,7,8,9], np.arange(0.0, 0.9, 0.1))
     
-computeLambdaEvo_v2(0.0, 0.0, 7.0, 10.0, 0.001, l_lims=(0.0,1.0))
+computeLambdaEvo_v2(0.0, 0.0, 7.0, 10.0, 0.0001, l_lims=(0.1000,0.1030))

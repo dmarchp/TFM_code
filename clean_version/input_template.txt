@@ -9,12 +9,12 @@
 &input_cts
 
 ! System
-N_bots = 1000
+N_bots = 10000
 N_sites = 2
 max_time = 11000
 
 ! Interdependence:
-lambda = 1.0
+lambda = 0.102
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /
@@ -32,7 +32,7 @@ q(:) = 7.0 10.0
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P), pi hard (Phard). If yes/uniform/pi/pihard what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 10 990 0
+bots_per_site = 0 5000 5000
 
 /
 
