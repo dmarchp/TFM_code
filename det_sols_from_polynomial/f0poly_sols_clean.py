@@ -135,7 +135,7 @@ def f1_pis_eq_0_new(f0, qs, l, mu):
     r1, r2 = rs
     return (r2-l*f0)*(1-f0)/(r2-r1)
 
-
+# Asymmetric discovery scenario:
 def f1_pi2_eq_0(f0, pi1, qs, l, mu):
     K, q0 = qs[-1], 1.0
     rs = [q0*(mu/K + (1-mu)/q) for q in qs]

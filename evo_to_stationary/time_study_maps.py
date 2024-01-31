@@ -195,4 +195,6 @@ if __name__ == '__main__':
     # Maximal precision:
     # computeTimesSymmetricMap_mesh('sim', 7, 10)
     # print('Finished the symmetric map')
-    computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.25, 7, 10)
+    # computeTimesAsymmetricMap_mesh_fixPi1('sim', 0.5, 7, 10)
+    computeTimesAsymmetricMap_mesh_fixPi1('int', 0.5, 7, 10)
+    computeTimesAsymmetricMap_mesh_fixPi1('int', 0.05, 7, 10)
