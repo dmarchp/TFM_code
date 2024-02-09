@@ -11,10 +11,10 @@
 ! System
 N_bots = 5000
 N_sites = 2
-max_time = 11000
+max_time = 1000
 
 ! Interdependence:
-lambda = 0.1029
+lambda = 0.9
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /
@@ -24,15 +24,15 @@ q0 = 1
 &input_arrays
 
 ! Sites discovery prob:
-pi(:) = 0.0 0.0
+pi(:) = 0.25 0.05
 
 ! Sites qualities:
-q(:) = 10.0 10.0
+q(:) = 9 10
 
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P), pi hard (Phard). If yes/uniform/pi/pihard what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 0 2500 2500
+bots_per_site = 5000 0 0
 
 /
 
