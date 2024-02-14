@@ -16,7 +16,7 @@ def prepare_ic_int(Nsites, ic):
         fs0 = [0.0,]
         fs0.extend([1/Nsites]*Nsites)
     elif ic == 'E0':
-        fs0 = [1/(Nsites+1)]*Nsites
+        fs0 = [1/(Nsites+1)]*(Nsites+1)
     return fs0
 
 # EULER INTEGRATION FUNCTIONS:
@@ -45,7 +45,7 @@ def main():
     parser.add_argument('-pis', help='pis, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-qs', help='qs, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('l', type=float, help='interdependence (lambda)')
-    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
+    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E0 for equipartition bt sites and uncomitted;")
     args = parser.parse_args()
     pis, qs, l, ic = args.pis, args.qs, args.l, args.ic
     if len(pis) != len(qs):
