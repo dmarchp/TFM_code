@@ -14,7 +14,7 @@ N_sites = 2
 max_time = 11000
 
 ! Interdependence:
-lambda = 0.25
+lambda = 0.1025
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /
