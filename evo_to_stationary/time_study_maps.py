@@ -175,8 +175,11 @@ def computeTimesAsymmetricMap_mesh_fixPi1(method, pi1, q1, q2, dpi2=0.01, pi2_li
                 grid_counts[i,j] = len(dfs)
                 times = []
                 for df in dfs:
-                    time = search_time(w=blockSize, t=blockThresh, evo=df['f2'], sig=sig)
-                    times.append(time)
+                    times_fs = []
+                    for k in range(3):
+                        time = search_time(w=blockSize, t=blockThresh, evo=df[f'f{k}'], sig=sig)
+                        times_fs.append(time)
+                    times.append(max(times_fs))
                 grid_time[i,j], grid_time_sd[i,j] = np.average(times), np.std(times)
     if not os.path.exists(f'{getTimeEvosPath()}/stat_times_maps/'):
         call(f'mkdir {getTimeEvosPath()}/stat_times_maps/', shell=True)
