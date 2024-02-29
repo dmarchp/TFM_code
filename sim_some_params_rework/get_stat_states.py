@@ -116,7 +116,7 @@ def simEvo_iter_lambda(pis, qs, ls, dl, Nsites, N, ic, max_time, Nrea, ow_geq_Nr
                     df_old.drop(df_old.loc[bool_series].index,inplace=True)
         # append the new results to the csv dataframe
         df_old = pd.concat([df_old,df_new],ignore_index=True)
-        df_old = df_old.sort_values(by=['N', f'q{Nsites}', f'pi{Nsites}','l'], ignore_index=True)
+        df_old = df_old.sort_values(by=['N', f'q{Nsites}', f'pi{Nsites}','l', f'q{Nsites-1}'], ignore_index=True)
         df_old.to_csv(path + '/' + resFile, index=False)
     else:
         df_new.to_csv(path + '/' + resFile, index=False)
