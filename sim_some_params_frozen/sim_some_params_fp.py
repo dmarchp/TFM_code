@@ -23,11 +23,11 @@ num_rea = 50
 # N_bots = 40
 N_bots_list = [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80]
 N_bots_list = [35,]
-N_bots_list = [492,]
+# N_bots_list = [492,]
 # radii
 push = ".false."
 arena_r = 20.0
-arena_r = 75.0
+# arena_r = 75.0
 # interac_r = np.linspace(3,12,19)
 # interac_r = np.linspace(3,10,15)
 interac_r = [3.5, 4.0, 4.5, 5.0, 6.5, 7.0, 7.5]
@@ -42,9 +42,9 @@ lambs = []
 #for i in range(0,100,5):
 #    lambs.append(i/100)
 # lambs = [0.3, 0.6, 0.9]
-lambs = [0.9, ]
-pi1s = [0.3, ]
-pi2s = [0.3, ]
+lambs = [0.5, ]
+pi1s = [0.1, ]
+pi2s = [0.1, ]
 
 
 

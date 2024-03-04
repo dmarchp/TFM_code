@@ -39,7 +39,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_thirds'
     elif ic=='J':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_julia'
-    elif ic in ['H', '95f2', '95f1', '60f1', '80f1']:
+    elif ic in ['H', '95f2', '95f1', '60f1', '80f1', '80f2']:
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_{ic}'
     print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
@@ -80,7 +80,7 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds_Euler.csv'
     elif ic=='J':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
-    elif ic in ['H', '95f2', '95f1', '60f1', '80f1']:
+    elif ic in ['H', '95f2', '95f1', '60f1', '80f1','80f2']:
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_{ic}_Euler.csv'
     if os.path.exists(intEvoName):
         df = pd.read_csv(intEvoName)
@@ -140,8 +140,10 @@ def main():
             bots_per_site = [0, int(N/2), int(N/2)]
         else:
             bots_per_site = [0, int(N/2), int(N/2)+1]
-    elif ic=='95f2':
-        bots_per_site = [0, int(0.05*N), int(0.95*N)]
+    # elif ic=='95f2':
+    elif ic in ['95f2', '80f2']:
+        perc  = int(ic[:-2])/100
+        bots_per_site = [0, int((1-perc)*N), int((perc)*N)]
         while sum(bots_per_site) != N:
             randsite = np.random.randint(1,3)
             bots_per_site[randsite] += 1
