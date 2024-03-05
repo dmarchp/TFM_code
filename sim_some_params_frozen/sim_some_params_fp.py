@@ -15,7 +15,7 @@ args = parser.parse_args()
     
 model = 'Galla'
 seed(args.inSeed)
-num_rea = 50
+num_rea = 100
 
 # All the parameters to simulate:
 
@@ -28,9 +28,9 @@ N_bots_list = [35,]
 push = ".false."
 arena_r = 20.0
 # arena_r = 75.0
-# interac_r = np.linspace(3,12,19)
+interac_r = np.linspace(3,12,19)
 # interac_r = np.linspace(3,10,15)
-interac_r = [3.5, 4.0, 4.5, 5.0, 6.5, 7.0, 7.5]
+# interac_r = [3.5, 4.0, 4.5, 5.0, 6.5, 7.0, 7.5]
 exclusion_r = 1.5
 
 # qualities, pis, lambdas
@@ -42,9 +42,10 @@ lambs = []
 #for i in range(0,100,5):
 #    lambs.append(i/100)
 # lambs = [0.3, 0.6, 0.9]
+# lambs = [0.2, 0.4, 0.6, 0.9]
 lambs = [0.5, ]
-pi1s = [0.1, ]
-pi2s = [0.1, ]
+pi1s = [0.5, ]
+pi2s = [0.5, ]
 
 
 
