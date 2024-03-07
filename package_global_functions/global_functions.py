@@ -62,7 +62,7 @@ def hist1D(x, Bins, binCenter, isPDF, isNonZero = True):
     else:
         dBins = Bins[1:] - Bins[:-1]
         H = np.histogram(x, bins = Bins, density=True)[0]
-        dH = np.sqrt( H*(1-H*dBins)/(len(x)*dBins) )    
+        dH = np.sqrt( H*(1-H*dBins)/(len(x)*dBins) )
     if isNonZero:
         nonZ = H!=0
         binCenter = binCenter[nonZ]
