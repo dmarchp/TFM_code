@@ -74,7 +74,7 @@ def latexFont(size= 15, labelsize=18, titlesize=20, ticklabelssize=15, legendsiz
     plt.rcParams.update({
         "text.usetex": True})
     plt.rcParams["text.latex.preamble"].join([
-        r"\usepackage{underscore}"
+        r"\usepackage{underscore}", r"\usepackage{color}"
     ])
     plt.rcParams["font.family"] = 'STIXGeneral'
     plt.rc('font', size=size)          # controls default text sizes

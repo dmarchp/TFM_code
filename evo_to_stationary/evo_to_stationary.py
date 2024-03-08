@@ -12,8 +12,8 @@ from datetime import datetime
 from more_sites import prepare_ic
 
 Nsites = 2
-Nrea = 25
-max_time = 100000
+Nrea = 100
+max_time = 5000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -135,6 +135,8 @@ def main():
         else:
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
+        print(bots_per_site)
+        # input('enter ')
     elif ic=='H':
         if N%2 == 0:
             bots_per_site = [0, int(N/2), int(N/2)]
@@ -168,6 +170,8 @@ def main():
         if (N - sum(bots_per_site)):
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
+        print(bots_per_site)
+        # input('enter ')
     simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround)
     intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
 
