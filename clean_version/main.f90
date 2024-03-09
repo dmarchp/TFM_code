@@ -63,6 +63,7 @@ program main
         !write(file_id, '(i0)') i
         write(file_id, '(I4.3)') i
         open(11, file="time_evo_rea_"//trim(adjustl(file_id))//".csv")
+        open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_indv_states.csv")
         !write(11,'(A13)') "iter,f0,f1,f2"
         write(11,'(A)') trim(header)
         call init_system_state() !trim set the system to all uncomitted at every rea
@@ -71,12 +72,14 @@ program main
         j=0
         !write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
         write(11,format_traj) j,pop_fraction(:)
+        call output_individual_state(12,j)
         do j=1,max_time
             call update_system_galla()
             !call update_system()
             call compute_kparam(pop_fraction,pop_fraction_k)
             !write(11,format_traj) j,pop_fraction(:),pop_fraction_k(:)
             write(11,format_traj) j,pop_fraction(:)
+            call output_individual_state(12,j)
         enddo
         close(11)
     enddo
@@ -85,8 +88,11 @@ program main
     ! END SIMULATE DIFFERENT TRAJECTORIES ***************************
 
     ! group output files in a folder
+    call execute_command_line('mkdir -p time_evo_indv_states')
+    call execute_command_line('mv time_evo_rea_*_indv_states.csv time_evo_indv_states/')
     call execute_command_line('mkdir -p time_evo_csv')
     call execute_command_line('mv time_evo_rea_*.csv time_evo_csv/')
+    
     
     ! get the stationary results before creating the compressed file:
     call execute_command_line('python stationary_results.py F')
