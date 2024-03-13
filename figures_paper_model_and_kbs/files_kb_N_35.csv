@@ -2,7 +2,6 @@ file,lamb,pi1,pi2
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=40_p2=20_q1=07_q2=10_lambda=60_rep=04-results.csv,60,40,20
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=30_p2=30_q1=07_q2=10_lambda=90_rep=04-results.csv,90,30,30
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=40_p2=20_q1=07_q2=10_lambda=00_rep=01-results.csv,0,40,20
-../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=30_p2=30_q1=07_q2=10_lambda=30_rep=02-results.csv,30,30,30
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=30_p2=30_q1=07_q2=10_lambda=00_rep=02-results.csv,0,30,30
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=40_p2=20_q1=07_q2=10_lambda=30_rep=01-results.csv,30,40,20
 ../../kilobot_experiments_data/BeesModel_N=35_ordered/BeesModel_N=35_deltat=0800_f0static_p1=30_p2=30_q1=07_q2=10_lambda=60_rep=08_substitute=01-results.csv,60,30,30
