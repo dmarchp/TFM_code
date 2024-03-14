@@ -5,13 +5,15 @@ from random import seed, randint
 import numpy as np
 import pandas as pd
 import argparse
+from datetime import datetime
+import random
 import sys
 sys.path.append('../')
 from package_global_functions import *
 
 Nsites = 2
-Nrea = 2
-max_time = 1000
+Nrea = 100
+max_time = 2500
 
 
 extSSDpath = getExternalSSDpath()
@@ -32,6 +34,7 @@ f_file = 'main_fp.f90'
 
 # SIMULATION FUNCTION - Uses the fortran code in "frozen_positions":
 def simEvo_frozen(pi1, pi2, q1, q2, l, N, ic, bots_per_site, arena_r, interac_r, exclusion_r, push):
+    random.seed(datetime.now().timestamp())
     pushLabel = "push" if push == ".true." else "nopush"
     if ic=='N':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ar_{arena_r}_ir_{interac_r}_er_{exclusion_r}_{pushLabel}'
@@ -75,8 +78,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('pi1', type=float, help='site 1 prob')
     parser.add_argument('pi2', type=float, help='site 2 prob')
-    parser.add_argument('q1', type=int, help='site 1 quality')
-    parser.add_argument('q2', type=int, help='site 2 quality')
+    parser.add_argument('q1', type=float, help='site 1 quality')
+    parser.add_argument('q2', type=float, help='site 2 quality')
     parser.add_argument('l', type=float, help='interdependence (lambda)')
     parser.add_argument('N', type=int, help='Number of agents')
     parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted, T for 1/3 each, J for Julia's ic's (0.14, 0.43, 0.43)")
@@ -84,15 +87,13 @@ def main():
     parser.add_argument('interac_r', type=float, help="Radius of interaction")
     parser.add_argument('exclusion_r', type=float, help="Radius of exclusion")
     parser.add_argument('push', type=int, help='Push or no push (1/0)')
-    parser.add_argument('inSeed', type=int, help='seed')
     args = parser.parse_args()
-    pi1, pi2, q1, q2, l, N, ic, inSeed = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic, args.inSeed
+    pi1, pi2, q1, q2, l, N, ic = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic
     arena_r, interac_r, exclusion_r = args.arena_r, args.interac_r, args.exclusion_r
     if args.push:
         push = ".true."
     else:
         push = ".false."
-    seed(inSeed)
     # INITIAL CONDITIONS:
     if ic=='N':
         bots_per_site = [N, 0, 0]
