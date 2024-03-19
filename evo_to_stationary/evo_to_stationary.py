@@ -12,8 +12,8 @@ from datetime import datetime
 from more_sites import prepare_ic
 
 Nsites = 2
-Nrea = 100
-max_time = 5000
+Nrea = 5
+max_time = 100000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -39,7 +39,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_thirds'
     elif ic=='J':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_julia'
-    elif ic in ['H', '95f2', '95f1', '60f1', '80f1', '80f2']:
+    elif ic in ['H', '95f2', '95f1', '60f1', '60f2', '80f1', '80f2']:
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_{ic}'
     print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
@@ -80,7 +80,7 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds_Euler.csv'
     elif ic=='J':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
-    elif ic in ['H', '95f2', '95f1', '60f1', '80f1','80f2']:
+    elif ic in ['H', '95f2', '95f1', '60f1','60f2', '80f1','80f2']:
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_{ic}_Euler.csv'
     if os.path.exists(intEvoName):
         df = pd.read_csv(intEvoName)
@@ -108,7 +108,7 @@ def main():
     parser.add_argument('q2', type=float, help='site 2 quality')
     parser.add_argument('l', type=float, help='interdependence (lambda)')
     parser.add_argument('N', type=int, help='Number of agents')
-    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f1, 95f2, 60f1")
+    parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; T for 1/3 each; H for 1/2 for f1,f2; J for Julia's ic's (0.14, 0.43, 0.43), 95f[], 80f[], 60f[]")
     args = parser.parse_args()
     pi1, pi2, q1, q2, l, N, ic = args.pi1, args.pi2, args.q1, args.q2, args.l, args.N, args.ic
     lround = len(str(l).split('.')[1])
@@ -143,7 +143,7 @@ def main():
         else:
             bots_per_site = [0, int(N/2), int(N/2)+1]
     # elif ic=='95f2':
-    elif ic in ['95f2', '80f2']:
+    elif ic in ['95f2', '80f2', '60f2']:
         perc  = int(ic[:-2])/100
         bots_per_site = [0, int((1-perc)*N), int((perc)*N)]
         while sum(bots_per_site) != N:
