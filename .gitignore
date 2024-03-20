@@ -18,6 +18,7 @@ det_sols_from_polynomial/sols.dat
 
 clean_version/time_evos_julia
 
+evo_to_stationary/falpha_LX1024LY1024_Q3_for_tss
 evo_to_stationary_frozen/png_for_gif
 evo_to_stationary_frozen/gifs
 
