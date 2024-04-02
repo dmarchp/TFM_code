@@ -35,12 +35,9 @@ random_bots_per_site = "N"
 bots_per_site = 35 0 0 0 0
 /
 
-&input_arena
-! Arena radius and center measured in cm
-arena_r = 20.0
-arena_x = 0.0
-arena_y = 0.0
-interac_r = 9.0
-exclusion_r = 1.5
-push = .false.
+&input_network
+! Barabasi-Albert: BA, Erdos-Renyi: 'ER', Watts-Strogatz: 'WS', ...
+nw_model = "BA"
+nw_param = 1
+
 /
