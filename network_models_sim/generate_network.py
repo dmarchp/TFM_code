@@ -16,11 +16,12 @@ def main():
         g = nwx.fast_gnp_random_graph(n=N, p=param, seed=int(datetime.now().timestamp()))
     nwx.write_edgelist(g, 'nwk.txt', data=False)
     # write auxiliary degrees file:
-    degrees = [int(round((N-1)*v,3)) for v in nwx.degree_centrality(g).values()]
+    # degrees = [int(round((N-1)*v,3)) for v in nwx.degree_centrality(g).values()]
+    degrees = [k for (id,k) in sorted(g.degree(), key=lambda pair: pair[0])]
     kfile = open('nwk_ks.txt', 'w')
     for k in degrees[:-1]:
         kfile.write(f'{k}\n')
-    kfile.write(f'{k}')
+    kfile.write(f'{degrees[-1]}')
     kfile.close()
 
 if __name__ == '__main__':

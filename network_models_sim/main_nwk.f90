@@ -8,12 +8,14 @@ program main
     integer :: seed, N_rea, stored_configurations, configuration
     integer, dimension(:), allocatable :: used_configurations
     integer :: i, j, config_int
-    logical :: config_chosen, foo_exists
+    logical :: config_chosen, foo_exists, write_indv_state
     character(5) :: file_id, config_file_id, Nstr
     character(15) :: push_folder_str
     !character(39) :: path
     character(2) :: auxi
     character(100) :: header, format_traj
+
+    write_indv_state = .false.
     
     ! INITIALIZATION ************************************************
     ! Get seed, num realizations from input:
@@ -48,7 +50,7 @@ program main
     call execute_command_line('rm header_aux.txt')
     ! format for the output trajectories:
     ! https://stackoverflow.com/questions/53447665/save-command-line-output-to-variable-in-fortran
-    write(auxi, '(I2)') 2*(N_sites+1)
+    write(auxi, '(I2)') N_sites+1
     format_traj = "(I7,"//trim(adjustl(auxi))//'(",",F16.10))'
     write(Nstr, '(I5)') N_bots
     inquire(exist=foo_exists, file='foo')
@@ -96,18 +98,19 @@ program main
         ! used_configurations(i) = config_int
         config_int = i
         write(config_file_id, '(I4.3)') config_int
-        open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_config_"//trim(adjustl(config_file_id))//"_indv_states.csv")
+        if (write_indv_state.eqv..true.) open(12, file="time_evo_rea_"//trim(adjustl(file_id))//"_config_"//&
+            trim(adjustl(config_file_id))//"_indv_states.csv")
         call generate_network()
         call get_contact_list()
         call compute_probs()
         j=0
         write(11,format_traj) j,pop_fraction(:)
-        call output_individual_state(12,j)
+        if (write_indv_state.eqv..true.) call output_individual_state(12,j)
         do j=1,max_time
             call update_system_galla()
             !call update_system()
             write(11,format_traj) j,pop_fraction(:)
-            call output_individual_state(12,j)
+            if (write_indv_state.eqv..true.) call output_individual_state(12,j)
         enddo
         close(11)
         deallocate(neighbors)
@@ -117,8 +120,8 @@ program main
     ! END SIMULATE DIFFERENT TRAJECTORIES ***************************
 
     ! group output files in a folder
-    call execute_command_line('mkdir -p time_evo_indv_states')
-    call execute_command_line('mv time_evo_rea_*_indv_states.csv time_evo_indv_states/')
+    if (write_indv_state.eqv..true.) call execute_command_line('mkdir -p time_evo_indv_states')
+    if (write_indv_state.eqv..true.) call execute_command_line('mv time_evo_rea_*_indv_states.csv time_evo_indv_states/')
     call execute_command_line('mkdir -p time_evo_csv')
     call execute_command_line('mv time_evo_rea_*.csv time_evo_csv/')
 
@@ -135,7 +138,7 @@ program main
     ! compress output folder:
     ! tar.gz, add -v for verbose
     call execute_command_line('tar -czf time_evo_csv.tar.gz time_evo_csv')
-    call execute_command_line('tar -czf time_evo_indv_states.tar.gz time_evo_indv_states')
+    if (write_indv_state.eqv..true.) call execute_command_line('tar -czf time_evo_indv_states.tar.gz time_evo_indv_states')
     ! uncompress with 'tar -xzvf time_evo.tar.gz'
     !call execute_command_line('tar -czf positions_and_contacts.tar.gz positions_and_contacts')
 
@@ -145,7 +148,7 @@ program main
 
     ! delete the folder:
     call execute_command_line('rm -r time_evo_csv')
-    call execute_command_line('rm -r time_evo_indv_states')
+    if (write_indv_state.eqv..true.) call execute_command_line('rm -r time_evo_indv_states')
     !call execute_command_line('rm -r positions_and_contacts')
     call execute_command_line('rm foo')
 

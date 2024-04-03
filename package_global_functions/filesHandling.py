@@ -22,7 +22,8 @@ def getProjectFoldername():
 
 
 def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=False, N_sites=False, N_bots=False,
-                     bots_per_site=False, ic=False, arena_r=False, interac_r = False, exclusion_r = None, push=False):
+                     bots_per_site=False, ic=False, arena_r=False, interac_r = False, exclusion_r = None, push=False,
+                     nw_model=False, nw_param=False):
     PCname = getPCname()
     if PCname == 'depaula.upc.es':
         sed_start = "sed -i'' -e "
@@ -68,6 +69,15 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=
     if push:
         sed_command = sed_start + f"'s/push.*/push = {push}/' "
         call(f'{sed_command}'+froute+fin_file, shell=True)
+    # Network simulation parameters only #
+    if nw_model:
+        sed_command = sed_start + f"'s/nw_model.*/nw_model = \"{nw_model}\"/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if nw_param:
+        sed_command = sed_start + f"'s/nw_param.*/nw_param = {nw_param}/' "
+        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if os.path.exists(froute+fin_file+'-e'):
+        call(f'rm {froute+fin_file}-e', shell=True)
 
     
 

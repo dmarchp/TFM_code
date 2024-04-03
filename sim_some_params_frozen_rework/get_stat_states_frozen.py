@@ -37,7 +37,6 @@ fin_file = 'input_template_fp.txt'
 fex_file = 'main.x'
 f_file = 'main_fp.f90'
 
-### ATENTION: as it is now the order of the columns when creating a new dataframe will be messed up!!!!!!!!!
 def simEvoQuenched_iter_lambda(pis, qs, ls, dl, Nsites, N, ar, ir, er, push, ic, max_time, Nrea, ow_geq_Nrea=True, ow_geq_simTime=False, ow_hard=False):
     '''
     Overwriting old results control:
