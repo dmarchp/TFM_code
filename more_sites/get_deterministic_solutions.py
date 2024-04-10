@@ -33,8 +33,8 @@ def sols_from_intEvo(pis, qs, l, fs0, max_time=2000):
     fs = fs0
     dt = 1
     for _ in range(max_time):
-        dfsdt = fs_evo_eq(fs,pis,qs,l)
-        fs = [f+dfdt*dt for f,dfdt in zip(fs,dfsdt)]
+            dfsdt = fs_evo_eq(fs,pis,qs,l)
+            fs = [f+dfdt*dt for f,dfdt in zip(fs,dfsdt)]
         # print(dfsdt)
         # print(fs)
         # input('enter')
