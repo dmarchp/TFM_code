@@ -14,6 +14,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 # from plotting import plotit
 
+from datetime import datetime
+
 DEBUG = False
 listA = []
 listB = []
@@ -193,14 +195,16 @@ def runGillespie(state, T, N, gammas, alphas, rhos, sigmas, rnd_seed, finalState
         # update time variable
         t += time_step
         # update SPD matrix which keeps track of the time spent in each state
-        spd[int(previous_state[0])][int(previous_state[1])] += time_step
+        # spd[int(previous_state[0])][int(previous_state[1])] += time_step # original code line
+        spd[int(previous_state[1])][int(previous_state[2])] += time_step
         # evoStream.write(out)
         # if (temporalEvolution != "none"):
         # if (t>1000000):#999000
         out = str(t) + "\t" + '\t'.join(str(x) for x in state) + "\t" + str(noisevalue) + "\n"
         # print(out)
         # out = str(t) + "\t" + '\t'.join(str(x) for x in state) + "\t"
-        evoStream.write(out)
+        if temporalEvolution != 'none':
+            evoStream.write(out)
         #   #print("t: ", t, "state: ", state)
         """
         if whichAvg == "Aavg":
@@ -264,10 +268,16 @@ def runGillespie(state, T, N, gammas, alphas, rhos, sigmas, rnd_seed, finalState
 
 
 ##################################################
+#arguments
+# valuesA Z whichrun T plot_evo noisevalue N noisetype
+# help: whichrun -> (Afull/Bfull/ABequi)
+#       T -> minutes
+#       noisetype: typA noise allows transitions bt A<->B, typeB allows transitions between A<->U, B<->U
+
 
 if __name__ == '__main__':
 
-    repetitions = 5
+    repetitions = 10
 
     # Computing input params
     #     valuesA = np.arange(7.5, 13, 0.5)
@@ -325,10 +335,13 @@ if __name__ == '__main__':
             sigmas = [h * valueA] + [h * valueB] * (n - 1)
             for i in range(0, repetitions):
                 # temporalEvolution = 'none'
-                temporalEvolution = 'popevocdci/evo-N' + str(N) + '-v' + str(valueA) + "-" + str(valueB) + "-" + str(Z) + "-" + str(whichrun) + "-rep-" + str(i) + '.txt'
-                rnd_seed = np.random.randint(4294965)
-                #rnd_seed = 43431
-                # print(rnd_seed)
+                # temporalEvolution = 'popevocdci/evo-N' + str(N) + '-v' + str(valueA) + "-" + str(valueB) + "-" + str(Z) + "-" + str(whichrun) + "-rep-" + str(i) + '.txt'
+                if plot_evo:
+                    temporalEvolution = 'popevocdci/evo-N' + str(N) + '-v' + str(valueA) + "-" + str(valueB) + "-" + str(Z) + "-" + str(whichrun) + "-rep-" + str(i) + '.txt'
+                else:
+                    temporalEvolution = 'none'
+                # rnd_seed = np.random.randint(4294965)
+                rnd_seed = np.random.seed(datetime.now().timestamp())
                 S = N - Z
                 if whichrun == "Afull":
                     SA = S
@@ -368,3 +381,12 @@ for a in range(int(sum(state[0:3])) + 1):
         spd[a][b] /= repetitions * T
 print(np.array(spd))
 #print(spd, file=open("/content/drive/MyDrive/matrixforGillcdci/outputofspd_10zealots_qr1check.txt", "a"))
+
+print_spd = True
+if print_spd:
+    spd = np.array(spd)
+    xgrid, ygrid = np.mgrid[0:(spd.shape[0]):complex(0,(spd.shape[0])), 0:(spd.shape[1]):complex(0,(spd.shape[1]))]
+    fig, ax = plt.subplots(1,1, figsize=(4,4), constrained_layout=True)
+    ax.set(xlabel='occupation state A', ylabel='occupation state B')
+    im = ax.pcolormesh(xgrid, ygrid, spd, cmap='Purples', shading='nearest', rasterized=True)
+    fig.savefig('provant.png')
