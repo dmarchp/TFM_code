@@ -79,5 +79,34 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=
     if os.path.exists(froute+fin_file+'-e'):
         call(f'rm {froute+fin_file}-e', shell=True)
 
+
+# bots per site simulation input (not exactly files handling but ok...)
+def prepare_ic(N, Nsites, ic):
+    bots_per_site = [0]*(Nsites+1)
+    if ic == 'N':
+        bots_per_site[0] = N
+    elif ic == 'E':
+        bots_per_site[1:] = [int(N/Nsites)]*Nsites
+        remaining = N%Nsites
+        bots_per_site[1:1+remaining] = [b+1 for b in bots_per_site[1:1+remaining]]
+    elif ic == 'E0':
+        bots_per_site = [int(N/(Nsites+1))]*(Nsites+1)
+        remaining = N%(Nsites+1)
+        bots_per_site[0:0+remaining] = [b+1 for b in bots_per_site[0:0+remaining]]
+    elif ic[0] == 'p': # inputs such as p50-25-25
+        icClean = ic[1:]
+        props = [int(p) for p in icClean.split('-')]
+        sumProps = sum(props)
+        if sumProps != 100:
+            print('Problem setting the initial condition!!')
+            return
+        bots_per_site = [int(p*N/100) for p in props]
+        remaining = (N-sum(bots_per_site))%(Nsites+1)
+        bots_per_site[0:0+remaining] = [b+1 for b in bots_per_site[0:0+remaining]]
+        # comprova que no la liis!!
+        if sum(bots_per_site) != N:
+            print('Bad generation of bots per site!!!!!')
+    return bots_per_site
+
     
 

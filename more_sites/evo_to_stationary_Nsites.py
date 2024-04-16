@@ -28,6 +28,8 @@ fin_file = 'input_template.txt'
 fex_file = 'main.x'
 f_file = 'main.f90'
 
+
+# legacy; this function should be imported from global_package (filesHandpling.py). Any change should be made there !!!!
 def prepare_ic(N, Nsites, ic):
     bots_per_site = [0]*(Nsites+1)
     if ic == 'N':
@@ -40,6 +42,19 @@ def prepare_ic(N, Nsites, ic):
         bots_per_site = [int(N/(Nsites+1))]*(Nsites+1)
         remaining = N%(Nsites+1)
         bots_per_site[0:0+remaining] = [b+1 for b in bots_per_site[0:0+remaining]]
+    elif ic[0] == 'p': # inputs such as p50-25-25
+        icClean = ic[1:]
+        props = [int(p) for p in icClean.split('-')]
+        sumProps = sum(props)
+        if sumProps != 100:
+            print('Problem setting the initial condition!!')
+            return
+        bots_per_site = [int(p*N/100) for p in props]
+        remaining = (N-sum(bots_per_site))%(Nsites+1)
+        bots_per_site[0:0+remaining] = [b+1 for b in bots_per_site[0:0+remaining]]
+        # comprova que no la liis!!
+        if sum(bots_per_site) != N:
+            print('Bad generation of bots per site!!!!!')
     return bots_per_site
 
 def simEvo(pis, qs, l, N, Nsites, ic, bots_per_site, max_time, Nrea):

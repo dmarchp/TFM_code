@@ -30,6 +30,9 @@ frozen_positions/
 
 frozen_positions_new/positions_and_contacts
 
+gillespie_sim_ci/time_evo_rea*.csv
+gillespie_sim_ci/time_evo_rea*.png
+
 limit_lambda_1/
 power_spectrum/
 power_spectrum_PRL/
