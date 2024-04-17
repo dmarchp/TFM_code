@@ -3,6 +3,7 @@ from datetime import datetime
 import argparse
 import copy
 import sys
+from subprocess import call
 sys.path.append('../')
 from package_global_functions import *
 # from more_sites import prepare_ic
@@ -102,54 +103,73 @@ if __name__ == '__main__':
     parser.add_argument('-qs', help='qs, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-l', help='lambda', type=float)
     parser.add_argument('-lci', help='lambda ci', type=float)
+    parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[1.0, ])
     parser.add_argument('-N', type=int, help='Number of agents')
     parser.add_argument('-maxTime', type=float, help='simulation time')
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
+    parser.add_argument('-time_evo', type=bool, help='True: save time evos', default=False)
+    parser.add_argument('-final_state', type=bool, help="True: print each rea's final state", default=True)
     args = parser.parse_args()
-    pis, qs, l, lci, N, maxTime, Nrea, ic = args.pis, args.qs, args.l, args.lci, args.N, args.maxTime, args.Nrea, args.ic
-    ci_kwargs = ['sigmoid1', 0.5, 50 ]
+    pis, qs, l, lci, ci_kwargs, N, maxTime, Nrea, ic, saveTimeEvo = args.pis, args.qs, args.l, args.lci, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic, args.time_evo
+    printFinalState = args.final_state
+    # ci_kwargs = ['sigmoid1', 0.5, 50 ]
+    # ci_kwargs = ['lin', ]
+    ci_kwargs[0] = int(ci_kwargs[0])
     if len(pis) != len(qs):
         print('Input number of pis different from qualities. Aborting.')
         exit()
     Nsites = len(pis)
-    # assing the initial condition
+    #### assing the initial condition ####
     bots_per_site = prepare_ic(N, Nsites, ic)
-    # initiate random number generator
-    # old way; should not be used:
+    #### initiate random number generator
+    ## old way; should not be used: ##
     # rnd_seed = int(datetime.now().timestamp())
     # np.random.seed(rnd_seed)
-    # better instead used this: this generator is globaly seen by the gillespie step function (is passed as an argument to the gillespie step function)
+    ## better instead used this: this generator is globaly seen by the gillespie step function (is/WAS passed as an argument to the gillespie step function) ##
     rng = np.random.default_rng(seed=int(datetime.now().timestamp()))
-    # run gillespie
+    #### RUN GILLESPIE SIMULATIONS ####
     # fsavg = [0.0]*(Nsites+1)
     fsavg_rea = [[] for i in range(Nsites+1)]
+    if saveTimeEvo:
+        evosFolder = 'sim_results_evos'
+        call(f'mkdir -p {evosFolder}/', shell=True)
     for i in range(Nrea):
-        # print(f'Simulation {i}, initial state: ', bots_per_site)
-        # finalState = LESgillespieSim(bots_per_site)
-        finalState, dfevo = LESgillespieSim(bots_per_site, save_time_evo=True)
-        finalStatefs = [s/N for s in finalState]
+        if saveTimeEvo:
+            finalState, dfevo = LESgillespieSim(bots_per_site, save_time_evo=True)
+            dfevo.to_csv(f'{evosFolder}/time_evo_rea_{i}.csv', index=False)
+        else:
+            finalState = LESgillespieSim(bots_per_site)
+        if printFinalState:
+            finalStatefs = [s/N for s in finalState]
+            print(*finalStatefs)
         # print(f'Simulation {i}, final state:', finalStatefs)
         # for j in range(Nsites+1):
             # fsavg[j] += finalStatefs[j]
-        # plot time evos:
+
+        #### plot time evos:
         fig, ax = plt.subplots(1,1,constrained_layout=True)
         ax.set(xlabel='time', ylabel=r'$f_j$')
         ax.plot(dfevo['time'], dfevo['f0'], color='r')
         ax.plot(dfevo['time'], dfevo['f1'], color='g')
         ax.plot(dfevo['time'], dfevo['f2'], color='b')
         fig.savefig(f'time_evo_rea_{i}.png')
-        dfevo.to_csv(f'time_evo_rea_{i}.csv', index=False)
-        # compute averages with last 20% of timesteps
-        timeForAvg = maxTime - 0.2*maxTime
-        dfevo = dfevo.query('time >= @timeForAvg')
-        for j in range(Nsites+1):
-            fsavg_rea[j].append(np.average(dfevo[f'f{j}']))
+        
+        #### compute averages with last 20% of timesteps
+        # timeForAvg = maxTime - 0.2*maxTime
+        # dfevo = dfevo.query('time >= @timeForAvg')
+        # for j in range(Nsites+1):
+        #     fsavg_rea[j].append(np.average(dfevo[f'f{j}']))
+
     # average only over the final step:
     # fsavg = [fsum/Nrea for fsum in fsavg]
     # print(f'Final averages over {Nrea} simulations: ', fsavg)
-    # (averages, std error) over the final 20% of the time evolution:
-    fsavg2 = np.array([(np.average(fsavg_rea[i]), np.std(fsavg_rea[i])) for i in range(Nsites+1)])
-    print(f'Final averages: ', fsavg2[:,0])
-    
 
+    #### (averages, std error) over the final 20% of the time evolution:
+    # fsavg2 = np.array([(np.average(fsavg_rea[i]), np.std(fsavg_rea[i])) for i in range(Nsites+1)])
+    # print(f'Final averages: ', fsavg2[:,0])
+    # print(f'SEM: ', fsavg2[:,1]/np.sqrt(Nrea))
+    
+    if saveTimeEvo:
+        call(f'tar -czf {evosFolder}.tar.gz {evosFolder}', shell=True)
+        call(f'rm -r {evosFolder}', shell=True)

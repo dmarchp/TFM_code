@@ -1,7 +1,7 @@
 module system_parameters
     ! To read from input constants
-    integer :: N_bots, N_sites, max_time
-    real(8) :: lambda, q0, lambda_ci
+    integer :: N_bots, N_sites, max_time, cimode
+    real(8) :: lambda, q0, lambda_ci, ci_a, ci_x0
     ! To allocate & read from input arrays
     real(8), dimension(:), allocatable :: bots_per_site
     real(8), dimension(:), allocatable :: pi, q, r
@@ -18,7 +18,7 @@ module system_parameters
       implicit none
       integer, intent(in) :: input_unit
       integer :: errstat
-      namelist /input_cts/ N_bots, N_sites, max_time, lambda, q0, lambda_ci
+      namelist /input_cts/ N_bots, N_sites, max_time, lambda, q0, lambda_ci, cimode, ci_a, ci_x0
       ! Read inputs:
       read(unit=input_unit, nml=input_cts, iostat=errstat)
       if (errstat > 0) then

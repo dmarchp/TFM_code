@@ -19,12 +19,33 @@ module SSA
         !read(*,*)
     end subroutine compute_probs
 
+    real(8) function cross_in_func(x,cimode)
+        real(8), intent(in) :: x
+        integer, intent(in) :: cimode
+        if (cimode.eq.1) then
+            cross_in_func = x
+        else if (cimode.eq.2) then
+            cross_in_func = 1d0/(1d0 + dexp(-ci_a*(x-ci_x0)))
+        endif
+    end function cross_in_func
+
     subroutine compute_cross_in_probs()
         implicit none
-        integer i
-        do i=1,N_sites
+        integer i, j
+        ! old:
+        !do i=1,N_sites
             ! probs_ci(i) = lambda_ci*pop_fraction(i)*(1-pop_fraction(0)-pop_fraction(i))
-            probs_ci(i) = lambda_ci*(1d0-pop_fraction(0)-pop_fraction(i))
+        !    probs_ci(i) = lambda_ci*(1d0-pop_fraction(0)-pop_fraction(i))
+        !enddo
+        ! new:
+        probs_ci = 0d0
+        do i=1,N_sites
+            do j=1,N_sites
+                if (i.ne.j) then
+                    ! probs_ci(i) = probs_ci(i) + lambda_ci*pop_fraction(i)*cross_in_func(pop_fraction(j),cimode)
+                    probs_ci(i) = probs_ci(i) + lambda_ci*cross_in_func(pop_fraction(j),cimode)
+                endif
+            enddo
         enddo
         ! print*, probs_ci
         ! read(*,*)

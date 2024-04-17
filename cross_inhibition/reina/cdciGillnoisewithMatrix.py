@@ -258,7 +258,7 @@ def runGillespie(state, T, N, gammas, alphas, rhos, sigmas, rnd_seed, finalState
             print(
                 "WARNING! - to plot the temporal evolution, please specify a temporalEvolution file (e.g., a temp-file)")
         else:
-            df = pd.read_csv(temporalEvolution, sep='\s+', names=['t', 'U', 'A', 'B', 'ZA', 'ZB', 'noise'])
+            df = pd.read_csv(temporalEvolution, sep='\s+', )
             fig, ax = plt.subplots(constrained_layout=True)
             ax.plot(df['t'], df['U'])
             ax.plot(df['t'], df['A'])
