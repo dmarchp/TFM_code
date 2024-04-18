@@ -13,12 +13,12 @@ import matplotlib.pyplot as plt
 
 
 def cross_in_func(pop,*kwargs):
-    if not kwargs or kwargs[0] == 1 or kwargs[0] == 'lin':
+    if not kwargs or kwargs[0] == 0 or kwargs[0] == 'lin':
         return pop
-    elif kwargs[0] == 2 or kwargs[0] == 'sigmoid1':
+    elif kwargs[0] == 1 or kwargs[0] == 'sigmoid1':
         x0, a = kwargs[1], kwargs[2]
         return 1/(1+np.exp(-a*(pop-x0)))
-    elif kwargs[0] == 3 or kwargs[0] == 'sigmoid2':
+    elif kwargs[0] == 2 or kwargs[0] == 'sigmoid2':
         x0, a = kwargs[1], kwargs[2]
         return 2*pop/(1+np.exp(-a*(pop-x0)))
 
@@ -55,7 +55,17 @@ def LESgillespieStep(state, vectorsOfChange, timeLeft):
         bottom += prob
     if (indexSelReac == -1):
         print('Problem in selecting a reaction!')
-    state += np.array(vectorsOfChange[indexSelReac])
+    # print(vectorsOfChange)
+    # print(indexSelReac)
+    # input('enter ')
+    try:
+        state += np.array(vectorsOfChange[indexSelReac])
+    except IndexError:
+        print(indexSelReac)
+        print(probabilitiesOfChange)
+        print(randReac)
+        print(state)
+        input('enter ')
     return False, timeInterval
 
 
@@ -67,11 +77,12 @@ def LESgillespieSim(initial_state,save_time_evo=False):
     vectorsOfChange = []
     for i in range(1,Nsites+1):
         # possible transitions: discovery, abandonment, recruitment, cross-inhibition
-        for j in range(4):
+        for j in range(3+Nsites-1): # disc, aband, recruit, and Nsites cross inhs
             vec_change = [0]*(Nsites+1)
             if j==0 or j==2: # discovery, abandonment
                 vec_change[0], vec_change[i] = -1, +1
-            if j==1 or j==3: # abandoment, cross-inhibition
+            # if j==1 or j==3: # abandoment, cross-inhibition
+            else:
                 vec_change[0], vec_change[i] = +1, -1
             vectorsOfChange.append(vec_change)
     if save_time_evo:
@@ -109,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     parser.add_argument('-time_evo', type=bool, help='True: save time evos', default=False)
+    parser.add_argument('-time_evo_plot', type=bool, help='True: plot time evos; -time_evo must also be true', default=False)
     parser.add_argument('-final_state', type=bool, help="True: print each rea's final state", default=True)
     args = parser.parse_args()
     pis, qs, l, lci, ci_kwargs, N, maxTime, Nrea, ic, saveTimeEvo = args.pis, args.qs, args.l, args.lci, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic, args.time_evo
@@ -148,12 +160,17 @@ if __name__ == '__main__':
             # fsavg[j] += finalStatefs[j]
 
         #### plot time evos:
-        fig, ax = plt.subplots(1,1,constrained_layout=True)
-        ax.set(xlabel='time', ylabel=r'$f_j$')
-        ax.plot(dfevo['time'], dfevo['f0'], color='r')
-        ax.plot(dfevo['time'], dfevo['f1'], color='g')
-        ax.plot(dfevo['time'], dfevo['f2'], color='b')
-        fig.savefig(f'time_evo_rea_{i}.png')
+        if args.time_evo_plot == True:
+            if Nsites == 2:
+                colors = ['xkcd:red', 'xkcd:green', 'xkcd:blue']
+            if Nsites == 3:
+                colors = ['xkcd:red', 'xkcd:orange', 'xkcd:green', 'xkcd:blue']
+            fig, ax = plt.subplots(1,1,constrained_layout=True)
+            ax.set(xlabel='time', ylabel=r'$f_j$')
+            ax.plot(dfevo['time'], dfevo['f0'], color=colors[0])
+            for j in range(1,Nsites+1):
+                ax.plot(dfevo['time'], dfevo[f'f{j}'], color=colors[i])
+            fig.savefig(f'time_evo_rea_{i}.png')
         
         #### compute averages with last 20% of timesteps
         # timeForAvg = maxTime - 0.2*maxTime
