@@ -11,6 +11,9 @@ from package_global_functions import *
 # mentres faig proves
 import matplotlib.pyplot as plt
 
+# sample exec command if u feel lazy
+# python LES_model_gill.py -pis 0.1,0.1 -qs 9.0,10.0 -l 0.8 -lci 0.9 -N 500 -maxTime 150.0  -Nrea 10 -ic p10-0-90 -time_evo True -time_evo_plot True -ci_kwargs 1,0.35,40
+
 
 def cross_in_func(pop,*kwargs):
     if not kwargs or kwargs[0] == 0 or kwargs[0] == 'lin':
@@ -30,11 +33,13 @@ def LESgillespieStep(state, vectorsOfChange, timeLeft):
         # abandonment of option i+1:
         probabilitiesOfChange.append(1/qs[i]*state[i+1])
         # recruitment of uncom's by option i+1
-        probabilitiesOfChange.append(l*state[0]*state[i+1]/(N-1))
-        # cross-inhibition of different options to option i+1
+        # probabilitiesOfChange.append(l*state[0]*state[i+1]/(N-1))
+        probabilitiesOfChange.append(l*state[0]*state[i+1]/N)
+        # cross-inhibition of different options to option i+1; mind that as cross_in_func is being used this prob shall not be divided by N
         for j in range(Nsites):
             if i != j:
-                probabilitiesOfChange.append(lci*state[i+1]*cross_in_func(state[j+1], *ci_kwargs)/(N-1))
+                # probabilitiesOfChange.append(lci*state[i+1]*cross_in_func(state[j+1], *ci_kwargs)/(N-1))
+                probabilitiesOfChange.append(lci*state[i+1]*cross_in_func(state[j+1]/N, *ci_kwargs))
     probSum = sum(probabilitiesOfChange)
     # timeInterval = np.random.exponential(1/probSum)
     timeInterval = rng.exponential(1/probSum)
@@ -114,7 +119,7 @@ if __name__ == '__main__':
     parser.add_argument('-qs', help='qs, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-l', help='lambda', type=float)
     parser.add_argument('-lci', help='lambda ci', type=float)
-    parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[1.0, ])
+    parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[0, ])
     parser.add_argument('-N', type=int, help='Number of agents')
     parser.add_argument('-maxTime', type=float, help='simulation time')
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
@@ -169,7 +174,7 @@ if __name__ == '__main__':
             ax.set(xlabel='time', ylabel=r'$f_j$')
             ax.plot(dfevo['time'], dfevo['f0'], color=colors[0])
             for j in range(1,Nsites+1):
-                ax.plot(dfevo['time'], dfevo[f'f{j}'], color=colors[i])
+                ax.plot(dfevo['time'], dfevo[f'f{j}'], color=colors[j])
             fig.savefig(f'time_evo_rea_{i}.png')
         
         #### compute averages with last 20% of timesteps
