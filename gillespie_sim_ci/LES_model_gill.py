@@ -15,12 +15,30 @@ import matplotlib.pyplot as plt
 # python LES_model_gill.py -pis 0.1,0.1 -qs 9.0,10.0 -l 0.8 -lci 0.9 -N 500 -maxTime 150.0  -Nrea 10 -ic p10-0-90 -time_evo True -time_evo_plot True -ci_kwargs 1,0.35,40
 
 
+# def cross_in_func(pop,*kwargs):
+#     if not kwargs or kwargs[0] == 0 or kwargs[0] == 'lin':
+#         return pop
+#     elif kwargs[0] == 1 or kwargs[0] == 'sigmoid1':
+#         x0, a = kwargs[1], kwargs[2]
+#         return 1/(1+np.exp(-a*(pop-x0)))
+#     elif kwargs[0] == 2 or kwargs[0] == 'sigmoid2':
+#         x0, a = kwargs[1], kwargs[2]
+#         return 2*pop/(1+np.exp(-a*(pop-x0)))
+
 def cross_in_func(pop,*kwargs):
+    ### kwargs ###
+    # first: linear, sigmoid 1 or 2...
+    # second: x0
+    # third: a
+    # fouth: make superior part of the sigmoid linear (True) or not
     if not kwargs or kwargs[0] == 0 or kwargs[0] == 'lin':
         return pop
     elif kwargs[0] == 1 or kwargs[0] == 'sigmoid1':
         x0, a = kwargs[1], kwargs[2]
-        return 1/(1+np.exp(-a*(pop-x0)))
+        cival = 1/(1+np.exp(-a*(pop-x0))) 
+        if len(kwargs) == 4 and kwargs[3]:
+            cival = min(cival, pop)
+        return cival
     elif kwargs[0] == 2 or kwargs[0] == 'sigmoid2':
         x0, a = kwargs[1], kwargs[2]
         return 2*pop/(1+np.exp(-a*(pop-x0)))
