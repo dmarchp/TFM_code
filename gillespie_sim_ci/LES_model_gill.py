@@ -92,7 +92,8 @@ def LESgillespieStep(state, vectorsOfChange, timeLeft):
     return False, timeInterval
 
 
-def LESgillespieSim(initial_state,save_time_evo=False):
+def LESgillespieSim(initial_state, save_time_evo=False, avg_last_perc=0.2):
+    # avg_last_perc = fraction of maxTime to save data for avgs
     # global Nsites
     state = np.array(initial_state)
     t = 0
@@ -112,23 +113,31 @@ def LESgillespieSim(initial_state,save_time_evo=False):
         time_evo = [[0.0],]
         aux = [[state[i]/N, ] for i in range(Nsites+1)]
         time_evo.extend(aux)
+    state_ss_avg = [[], [], []]
     while t < maxTime:
         # prevState = copy.deepcopy(state)
         simFinished, timeStep = LESgillespieStep(state, vectorsOfChange, maxTime-t)
         t += timeStep
+        # Save whole time evolution:
         if save_time_evo:
             time_evo[0].append(t)
             for i in range(1,Nsites+2):
                 time_evo[i].append(state[i-1]/N)
+        # Save values for compute stationary state averages:
+        if t > maxTime*(1-avg_last_perc):
+            for i in range(Nsites+1):
+                state_ss_avg[i].append(state[i])
         if simFinished:
             break
+    for i in range(Nsites+1):
+        state_ss_avg[i] = np.average(state_ss_avg[i])
     if save_time_evo:
         dfevo = pd.DataFrame({'time':time_evo[0]})
         for i in range(1,Nsites+2):
             dfevo[f'f{i-1}'] = time_evo[i]
-        return state, dfevo
+        return state, state_ss_avg, dfevo
     else:
-        return state
+        return state, state_ss_avg
 
 
 if __name__ == '__main__':
@@ -171,13 +180,15 @@ if __name__ == '__main__':
         call(f'mkdir -p {evosFolder}/', shell=True)
     for i in range(Nrea):
         if saveTimeEvo:
-            finalState, dfevo = LESgillespieSim(bots_per_site, save_time_evo=True)
+            finalState, ssAvgState, dfevo = LESgillespieSim(bots_per_site, save_time_evo=True)
             dfevo.to_csv(f'{evosFolder}/time_evo_rea_{i}.csv', index=False)
         else:
-            finalState = LESgillespieSim(bots_per_site)
+            finalState, ssAvgState = LESgillespieSim(bots_per_site)
         if printFinalState:
             finalStatefs = [s/N for s in finalState]
-            print(*finalStatefs)
+            ssAvgStatefs = [s/N for s in ssAvgState]
+            # print(*finalStatefs)
+            print(f'Final State: {finalStatefs}     SS Averages: {ssAvgStatefs}')
         # print(f'Simulation {i}, final state:', finalStatefs)
         # for j in range(Nsites+1):
             # fsavg[j] += finalStatefs[j]
