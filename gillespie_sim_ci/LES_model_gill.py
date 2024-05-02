@@ -51,7 +51,7 @@ def cross_in_func(pop,*kwargs):
         return cival
     elif kwargs[0] == 2 or kwargs[0] == 'sigmoid2':
         x0, a = kwargs[1], kwargs[2]
-        return 2*pop/(1+np.exp(-a*(pop-x0)))
+        return pop/(1+np.exp(-a*(pop-x0)))
 
 def LESgillespieStep(state, vectorsOfChange, timeLeft):
     probabilitiesOfChange = []
@@ -170,18 +170,15 @@ if __name__ == '__main__':
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     # boolean arguments 
-    # parser.add_argument('-time_evo', type=bool, help='True: save time evos', default=False)
-    # parser.add_argument('-time_evo_plot', type=bool, help='True: plot time evos; -time_evo must also be true', default=False)
-    # parser.add_argument('-final_state', type=bool, help="True: print each rea's final state", default=True)
-    # parser.add_argument('-ss_data', type=bool, help='Save SS values in a dataframe', default=False)
-    # redesign:
     parser.add_argument('--final_state', type=bool, help='Print each realization final state', action=argparse.BooleanOptionalAction)
     parser.add_argument('--ss_data', type=bool, help='Save SS values in a dataframe', action=argparse.BooleanOptionalAction)
     parser.add_argument('--time_evo', type=bool, help='Save time evolutions as df', action=argparse.BooleanOptionalAction)
     parser.add_argument('--time_evo_plot', type=bool, help='Plot time evolutions', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     pis, qs, l, lci, ci_kwargs, N, maxTime, Nrea, ic = args.pis, args.qs, args.l, args.lci, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic
-    saveTimeEvo, printFinalState, saveSSdata = args.time_evo, args.final_state, args.ss_data
+    saveTimeEvo, plotTimeEvo, printFinalState, saveSSdata = args.time_evo, args.time_evo_plot, args.final_state, args.ss_data
+    if plotTimeEvo and not saveTimeEvo:
+        saveTimeEvo = True
     # ci_kwargs = ['sigmoid1', 0.5, 50 ]
     # ci_kwargs = ['lin', ]
     ci_kwargs[0] = int(ci_kwargs[0])
@@ -226,7 +223,7 @@ if __name__ == '__main__':
             # fsavg[j] += finalStatefs[j]
 
         #### plot time evos:
-        if args.time_evo_plot == True:
+        if plotTimeEvo == True:
             if Nsites == 2:
                 colors = ['xkcd:red', 'xkcd:green', 'xkcd:blue']
             if Nsites == 3:
@@ -247,7 +244,7 @@ if __name__ == '__main__':
             ssDF[f'f{i}'] = ssDataPool[i]
         ssDF = pd.DataFrame(ssDF)
         ssDF.to_csv(resPath + '/' + ssData_fname, index=False)
-        # save it to external drive:
+
 
         
         #### compute averages with last 20% of timesteps

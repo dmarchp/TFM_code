@@ -31,7 +31,12 @@ frozen_positions/
 frozen_positions_new/positions_and_contacts
 
 gillespie_sim_ci/time_evo_rea*.csv
+gillespie_sim_ci/sim_results_evos.tar.gz
 gillespie_sim_ci/time_evo_rea*.png
+
+gillespie_sim_ci_Reina/time_evo_rea*.csv
+gillespie_sim_ci_Reina/sim_results_evos.tar.gz
+gillespie_sim_ci_Reina/time_evo_rea*.png
 
 limit_lambda_1/
 power_spectrum/

@@ -179,8 +179,10 @@ def runGillespie(state, T, N, gammas, alphas, rhos, sigmas, rnd_seed, finalState
         # Cross-inhibition from zealot
         for _ in range(n - 1):
             vectorsOfChange.append(negative)
-
+        
+        # what in the paper the call noise type 2...
         vectorsOfChange.append(noisetrans1)
+        # what in the paper they call noise type 1...
         vectorsOfChange.append(noisetrans2)
         vectorsOfChange.append(noisediscovery)
         ## vectorsOfChange for the case n=2        ## plusDicoveryOfA  minusAbandonmentOfA  plusRecruitA  plusInhibitionA plusRecruitFromZealotA  plusInhibitionFromZealotA  plusDicoveryOfB minusAbandonmentOfB  plusRecruitB  plusInhibitionB plusRecruitFromZealotB  plusInhibitionFromZealotB
