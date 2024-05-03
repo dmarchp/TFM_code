@@ -162,7 +162,7 @@ if __name__ == '__main__':
     parser.add_argument('-N', type=int, help='Number of agents')
     parser.add_argument('-maxTime', type=float, help='simulation time')
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
-    parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
+    parser.add_argument('-ic', type=str, help="Initial conditions. specific format: e.g. p50-25-25, else use N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     # boolean arguments 
     parser.add_argument('--final_state', type=bool, help='Print each realization final state', action=argparse.BooleanOptionalAction)
     parser.add_argument('--ss_data', type=bool, help='Save SS values in a dataframe', action=argparse.BooleanOptionalAction)
