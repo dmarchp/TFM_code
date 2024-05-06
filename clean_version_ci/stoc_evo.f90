@@ -26,6 +26,8 @@ module SSA
             cross_in_func = x
         else if (cimode.eq.2) then
             cross_in_func = 1d0/(1d0 + dexp(-ci_a*(x-ci_x0)))
+        else if (cimode.eq.3) then
+            cross_in_func = x/(1d0 + dexp(-ci_a*(x-ci_x0)))
         endif
     end function cross_in_func
 

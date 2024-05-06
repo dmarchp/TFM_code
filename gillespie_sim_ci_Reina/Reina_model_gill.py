@@ -193,7 +193,7 @@ if __name__ == '__main__':
     if saveSSdata:
         qchain = '_'.join([str(q) for q in qs])
         ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-        ssData_fname = f'sim_qs_{qchain}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv'
+        ssData_fname = f'sim_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv'
         ssDataPool = [[] for i in range(Nsites+1)]
     ##### START REALIZATIONS LOOP #####
     for i in range(Nrea):
