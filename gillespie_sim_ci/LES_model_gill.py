@@ -21,8 +21,7 @@ if os.path.exists(extSSDpath):
 else:
     resPath = '/results'
 
-if not os.path.exists(resPath):
-    call(f'mkdir -p {resPath}', shell=True)
+
 
 
 # def cross_in_func(pop,*kwargs):
@@ -238,6 +237,8 @@ if __name__ == '__main__':
 
     ### save stationary state distribution:
     if saveSSdata:
+        if not os.path.exists(resPath):
+            call(f'mkdir -p {resPath}', shell=True)
         ssDF = {}
         ssDataPool = np.array(ssDataPool)/N
         for i in range(Nsites+1):
