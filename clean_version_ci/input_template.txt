@@ -9,15 +9,15 @@
 &input_cts
 
 ! System
-N_bots = 500
+N_bots = 1000
 N_sites = 2
 max_time = 3000
 
 ! Interdependence:
-lambda = 0.6
+lambda = 0.2
 ! cross inhibition parameters:
 lambda_ci = 1.0
-cimode = 3
+cimode = 1
 ci_a = 10.0
 ci_x0 = 0.3
 
@@ -38,7 +38,7 @@ q(:) = 9.0 10.0
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P), pi hard (Phard). If yes/uniform/pi/pihard what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 500 0 0
+bots_per_site = 1000 0 0
 
 /
 
