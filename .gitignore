@@ -33,6 +33,10 @@ frozen_positions_new/positions_and_contacts
 gillespie_sim_ci/time_evo_rea*.csv
 gillespie_sim_ci/sim_results_evos.tar.gz
 gillespie_sim_ci/time_evo_rea*.png
+gillespie_sim_ci/sim_results_evos*
+gillespie_sim_ci/sim_results_evos*.tar.gz
+gillespie_sim_ci/winprobs*.dat
+gillespie_sim_ci/sols*.dat
 
 gillespie_sim_ci_Reina/time_evo_rea*.csv
 gillespie_sim_ci_Reina/sim_results_evos.tar.gz
