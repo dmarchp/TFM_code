@@ -13,7 +13,7 @@ from package_global_functions import *
 import matplotlib.pyplot as plt
 
 # sample exec command if u feel lazy
-# python LES_model_gill.py -pis 0.1,0.1 -qs 9.0,10.0 -l 0.8 -lci 0.9 -N 500 -maxTime 150.0  -Nrea 10 -ic p10-0-90 -time_evo True -time_evo_plot True -ci_kwargs 1,0.35,40
+# python LES_model_Gill_autoStop.py -pis 0.1,0.1 -qs 8.0,10.0 -l 0.1 -lci 1.0 -N 1000 -maxTime 100.0 -Nrea 10000 -ic N -ci_kwargs 2,0.3,10.0 --save_win_count
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -185,8 +185,8 @@ if __name__ == '__main__':
     ##### START REALIZATIONS LOOP #####
     countsWinner = [0, 0]
     for i in range(Nrea):
-        # if i%500 == 0:
-        #     print(f'exec rea {i}')
+        if i%500 == 0:
+            print(f'exec rea {i}')
         finalState = LESgillespieSim(bots_per_site)
         if printFinalState:
             finalStatefs = [s/N for s in finalState]

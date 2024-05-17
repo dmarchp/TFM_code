@@ -45,7 +45,9 @@ def REINAgillespieStep(state, vectorsOfChange, timeLeft):
         for j in range(Nsites):
             if i != j:
                 # probabilitiesOfChange.append(lci*state[i+1]*cross_in_func(state[j+1], *ci_kwargs)/(N-1))
-                probabilitiesOfChange.append(state[i+1]*qs[j]*cross_in_func(state[j+1]/N, *ci_kwargs))
+                # probabilitiesOfChange.append(state[i+1]*qs[j]*cross_in_func(state[j+1]/N, *ci_kwargs))
+                # what if cross inhibition is not quality modulated
+                probabilitiesOfChange.append(state[i+1]*cross_in_func(state[j+1]/N, *ci_kwargs))
         # noise type 1 discovery
         probabilitiesOfChange.append(state[0]*noise1)
         # noise type 1 abandonment

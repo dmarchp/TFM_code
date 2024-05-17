@@ -41,6 +41,7 @@ gillespie_sim_ci/sols*.dat
 gillespie_sim_ci_Reina/time_evo_rea*.csv
 gillespie_sim_ci_Reina/sim_results_evos.tar.gz
 gillespie_sim_ci_Reina/time_evo_rea*.png
+gillespie_sim_ci_Reina/evos_qs_*/*
 
 limit_lambda_1/
 power_spectrum/
