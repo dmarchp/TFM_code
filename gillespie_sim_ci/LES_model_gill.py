@@ -13,7 +13,7 @@ from package_global_functions import *
 import matplotlib.pyplot as plt
 
 # sample exec command if u feel lazy
-# python LES_model_gill.py -pis 0.1,0.1 -qs 9.0,10.0 -l 0.8 -lci 0.9 -N 500 -maxTime 150.0  -Nrea 10 -ic p10-0-90 -time_evo True -time_evo_plot True -ci_kwargs 1,0.35,40
+# python LES_model_gill.py -pis 0.1,0.1 -qs 9.0,10.0 -l 0.6 -lci 1.0 -N 500 -maxTime 100.0 -Nrea 10 -ic N --time_evo_plot
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
