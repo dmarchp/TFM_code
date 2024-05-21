@@ -1,0 +1,44 @@
+import multiprocessing as mp
+from subprocess import call
+
+def exec_cost_function(qs, noiseType, noise, ci_kwargs, N, maxTime, Nrea, ic):
+    qchainExec = ','.join([str(q) for q in qs])
+    ci_kwargs_chainExec = ','.join([str(cikw) for cikw in ci_kwargs])
+    simCall = f'python cost_function.py -qs {qchainExec} -noiseType {noiseType} -noise {noise} -ci_kwargs {ci_kwargs_chainExec} '
+    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic}'
+    call(simCall, shell=True)
+    return 1
+
+def trial_func(qs, noiseType, noise, ci_kwargs, N, maxTime, Nrea, ic):
+    qchainExec = ','.join([str(q) for q in qs])
+    ci_kwargs_chainExec = ','.join([str(cikw) for cikw in ci_kwargs])
+    simCall = f'python trial_exec.py -qs {qchainExec} -noiseType {noiseType} -noise {noise} -ci_kwargs {ci_kwargs_chainExec} '
+    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic}'
+    call(simCall, shell=True)
+    return 1
+
+execParams = [
+    # [(1.0, 1.05), 1, 0.05, (0, ), 1000, 100.0, 100, 'N'],
+    # [(1.0, 1.05), 1, 0.05, (1, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    # [(1.0, 1.05), 1, 0.05, (2, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    # [(1.0, 1.05), 1, 0.05, (1, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+    # [(1.0, 1.05), 1, 0.05, (2, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+
+    [(1.0, 1.05), 1, 0.15, (0, ), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.15, (1, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.15, (2, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.15, (1, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.15, (2, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+
+    [(1.0, 1.05), 1, 0.25, (0, ), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.25, (1, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.25, (2, 0.3, 10.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.25, (1, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+    [(1.0, 1.05), 1, 0.25, (2, 0.3, 500.0), 1000, 100.0, 100, 'N'],
+]
+
+if __name__ == '__main__':
+    pool = mp.Pool(int(mp.cpu_count()/2))
+    res_async = [pool.apply_async(exec_cost_function, args = paramComb) for i,paramComb in enumerate(execParams)]
+    res = [r.get() for r in res_async]
+    # print(res)

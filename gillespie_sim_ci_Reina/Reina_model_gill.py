@@ -189,12 +189,12 @@ if __name__ == '__main__':
     rng = np.random.default_rng(seed=int(datetime.now().timestamp()))
     #### RUN GILLESPIE SIMULATIONS ####
     fsavg_rea = [[] for i in range(Nsites+1)]
+    qchain = '_'.join([str(q) for q in qs])
+    ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
     if saveTimeEvo:
-        evosFolder = 'sim_results_evos'
+        evosFolder = f'sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}'
         call(f'mkdir -p {evosFolder}/', shell=True)
     if saveSSdata:
-        qchain = '_'.join([str(q) for q in qs])
-        ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
         ssData_fname = f'sim_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv'
         ssDataPool = [[] for i in range(Nsites+1)]
     ##### START REALIZATIONS LOOP #####

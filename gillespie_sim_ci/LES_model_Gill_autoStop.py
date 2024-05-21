@@ -185,8 +185,8 @@ if __name__ == '__main__':
     ##### START REALIZATIONS LOOP #####
     countsWinner = [0, 0]
     for i in range(Nrea):
-        if i%500 == 0:
-            print(f'exec rea {i}')
+        # if i%500 == 0:
+        #     print(f'exec rea {i}')
         finalState = LESgillespieSim(bots_per_site)
         if printFinalState:
             finalStatefs = [s/N for s in finalState]
