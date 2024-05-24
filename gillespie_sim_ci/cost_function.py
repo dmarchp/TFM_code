@@ -99,8 +99,8 @@ def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, 
     else:
         iterFiles = range(len(evoFiles))
     for i in iterFiles:
-        if i%10 == 0:
-            print(f'analyzing file {i}')
+        # if i%10 == 0:
+        #     print(f'analyzing file {i}')
         f = f'{resPath}/{evoName}/time_evo_rea_{i}.csv'
         tevo = pd.read_csv(f)
         tssRea = []

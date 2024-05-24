@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
-from scipy.optimize import fsolve, bisect
+from scipy.optimize import fsolve, bisect, root
+from scipy.integrate import solve_ivp
 
 def cross_in_func(pop,*kwargs):
     # kwargs 
@@ -35,6 +36,19 @@ def fs_evo_eq_fxp_v2(fs, pis, qs, l, lci, ci_kwargs):
         dfsdt.append(dfdt)
     return dfsdt
 
+def fs_evo_eq_fxp_v2_numInt(t, fs, pis, qs, l, lci, ci_kwargs):
+    f0 = 1 - sum(fs)
+    dfsdt = []
+    for i in range(len(fs)):
+        site_i = i
+        dfdt = f0*((1-l)*pis[i]+l*fs[site_i]) - fs[site_i]/qs[i] #- lci*fs[site_i]*(sum(fs[1:site_i])+sum(fs[site_i+1:]))
+        for j in range(len(fs)):
+            site_j = j
+            if site_j != site_i:
+                dfdt += -lci*fs[site_i]*cross_in_func(fs[site_j],*ci_kwargs)
+        dfsdt.append(dfdt)
+    return dfsdt
+
 def fs_evo_eq_fxp_v2_jac(fs, pis, qs, l, lci, ci_kwargs):
     x0, a = ci_kwargs[1], ci_kwargs[2]
     f1f1 = l - (1-l)*pis[0] - 2*l*fs[0] - l*fs[0]*fs[1] - 1/qs[0] - lci*cross_in_func(fs[1], *ci_kwargs)
@@ -44,12 +58,36 @@ def fs_evo_eq_fxp_v2_jac(fs, pis, qs, l, lci, ci_kwargs):
     return np.array([[f1f1, f1f2], [f2f1, f2f2]])
 
 def get_sols_nlinci():
-    starters = [[0.8, 0.1], [0.1, 0.8], [0.3, 0.3]]
+    # starters = [[0.8, 0.1], [0.1, 0.8], [0.3, 0.3]]
+    # starters = [[0.9, 0.1], [0.1, 0.9], [0.3, 0.3]]
+    starters = [[0.9, 0.1], [0.1, 0.9], [0.1, 0.1]]
+    # starters = [[0.3, 0.3],  ]
     for fs0 in starters:
-        fxp = fsolve(fs_evo_eq_fxp_v2, fs0, args = (pis, qs, l, lci, ci_kwargs), fprime=fs_evo_eq_fxp_v2_jac, maxfev=1000)
-        f0 = 1-sum(fxp)
-        fs = [f0, *fxp]
-        print(*fs)
+        # fxp, infodict, ier, mesg = fsolve(fs_evo_eq_fxp_v2, fs0, args = (pis, qs, l, lci, ci_kwargs), fprime=fs_evo_eq_fxp_v2_jac, maxfev=10000, full_output=True)
+        # f0 = 1-sum(fxp)
+        # fs = [f0, *fxp]
+        # sol = solve_ivp(fs_evo_eq_fxp_v2_numInt, [0, 1000], fs0, args=(pis, qs, l, lci, ci_kwargs))
+        # fs_numInt = [1-sol.y[0][-1]-sol.y[1][-1], sol.y[0][-1], sol.y[1][-1]]
+        # check_stable_fxp = (abs(fs[1]-fs_numInt[1]) < 1e-3) & (abs(fs[2]-fs_numInt[2]) < 1e-3)
+        # if check_stable_fxp:
+        #     print(*fs)
+        # else: 
+        #     print(fs_numInt)
+        #     print(fs)
+        
+        fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False})
+        fs = [1-sum(fxp.x), *fxp.x]
+        # print(*fs, fxp.success, fxp.message)
+
+        # fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov')
+        # fs = [1-sum(fxp.x), *fxp.x]
+        # print(*fs, fxp.success, fxp.message)
+
+        if fxp.success:
+            print(*fs)
+
+
+
 
 
 #### Linear Cross Inhbition:

@@ -53,7 +53,7 @@ def execSims_for_time_evos(qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea
     call(simCall, shell=True)
 
 
-def get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime=100.0, Nrea=100, execSim=False, keepData=False):
+def get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime=100.0, Nrea=100, ci_indep_q=False, execSim=False, keepData=False):
     """
     keepData only works when execSim==True; then if keepData=True, Nrea simulations are executed and addet to the already existing folder
     """
@@ -141,16 +141,17 @@ def get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime=10
     fcolumns = [col for col in tssDf.columns if col.startswith('f')]
     tssDf['tssAvg'] = tssDf[fcolumns].sum(axis=1)/3
     statDataPool = pd.DataFrame(statDataPool)
+    ci_indep_q_label = '_ci_indep_q' if ci_indep_q else ''
     if execSim and keepData:
-        old_tssDf = pd.read_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv')
+        old_tssDf = pd.read_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv')
         old_tssDf = pd.concat([old_tssDf, tssDf], ignore_index=True)
-        old_tssDf.to_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv', index=False)
-        old_statDataPool = pd.read_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv')
+        old_tssDf.to_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv', index=False)
+        old_statDataPool = pd.read_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv')
         old_statDataPool = pd.concat([old_statDataPool, statDataPool], ignore_index=True)
-        old_statDataPool.to_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv', index=False)
+        old_statDataPool.to_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv', index=False)
     else:
-        tssDf.to_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv', index=False)
-        statDataPool.to_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}.csv', index=False)
+        tssDf.to_csv(f'{resPath}/tss_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv', index=False)
+        statDataPool.to_csv(f'{resPath}/ss_data_from_sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv', index=False)
     return tssMax, statDataPool
 
 
@@ -165,7 +166,11 @@ if __name__ == '__main__':
     parser.add_argument('-maxTime', type=float, help='simulation time')
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
+    parser.add_argument('--ci_indep_q', type=bool, help='Make cross inhibition independent of the site qualities', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     qs, noiseType, noise, ci_kwargs, N, maxTime, Nrea, ic = args.qs, args.noiseType, args.noise, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic
+    ci_indep_q = args.ci_indep_q
+    if ci_indep_q == None:
+        ci_indep_q = False
     ci_kwargs[0] = int(ci_kwargs[0])
-    get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea, execSim=True)
+    get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea, ci_indep_q, execSim=True)

@@ -1,7 +1,6 @@
 import numpy as np
 from datetime import datetime
 import argparse
-import copy
 import sys
 import os
 from subprocess import call
@@ -89,8 +88,8 @@ def REINAgillespieStep(state, vectorsOfChange, timeLeft):
         print(randReac)
         print(state)
         input('enter ')
-    # print(state)
-    # input('enter ')
+    # here I would check if the value corresponds to the one in the stationary state
+    # for the moment I stop controlling a fixed time in the Sim function
     return False, timeInterval
 
 def REINASgillespieSim(initial_state, save_time_evo=False, avg_last_perc=0.2):
@@ -124,38 +123,16 @@ def REINASgillespieSim(initial_state, save_time_evo=False, avg_last_perc=0.2):
         aux = [[state[i]/N, ] for i in range(Nsites+1)]
         time_evo.extend(aux)
     ######################## START SIMULATION LOOP ########################
-    state_ss_avg = [[], [], []]
     while t < maxTime:
         # prevState = copy.deepcopy(state)
         simFinished, timeStep = REINAgillespieStep(state, vectorsOfChange, maxTime-t)
         t += timeStep
-        # Save whole time evolution:
-        if save_time_evo:
-            time_evo[0].append(t)
-            for i in range(1,Nsites+2):
-                time_evo[i].append(state[i-1]/N)
-        # Save values for compute stationary state averages:
-        if t > maxTime*(1-avg_last_perc):
-            for i in range(Nsites+1):
-                state_ss_avg[i].append(state[i])
+        if t > stopTime:
+            simFinished = True
         if simFinished:
             break
     ######################## FINISH SIMULATION LOOP ########################
-    # before converting values to average, save them for the SS distribution, if required:
-    if saveSSdata:
-        for i in range(Nsites+1):
-            ssDataPool[i].extend(state_ss_avg[i][-2000:]) # only use the last 2000 values, so every realization contributes the same
-    # now get the average values for this realization
-    for i in range(Nsites+1):
-        state_ss_avg[i] = np.average(state_ss_avg[i])
-    # return final state, final SS average, and time evolution (if required)
-    if save_time_evo:
-        dfevo = pd.DataFrame({'time':time_evo[0]})
-        for i in range(1,Nsites+2):
-            dfevo[f'f{i-1}'] = time_evo[i]
-        return state, state_ss_avg, dfevo
-    else:
-        return state, state_ss_avg
+    return state
 
 
 if __name__ == '__main__':
@@ -171,15 +148,12 @@ if __name__ == '__main__':
     # boolean arguments 
     parser.add_argument('--ci_indep_q', type=bool, help='Make cross inhibition independent of the site qualities', action=argparse.BooleanOptionalAction)
     parser.add_argument('--final_state', type=bool, help='Print each realization final state', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--ss_data', type=bool, help='Save SS values in a dataframe', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--time_evo', type=bool, help='Save time evolutions as df', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--time_evo_plot', type=bool, help='Plot time evolutions', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--save_win_count', type=bool, help='Save winner percentage count to csv file', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     qs, noiseType, noise, ci_kwargs, N, maxTime, Nrea, ic = args.qs, args.noiseType, args.noise, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic
-    ci_indep_q = args.ci_indep_q
-    saveTimeEvo, plotTimeEvo, printFinalState, saveSSdata = args.time_evo, args.time_evo_plot, args.final_state, args.ss_data
-    if plotTimeEvo and not saveTimeEvo:
-        saveTimeEvo = True
+    ci_indep_q, printFinalState, saveWC = args.ci_indep_q, args.final_state, args.save_win_count
+    if ci_indep_q == None:
+        ci_indep_q = False
     ci_kwargs[0] = int(ci_kwargs[0])
     Nsites = len(qs)
     #### noise parameters ####
@@ -192,52 +166,44 @@ if __name__ == '__main__':
     #### assing the initial condition ####
     bots_per_site = prepare_ic(N, Nsites, ic)
     rng = np.random.default_rng(seed=int(datetime.now().timestamp()))
+    #### get the numerical solution from the ODE integration ####
+    ## to do; for the moment stop the simulation at a time that surely is stationary
+    if ci_kwargs[0] == 0:
+        if noise <= 0.15:
+            stopTime = 30.0
+        else:
+            stopTime = 50.0
+    else:
+        stopTime = 20.0
     #### RUN GILLESPIE SIMULATIONS ####
     fsavg_rea = [[] for i in range(Nsites+1)]
     qchain = '_'.join([str(q) for q in qs])
     ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-    ci_indep_q_label = '_ci_indep_q' if ci_indep_q else ''
-    if saveTimeEvo:
-        evosFolder = f'sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}'
-        call(f'mkdir -p {evosFolder}/', shell=True)
-    if saveSSdata:
-        ssData_fname = f'sim_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv'
-        ssDataPool = [[] for i in range(Nsites+1)]
     ##### START REALIZATIONS LOOP #####
+    countsWinner = [0, 0]
     for i in range(Nrea):
-        if saveTimeEvo:
-            finalState, ssAvgState, dfevo = REINASgillespieSim(bots_per_site, save_time_evo=True)
-            dfevo.to_csv(f'{evosFolder}/time_evo_rea_{i}.csv', index=False)
-        else:
-            finalState, ssAvgState = REINASgillespieSim(bots_per_site)
+        # if i%500 == 0:
+        #     print(f'exec rea {i}')
+        finalState = REINASgillespieSim(bots_per_site)
         if printFinalState:
             finalStatefs = [s/N for s in finalState]
-            ssAvgStatefs = [s/N for s in ssAvgState]
-            print(f'Final State: {finalStatefs}     SS Averages: {ssAvgStatefs}')
-
-        #### plot time evos:
-        if plotTimeEvo == True:
-            if Nsites == 2:
-                colors = ['xkcd:red', 'xkcd:green', 'xkcd:blue']
-            if Nsites == 3:
-                colors = ['xkcd:red', 'xkcd:orange', 'xkcd:green', 'xkcd:blue']
-            fig, ax = plt.subplots(1,1,constrained_layout=True)
-            ax.set(xlabel='time', ylabel=r'$f_j$')
-            ax.plot(dfevo['time'], dfevo['f0'], color=colors[0])
-            for j in range(1,Nsites+1):
-                ax.plot(dfevo['time'], dfevo[f'f{j}'], color=colors[j])
-            fig.savefig(f'time_evo_rea_{i}.png')
+            print(f'Final State: {finalStatefs}')
+        if finalState[1] > finalState[2]:
+            countsWinner[0] += 1
+        else:
+            countsWinner[1] += 1
     ##### END REALIZATIONS LOOP #####
+    print(*countsWinner)
 
-    ### save stationary state distribution:
-    if saveSSdata:
-        ssDF = {}
-        ssDataPool = np.array(ssDataPool)/N
-        for i in range(Nsites+1):
-            ssDF[f'f{i}'] = ssDataPool[i]
-        ssDF = pd.DataFrame(ssDF)
-        ssDF.to_csv(resPath + '/' + ssData_fname, index=False)
-
-    if saveTimeEvo:
-        call(f'tar -czf {evosFolder}.tar.gz {evosFolder}', shell=True)
-        call(f'rm -r {evosFolder}', shell=True)
+    # add result to the dataframe...
+    if saveWC:
+        new_row = pd.DataFrame({'q1':[qs[0], ], 'q2':[qs[1], ], 'noiseType': [noiseType], 'noise':[noise, ],
+                        'ci_kwargs':[tuple(ci_kwargs), ], 'N':[N, ], 'ic':[ic, ], 'Nrea':[Nrea, ], 'ci_indep_q':[ci_indep_q, ],
+                        'f1win':[countsWinner[0]/Nrea, ], 'f2win':[countsWinner[1]/Nrea, ]})
+        if os.path.exists(f'{resPath}/winner_perc_data.csv'):
+            df = pd.read_csv(f'{resPath}/winner_perc_data.csv')
+            df = pd.concat([df, new_row], ignore_index=True)
+            df = df.sort_values(by=['q1', 'q2', 'ci_kwargs', 'ci_indep_q', 'N', 'Nrea'], ignore_index=True)
+            df.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
+        else:
+            new_row.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
