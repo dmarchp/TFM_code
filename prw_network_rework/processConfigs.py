@@ -86,6 +86,9 @@ if __name__ == '__main__':
     #         getComSizesAllTraj(N, ar, ir, loops)
     # for N in [40, 45]:
     #     getComSizesAllTraj(N, ar, 3.4, loops)
-    getComSizesAllTraj(492, 73.5, 4.5, 0, 999999)
-    getComSizesAllTraj(492, 73.5, 7.5, 0, 999999)
-    getComSizesAllTraj(35, 18.5, 3.5, 0, 999999)
+    # getComSizesAllTraj(492, 73.5, 4.5, 0, 999999)
+    # getComSizesAllTraj(492, 73.5, 7.5, 0, 999999)
+    getComSizesAllTraj(35, 18.5, 7.0, 200, 999999)
+    getComSizesAllTraj(35, 18.5, 7.0, 600, 999999)
+    getComSizesAllTraj(35, 18.5, 7.0, 1000, 999999)
+    getComSizesAllTraj(35, 18.5, 7.0, 1200, 999999)
