@@ -156,7 +156,8 @@ if __name__ == '__main__':
     #     configs_to_contacts(25, 18.5, ir, 800, maxFiles=mFiles, jumpTrajConfigs=5)
     #     contacts_to_contactsInt(25, 18.5, ir, 800, maxFiles=mFiles)
     N, ar = 492, 73.5
-    for ir in [4.0, 7.0]:
-        for loops in [200, 600, 1000, 1200]:
+    # for ir in [4.0, 7.0]: # ja fets per 200, 600, 1000, 1200
+    for ir in [3.5, 4.5, 5.0, 5.5, 6.0, 6.5, 8.0]:
+        for loops in [200, 600, ]: # 1000, 1200
             configs_to_contacts(N, ar, ir, loops, maxFiles=mFiles, jumpTrajConfigs=5)
             contacts_to_contactsInt(N, ar, ir, loops, maxFiles=mFiles)
