@@ -129,6 +129,7 @@ def falpha_linci(f0, pi, q, l, lci, branch):
 
 def get_sols_linci():
     permutations = (+1, +1), (+1, -1), (-1, +1), (-1, -1)
+    permLabels = [0,1,2,3]
     f0s1 = f0_eq_sqrt_zeros(pis[0], qs[0], l, lci)
     f0s2 = f0_eq_sqrt_zeros(pis[1], qs[1], l, lci)
     f0sProb = sorted(f0s1 + f0s2)
@@ -148,12 +149,15 @@ def get_sols_linci():
             c = bisect(f0_equation_linci, 0.0, f0sProb[0], args=(pis, qs, l, lci, permutation))
             sols_f0_perm[permutation] = c
     sols_fs_perm = {}
-    for permutation,f0 in sols_f0_perm.items():
+    for (permutation,f0),permLabel in zip(sols_f0_perm.items(),permLabels):
         f1 = falpha_linci(f0, pis[0], qs[0], l, lci, permutation[0])
         f2 = falpha_linci(f0, pis[1], qs[1], l, lci, permutation[1])
         sols_fs_perm[permutation] = [f0, f1, f2]
         # print(permutation)
-        print(*sols_fs_perm[permutation])
+        if sol_label:
+            print(permLabel, *sols_fs_perm[permutation])
+        else:
+            print(*sols_fs_perm[permutation])
     # return sols_f0_perm, sols_fs_perm
 
 
@@ -165,8 +169,10 @@ if __name__ == '__main__':
     parser.add_argument('-l', help='lambda', type=float)
     parser.add_argument('-lci', help='lambda ci', type=float)
     parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[0, ])
+    parser.add_argument('--sol_label', help='labels permutation (when linear) or initial condition (when nonlinar) with 0,1,2...', type=bool, action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     pis, qs, l, lci, ci_kwargs = args.pis, args.qs, args.l, args.lci, args.ci_kwargs
+    sol_label = args.sol_label
     ci_kwargs[0] = int(ci_kwargs[0])
     if len(pis) != len(qs):
         print('Input number of pis different from qualities. Aborting.')
