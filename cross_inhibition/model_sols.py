@@ -61,30 +61,27 @@ def get_sols_nlinci():
     # starters = [[0.8, 0.1], [0.1, 0.8], [0.3, 0.3]]
     # starters = [[0.9, 0.1], [0.1, 0.9], [0.3, 0.3]]
     starters = [[0.9, 0.1], [0.1, 0.9], [0.1, 0.1]]
-    # starters = [[0.3, 0.3],  ]
-    for fs0 in starters:
-        # fxp, infodict, ier, mesg = fsolve(fs_evo_eq_fxp_v2, fs0, args = (pis, qs, l, lci, ci_kwargs), fprime=fs_evo_eq_fxp_v2_jac, maxfev=10000, full_output=True)
-        # f0 = 1-sum(fxp)
-        # fs = [f0, *fxp]
-        # sol = solve_ivp(fs_evo_eq_fxp_v2_numInt, [0, 1000], fs0, args=(pis, qs, l, lci, ci_kwargs))
-        # fs_numInt = [1-sol.y[0][-1]-sol.y[1][-1], sol.y[0][-1], sol.y[1][-1]]
-        # check_stable_fxp = (abs(fs[1]-fs_numInt[1]) < 1e-3) & (abs(fs[2]-fs_numInt[2]) < 1e-3)
-        # if check_stable_fxp:
-        #     print(*fs)
-        # else: 
-        #     print(fs_numInt)
-        #     print(fs)
-        
+    startersExtra = [[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.6, 0.4], [0.4, 0.6], [0.5,0.5]]
+    # for fs0 in starters:
+    foundRoots = []
+    for fs0 in starters+startersExtra:
         fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False})
         fs = [1-sum(fxp.x), *fxp.x]
         # print(*fs, fxp.success, fxp.message)
-
         # fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov')
         # fs = [1-sum(fxp.x), *fxp.x]
         # print(*fs, fxp.success, fxp.message)
-
-        if fxp.success:
-            print(*fs)
+        if fxp.success and fs[0] <= 1.0:
+            checkFound = 0
+            if len(foundRoots) > 0: # check that solution is not already found
+                checkFound = 0
+                for fsFound in foundRoots:
+                    difs = [abs(f-fFound) for f,fFound in zip(fs,fsFound)]
+                    if sum(difs) < 5e-3:
+                        checkFound = 1
+            if not checkFound:
+                print(*fs)
+                foundRoots.append(fs)
 
 
 
