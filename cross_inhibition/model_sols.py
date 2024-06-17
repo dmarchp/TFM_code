@@ -157,6 +157,41 @@ def get_sols_linci():
             print(*sols_fs_perm[permutation])
     # return sols_f0_perm, sols_fs_perm
 
+def get_linci_sols_new():
+    permutations = (+1, +1), (+1, -1), (-1, +1), (-1, -1)
+    permLabels = [0,1,2,3]
+    f0s1 = f0_eq_sqrt_zeros(pis[0], qs[0], l, lci)
+    f0s2 = f0_eq_sqrt_zeros(pis[1], qs[1], l, lci)
+    f0sProb = sorted(f0s1 + f0s2)
+    sols_f0_perm = {}
+    for permutation in permutations:
+        args = [pis, qs, l, lci, permutation]
+        eps = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8]
+        a = 0.0
+        for e in eps:
+            b = f0sProb[0]-e
+            fa, fb = f0_equation_linci(a, *args), f0_equation_linci(b, *args)
+            if fa*fb < 0:
+                c = bisect(f0_equation_linci, a, b, args=(pis, qs, l, lci, permutation))
+                sols_f0_perm[permutation] = c
+                break
+        a = f0sProb[0]-e
+        b = f0sProb[0]-eps[-1]
+        fa, fb = f0_equation_linci(a, *args), f0_equation_linci(b, *args)
+        if fa*fb < 0:
+            c = bisect(f0_equation_linci, a, b, args=(pis, qs, l, lci, permutation))
+            permutation_extra = (permutation[0]*2, permutation[1]*2)
+            sols_f0_perm[permutation_extra] = c
+    sols_fs_perm = {}
+    for (permutation,f0),permLabel in zip(sols_f0_perm.items(),permLabels):
+        f1 = falpha_linci(f0, pis[0], qs[0], l, lci, permutation[0]/abs(permutation[0]))
+        f2 = falpha_linci(f0, pis[1], qs[1], l, lci, permutation[1]/abs(permutation[1]))
+        sols_fs_perm[permutation] = [f0, f1, f2]
+        if sol_label:
+            print(permLabel, *sols_fs_perm[permutation])
+        else:
+            print(*sols_fs_perm[permutation])
+
 
 
 if __name__ == '__main__':
@@ -164,7 +199,7 @@ if __name__ == '__main__':
     parser.add_argument('-pis', help='pis, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-qs', help='qs, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-l', help='lambda', type=float)
-    parser.add_argument('-lci', help='lambda ci', type=float)
+    parser.add_argument('-lci', help='lambda ci', type=float, default=1.0)
     parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[0, ])
     parser.add_argument('--sol_label', help='labels permutation (when linear) or initial condition (when nonlinar) with 0,1,2...', type=bool, action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
@@ -178,4 +213,5 @@ if __name__ == '__main__':
     if ci_kwargs[0] != 0:
         get_sols_nlinci()
     elif ci_kwargs[0] == 0:
-        get_sols_linci()
+        # get_sols_linci()
+        get_linci_sols_new()
