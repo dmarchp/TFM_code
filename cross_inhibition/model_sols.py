@@ -57,31 +57,44 @@ def fs_evo_eq_fxp_v2_jac(fs, pis, qs, l, lci, ci_kwargs):
     f2f2 = l - (1-l)*pis[1] - 2*l*fs[1] - l*fs[0]*fs[1] - 1/qs[1] - lci*cross_in_func(fs[0], *ci_kwargs)
     return np.array([[f1f1, f1f2], [f2f1, f2f2]])
 
-def get_sols_nlinci():
-    # starters = [[0.8, 0.1], [0.1, 0.8], [0.3, 0.3]]
-    # starters = [[0.9, 0.1], [0.1, 0.9], [0.3, 0.3]]
-    starters = [[0.9, 0.1], [0.1, 0.9], [0.1, 0.1]]
-    startersExtra = [[1.0, 0.0], [0.0, 1.0], [0.0, 0.0], [0.6, 0.4], [0.4, 0.6], [0.5,0.5]]
-    # for fs0 in starters:
-    foundRoots = []
+def checkFoundFunc(fs, foundRoots):
+    checkFound = 0
+    for fsFound in foundRoots:
+        difs = [abs(f-fFound) for f,fFound in zip(fs,fsFound)]
+        if sum(difs) < 5e-3:
+            checkFound = 1
+    return checkFound
+
+def get_sols_nlinci(starters, tol, foundRoots, methods, startersRepeat, startersFound):
+    methodSufix = f'_{tol}' if tol else ''
     for fs0 in starters+startersExtra:
-        fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False})
+        fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', tol=tol, jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False}) # tol=5e-5,
         fs = [1-sum(fxp.x), *fxp.x]
         # print(*fs, fxp.success, fxp.message)
-        # fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov')
-        # fs = [1-sum(fxp.x), *fxp.x]
+        if tol:
+            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), tol=tol, method='krylov')
+        else:
+            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov')
+        fsAlt = [1-sum(fxpAlt.x), *fxpAlt.x]
         # print(*fs, fxp.success, fxp.message)
         if fxp.success and fs[0] <= 1.0:
-            checkFound = 0
-            if len(foundRoots) > 0: # check that solution is not already found
+            if len(foundRoots) > 0:
+                checkFound = checkFoundFunc(fs, foundRoots)
+            else:
                 checkFound = 0
-                for fsFound in foundRoots:
-                    difs = [abs(f-fFound) for f,fFound in zip(fs,fsFound)]
-                    if sum(difs) < 5e-3:
-                        checkFound = 1
             if not checkFound:
-                print(*fs)
-                foundRoots.append(fs)
+                foundRoots.append(fs), methods.append(f'hybr{methodSufix}'), startersFound.append(fs0)
+        elif fxpAlt.success and fsAlt[0] <= 1.0:
+            if len(foundRoots) > 0:
+                checkFound = checkFoundFunc(fsAlt, foundRoots)
+            else:
+                checkFound = 0
+            if not checkFound:
+                foundRoots.append(fsAlt), methods.append(f'kyrlov{methodSufix}'), startersFound.append(fs0)
+        else:
+            # try to lowe the tolerance...
+            startersRepeat.append(fs0)
+
 
 
 
@@ -211,7 +224,23 @@ if __name__ == '__main__':
         exit()
     Nsites = len(pis)
     if ci_kwargs[0] != 0:
-        get_sols_nlinci()
+        startersBasic = [[0.9, 0.1], [0.1, 0.9], [0.1, 0.1]]
+        startersExtra = [[1.0, 0.0], [0.0, 1.0], [0.05, 0.5], [0.0, 0.0], [0.6, 0.4], [0.4, 0.6], [0.2, 0.2], [0.3, 0.3], [0.4, 0.4], [0.5,0.5]]
+        # startersExtra = []
+        startersUpper = []
+        startersMid = []
+        startersLower = []
+        starters = startersBasic+startersExtra
+        foundRoots, methods, startersRepeat, startersFound = [], [], [], []
+        get_sols_nlinci(starters, None, foundRoots, methods, startersRepeat, startersFound)
+        # if len(foundRoots) < 3:
+        #     # if it's 2, almost surely there is another fixed point
+        #     # if it's 1, maybe there is only one fixed point, but's let's repeat anyaws
+        #     starters = startersRepeat
+        #     startersRepeat = []
+        #     get_sols_nlinci(startersRepeat, 1e-5, foundRoots, methods, startersRepeat, startersFound)
+        for fs,method,fs0 in zip(foundRoots,methods,startersFound):
+            print(*fs, method, fs0)
     elif ci_kwargs[0] == 0:
         # get_sols_linci()
         get_linci_sols_new()
