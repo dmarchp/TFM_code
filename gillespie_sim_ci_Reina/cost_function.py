@@ -59,7 +59,8 @@ def get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime=10
     """
     qchain = '_'.join([str(q) for q in qs])
     ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-    evoName = f'sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}'
+    ci_indep_q_label = '_ci_indep_q' if ci_indep_q else ''
+    evoName = f'sim_results_evos_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}'
     ## firewall for the keepData feature ## if True but it actually does not exists, set parameter to False and go on
     if keepData:
         if not os.path.exists(f'{resPath}/{evoName}'):
