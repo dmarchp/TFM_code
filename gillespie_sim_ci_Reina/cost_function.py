@@ -45,11 +45,12 @@ def search_time_useStatDif(time, evo, statVal: float, statTime: float):
     return tss
 
 
-def execSims_for_time_evos(qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea):
+def execSims_for_time_evos(qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea, ci_indep_q):
     qchainExec = ','.join([str(q) for q in qs])
     ci_kwargs_chainExec = ','.join([str(cikw) for cikw in ci_kwargs])
+    ci_indep_q_exec = '--ci_indep_q' if ci_indep_q else ''
     simCall = f'python Reina_model_gill.py -qs {qchainExec} -noiseType {noiseType} -noise {noise} -ci_kwargs {ci_kwargs_chainExec} '
-    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic} --time_evo'
+    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic} {ci_indep_q_exec} --time_evo'
     call(simCall, shell=True)
 
 
@@ -67,7 +68,7 @@ def get_data_for_cost_func(h, qs, noiseType, noise, ci_kwargs, N, ic, maxTime=10
             keepData = False
     #####
     if execSim: # mandatory to execute simulations, even if evos folder already exists
-        execSims_for_time_evos(qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea)
+        execSims_for_time_evos(qs, noiseType, noise, ci_kwargs, N, ic, maxTime, Nrea, ci_indep_q)
         call(f'tar -xzf {evoName}.tar.gz', shell=True)
         call(f'rm {evoName}.tar.gz', shell=True)
         if keepData and os.path.exists(f'{resPath}/{evoName}'):

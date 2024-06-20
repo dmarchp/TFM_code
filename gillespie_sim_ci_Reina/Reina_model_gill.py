@@ -203,6 +203,7 @@ if __name__ == '__main__':
     if saveSSdata:
         ssData_fname = f'sim_qs_{qchain}_noiseType_{noiseType}_noise_{noise}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}{ci_indep_q_label}.csv'
         ssDataPool = [[] for i in range(Nsites+1)]
+
     ##### START REALIZATIONS LOOP #####
     for i in range(Nrea):
         if saveTimeEvo:
