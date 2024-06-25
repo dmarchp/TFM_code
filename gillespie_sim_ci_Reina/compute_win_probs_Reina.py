@@ -26,9 +26,6 @@ def get_win_probs(qs, noiseType, noise, ci_kwargs, N, maxTime, Nrea, ic, ci_inde
 paramCombs = [
     # sample line
     # [(1.0, 1.05), 1, 0.1, (2, 0.3, 500.0), 1000, 100.0, 10000, 'N', False],
-
-    [(1.0, 1.05), 1, 0.10, (0,), 1000, 100.0, 10000, 'N', True],
-    [(1.0, 1.05), 1, 0.20, (0,), 1000, 100.0, 10000, 'N', True], # 2819 7181
 ]
 
 if __name__ == '__main__':
