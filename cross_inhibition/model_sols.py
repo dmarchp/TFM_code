@@ -224,8 +224,8 @@ if __name__ == '__main__':
         exit()
     Nsites = len(pis)
     if ci_kwargs[0] != 0:
-        startersBasic = [[0.9, 0.1], [0.1, 0.9], [0.1, 0.1]]
-        startersExtra = [[1.0, 0.0], [0.0, 1.0], [0.05, 0.5], [0.0, 0.0], [0.6, 0.4], [0.4, 0.6], [0.2, 0.2], [0.3, 0.3], [0.4, 0.4], [0.5,0.5]]
+        startersBasic = [[0.9,0.1], [0.1,0.9], [0.1,0.1]]
+        startersExtra = [[1.0,0.0], [0.0,1.0], [0.05,0.5], [0.0,0.0], [0.6,0.4], [0.4,0.6], [0.2,0.2], [0.3,0.3], [0.4,0.4], [0.5,0.5]]
         # startersExtra = []
         startersUpper = []
         startersMid = []
@@ -240,7 +240,8 @@ if __name__ == '__main__':
         #     startersRepeat = []
         #     get_sols_nlinci(startersRepeat, 1e-5, foundRoots, methods, startersRepeat, startersFound)
         for fs,method,fs0 in zip(foundRoots,methods,startersFound):
-            print(*fs, method, fs0)
+            fs0str = f"({fs0[0]},{fs0[1]})"
+            print(*fs, method, fs0str)
     elif ci_kwargs[0] == 0:
         # get_sols_linci()
         get_linci_sols_new()

@@ -167,9 +167,9 @@ if __name__ == '__main__':
     pichain = '_'.join([str(pi) for pi in pis])
     qchain = '_'.join([str(q) for q in qs])
     ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-    auxFname = f'sols_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_ci_kwargs_{ci_kwargs_chain}.dat'
+    auxFname = f'sols_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_ci_kwargs_{ci_kwargs_chain}.csv'
     call(f'python ../cross_inhibition/model_sols.py -pis {pichain_exec} -qs {qchain_exec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chain_exec} > {auxFname}', shell=True)
-    solsdf = pd.read_csv(f'{auxFname}', names=['f0', 'f1', 'f2'], header=None, sep='\s+')
+    solsdf = pd.read_csv(f'{auxFname}', names=['f0', 'f1', 'f2', 'method', 'ic'], header=None, index_col=False, sep='\s+')
     call(f'rm {auxFname}', shell=True)
     if ci_kwargs[0] != 0:
         f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[1]
@@ -178,6 +178,7 @@ if __name__ == '__main__':
             f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[0]
         elif len(solsdf) > 1:
             f1winVal, f2winVal = max(solsdf['f1']), max(solsdf['f2'])
+    # print(solsdf)
     # print(f1winVal, f2winVal)
     # input('enter ')
     #### RUN GILLESPIE SIMULATIONS ####
