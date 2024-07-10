@@ -123,7 +123,7 @@ def LESgillespieSim(initial_state, save_time_evo=False, avg_last_perc=0.2):
         aux = [[state[i]/N, ] for i in range(Nsites+1)]
         time_evo.extend(aux)
     ######################## START SIMULATION LOOP ########################
-    state_ss_avg = [[], [], []]
+    state_ss_avg = [[] for i in range(Nsites+1)]
     while t < maxTime:
         # prevState = copy.deepcopy(state)
         simFinished, timeStep = LESgillespieStep(state, vectorsOfChange, maxTime-t)
