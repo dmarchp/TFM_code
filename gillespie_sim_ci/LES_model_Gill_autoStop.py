@@ -100,8 +100,11 @@ def LESgillespieStep(state, vectorsOfChange, timeLeft):
         print(randReac)
         print(state)
         input('enter ')
-    if abs(state[1]/N-f1winVal) < epsWinVal or abs(state[2]/N-f2winVal) < epsWinVal:
-        return True, timeInterval
+    if Nsites == 2:
+        if abs(state[1]/N-f1winVal) < epsWinVal or abs(state[2]/N-f2winVal) < epsWinVal:
+            return True, timeInterval
+        else:
+            return False, timeInterval
     else:
         return False, timeInterval
 
@@ -161,31 +164,34 @@ if __name__ == '__main__':
     bots_per_site = prepare_ic(N, Nsites, ic)
     #### initiate random number generator
     rng = np.random.default_rng(seed=int(datetime.now().timestamp()))
-    #### get analytical solutions:
-    pichain_exec, qchain_exec = ','.join([str(pi) for pi in pis]), ','.join([str(q) for q in qs])
-    ci_kwargs_chain_exec = ','.join([str(cikw) for cikw in ci_kwargs])
-    pichain = '_'.join([str(pi) for pi in pis])
-    qchain = '_'.join([str(q) for q in qs])
-    ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-    auxFname = f'sols_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_ci_kwargs_{ci_kwargs_chain}.csv'
-    call(f'python ../cross_inhibition/model_sols.py -pis {pichain_exec} -qs {qchain_exec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chain_exec} > {auxFname}', shell=True)
-    colnames = ['f0', 'f1', 'f2', 'method', 'ic'] if ci_kwargs[0] != 0 else ['f0', 'f1', 'f2']
-    solsdf = pd.read_csv(f'{auxFname}', names=colnames, header=None, index_col=False, sep='\s+')
-    call(f'rm {auxFname}', shell=True)
-    if ci_kwargs[0] != 0:
-        f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[1]
-    elif ci_kwargs[0] == 0:
-        if len(solsdf) == 1:
-            f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[0]
-        elif len(solsdf) > 1:
-            f1winVal, f2winVal = max(solsdf['f1']), max(solsdf['f2'])
-    # print(solsdf)
-    # print(f1winVal, f2winVal)
-    # input('enter ')
+    #### get analytical/numerical solutions (if Nites == 2, when I can):
+    if Nsites == 2:
+        pichain_exec, qchain_exec = ','.join([str(pi) for pi in pis]), ','.join([str(q) for q in qs])
+        ci_kwargs_chain_exec = ','.join([str(cikw) for cikw in ci_kwargs])
+        pichain = '_'.join([str(pi) for pi in pis])
+        qchain = '_'.join([str(q) for q in qs])
+        ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
+        auxFname = f'sols_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_ci_kwargs_{ci_kwargs_chain}.csv'
+        call(f'python ../cross_inhibition/model_sols.py -pis {pichain_exec} -qs {qchain_exec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chain_exec} > {auxFname}', shell=True)
+        colnames = ['f0', 'f1', 'f2', 'method', 'ic'] if ci_kwargs[0] != 0 else ['f0', 'f1', 'f2']
+        solsdf = pd.read_csv(f'{auxFname}', names=colnames, header=None, index_col=False, sep='\s+')
+        call(f'rm {auxFname}', shell=True)
+        if ci_kwargs[0] != 0:
+            f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[1]
+        elif ci_kwargs[0] == 0:
+            if len(solsdf) == 1:
+                f1winVal, f2winVal = solsdf['f1'].iloc[0], solsdf['f2'].iloc[0]
+            elif len(solsdf) > 1:
+                f1winVal, f2winVal = max(solsdf['f1']), max(solsdf['f2'])
+        # print(solsdf)
+        # print(f1winVal, f2winVal)
+        # input('enter ')
+    # if Nsites != 2 we just run the simulations to some maxTime an check who is winning then....
     #### RUN GILLESPIE SIMULATIONS ####
     
     ##### START REALIZATIONS LOOP #####
-    countsWinner = [0, 0]
+    # countsWinner = [0, 0]
+    countsWinner = [0 for _ in range(Nsites)]
     for i in range(Nrea):
         # if i%500 == 0:
         #     print(f'exec rea {i}')
@@ -193,21 +199,55 @@ if __name__ == '__main__':
         if printFinalState:
             finalStatefs = [s/N for s in finalState]
             print(f'Final State: {finalStatefs}')
-        if finalState[1] > finalState[2]:
-            countsWinner[0] += 1
-        else:
-            countsWinner[1] += 1
+        # if finalState[1] > finalState[2]:
+        #     countsWinner[0] += 1
+        # else:
+        #     countsWinner[1] += 1
+        index_max = max(range(len(finalState)), key=finalState.__getitem__)
+        if index_max != 0:
+            countsWinner[index_max-1] += 1
+        # else:
+            # print('f0 is winning, smth went wrong...') # do not print this...
     ##### END REALIZATIONS LOOP #####
-    print(*countsWinner)
+    print(*countsWinner) # ... but have in mind that if sum(countsWinner) < Nrea f0 has won in some cases; Probably more simulation time is necessary
 
-    # add result to the dataframe...
-    if saveWC:
-        new_row = pd.DataFrame({'pi1':[pis[0], ], 'pi2':[pis[1], ], 'q1':[qs[0], ], 'q2':[qs[1], ], 'l':[l, ], 
-                       'lci':[lci, ], 'ci_kwargs':[tuple(ci_kwargs), ], 'N':[N, ], 'ic':[ic, ], 'Nrea':[Nrea, ],
-                        'f1win':[countsWinner[0]/Nrea, ], 'f2win':[countsWinner[1]/Nrea, ]})
+    # # add result to the dataframe...
+    # if saveWC:
+    #     new_row = pd.DataFrame({'pi1':[pis[0], ], 'pi2':[pis[1], ], 'q1':[qs[0], ], 'q2':[qs[1], ], 'l':[l, ], 
+    #                    'lci':[lci, ], 'ci_kwargs':[tuple(ci_kwargs), ], 'N':[N, ], 'ic':[ic, ], 'Nrea':[Nrea, ],
+    #                     'f1win':[countsWinner[0]/Nrea, ], 'f2win':[countsWinner[1]/Nrea, ]})
 
-        df = pd.read_csv(f'{resPath}/winner_perc_data.csv')
-        df = pd.concat([df, new_row], ignore_index=True)
-        df = df.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'ci_kwargs', 'l', 'lci',  'N', 'Nrea'], ignore_index=True)
-        df.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
+    #     df = pd.read_csv(f'{resPath}/winner_perc_data.csv')
+    #     df = pd.concat([df, new_row], ignore_index=True)
+    #     df = df.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'ci_kwargs', 'l', 'lci',  'N', 'Nrea'], ignore_index=True)
+    #     df.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
     
+
+    # new add result to dataframe
+    if saveWC:
+        sitesSufix = f'_{Nsites}_sites' if Nsites > 2 else ''
+        winnerDataFileName = f'winner_perc_data{sitesSufix}.csv'
+        newRowDic = {}
+        for i in range(Nsites):
+            newRowDic[f'pi{i+1}'] = [pis[i], ]
+        for i in range(Nsites):
+            newRowDic[f'q{i+1}'] = [qs[i], ]
+        newRowDic['l'] = [l, ]
+        newRowDic['lci'] = [lci, ]
+        newRowDic['ci_kwargs'] = [tuple(ci_kwargs), ]
+        newRowDic['N'] = [N, ]
+        newRowDic['ic'] = [ic, ]
+        newRowDic['Nrea'] = [Nrea, ]
+        new_row = pd.DataFrame(newRowDic)
+        for i in range(Nsites):
+            newRowDic[f'f{i+1}win'] = [countsWinner[i]/Nrea, ]
+        if os.path.exists(f'{resPath}/{winnerDataFileName}'):
+            df = pd.read_csv(f'{resPath}/{winnerDataFileName}')
+            df = pd.concat([df, new_row], ignore_index=True)
+            sortValsBy = [f'pi{i+1}' for i in range(Nsites)]
+            sortValsBy.extend([f'q{i+1}' for i in range(Nsites)])
+            sortValsBy.extend(['ci_kwargs', 'l', 'lci',  'N', 'Nrea'])
+            df = df.sort_values(by=sortValsBy, ignore_index=True)
+            df.to_csv(f'{resPath}/{winnerDataFileName}', index=False)
+        else:
+            new_row.to_csv(f'{resPath}/{winnerDataFileName}', index=False)

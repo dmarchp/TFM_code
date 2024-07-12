@@ -25,11 +25,15 @@ def get_win_probs(pis, qs, l, lci, ci_kwargs, N, maxTime, Nrea, ic, mpID):
 
 paramCombs = [
     # sample line
-    # [(0.2, 0.2), (9.0, 10.0), 0.1, 1.0, (2, 0.3, 500.0), 1000, 100.0, 10000, 'N'],
+    # [(0.1, 0.1), (9.0, 10.0), 0.1, 1.0, (2, 0.3, 500.0), 1000, 100.0, 10000, 'N'],
 
-    [(0.1, 0.1), (9.0, 10.0), 0.2, 0.5,  (0,), 1000, 200.0, 10000, 'N'],
-    [(0.1, 0.1), (9.0, 10.0), 0.3, 0.5, (0,), 1000, 200.0, 10000, 'N'],
-    [(0.1, 0.1), (9.0, 10.0), 0.45, 0.5, (0,), 1000, 200.0, 10000, 'N'],
+    [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.1, 1.0,  (1, 0.3, 500.0), 1000, 75.0, 1000, 'N'], # done ## Atention, the saving mechanism duplicates entries
+    [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.2, 1.0,  (1, 0.3, 500.0), 1000, 55.0, 1000, 'N'], # dine
+    [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.3, 1.0,  (1, 0.3, 500.0), 1000, 50.0, 1000, 'N'], # done
+    # [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.45, 1.0,  (1, 0.3, 500.0), 1000, 40.0, 1000, 'N'],
+    # [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.6, 1.0,  (1, 0.3, 500.0), 1000, 35.0, 1000, 'N'],
+    # [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.75, 1.0,  (1, 0.3, 500.0), 1000, 35.0, 1000, 'N'],
+    # [(0.1, 0.1, 0.1), (8.0, 9.0, 10.0), 0.9, 1.0,  (1, 0.3, 500.0), 1000, 30.0, 1000, 'N'], #done
     
 ]
 
@@ -54,18 +58,55 @@ if __name__ == '__main__':
     # pool = mp.Pool(1)
     res_async = [pool.apply_async(get_win_probs, args = (*paramComb, i)) for i,paramComb in enumerate(paramCombs)]
     allwinprobs = [r.get() for r in res_async]
-    pi1s, pi2s, q1s, q2s, ls, lcis, ci_kwargs_list, Ns, maxTimes, Nreas, ics, winf1, winf2 = [], [],  [], [], [], [], [], [], [], [], [], [], [],
+    # pi1s, pi2s, q1s, q2s, ls, lcis, ci_kwargs_list, Ns, maxTimes, Nreas, ics, winf1, winf2 = [], [],  [], [], [], [], [], [], [], [], [], [], [],
+    # for winprobs,paramComb in zip(allwinprobs,paramCombs):
+    #     pi1s.append(paramComb[0][0]), pi2s.append(paramComb[0][1]), q1s.append(paramComb[1][0]), q2s.append(paramComb[1][1])
+    #     ls.append(paramComb[2]), lcis.append(paramComb[3]), ci_kwargs_list.append(paramComb[4]), Ns.append(paramComb[5])
+    #     maxTimes.append(paramComb[6]), Nreas.append(paramComb[7]), ics.append(paramComb[8])
+    #     winf1.append(winprobs[0]), winf2.append(winprobs[1])
+    # pool.close()
+    # call('rm winprobs*.dat', shell=True)
+    # dfwinf_new = pd.DataFrame({'pi1':pi1s, 'pi2':pi2s, 'q1':q1s, 'q2':q2s, 'l': ls, 
+    #                    'lci':lcis, 'ci_kwargs':ci_kwargs_list, 'N':Ns, 'ic':ics, 'Nrea':Nreas,
+    #                      'f1win':winf1, 'f2win':winf2})
+    # dfwinf = pd.read_csv(f'{resPath}/winner_perc_data.csv')
+    # dfwinf = pd.concat([dfwinf, dfwinf_new], ignore_index=True)
+    # dfwinf = dfwinf.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'ci_kwargs', 'l', 'lci',  'N', 'Nrea'], ignore_index=True)
+    # dfwinf.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
+
+    Nsites = len(paramCombs[0][0])
+    pis, qs, winf = [[] for i in range(Nsites)], [[] for i in range(Nsites)], [[] for i in range(Nsites)]
+    ls, lcis, ci_kwargs_list, Ns, maxTimes, Nreas, ics = [], [],  [], [], [], [], []
     for winprobs,paramComb in zip(allwinprobs,paramCombs):
-        pi1s.append(paramComb[0][0]), pi2s.append(paramComb[0][1]), q1s.append(paramComb[1][0]), q2s.append(paramComb[1][1])
+        for i in range(Nsites):
+            pis[i].append(paramComb[0][i]), qs[i].append(paramComb[1][i]), winf[i].append(winprobs[i])
         ls.append(paramComb[2]), lcis.append(paramComb[3]), ci_kwargs_list.append(paramComb[4]), Ns.append(paramComb[5])
         maxTimes.append(paramComb[6]), Nreas.append(paramComb[7]), ics.append(paramComb[8])
-        winf1.append(winprobs[0]), winf2.append(winprobs[1])
     pool.close()
     call('rm winprobs*.dat', shell=True)
-    dfwinf_new = pd.DataFrame({'pi1':pi1s, 'pi2':pi2s, 'q1':q1s, 'q2':q2s, 'l': ls, 
-                       'lci':lcis, 'ci_kwargs':ci_kwargs_list, 'N':Ns, 'ic':ics, 'Nrea':Nreas,
-                         'f1win':winf1, 'f2win':winf2})
-    dfwinf = pd.read_csv(f'{resPath}/winner_perc_data.csv')
-    dfwinf = pd.concat([dfwinf, dfwinf_new], ignore_index=True)
-    dfwinf = dfwinf.sort_values(by=['pi1', 'pi2', 'q1', 'q2', 'ci_kwargs', 'l', 'lci',  'N', 'Nrea'], ignore_index=True)
-    dfwinf.to_csv(f'{resPath}/winner_perc_data.csv', index=False)
+    dic_winf = {}
+    for i in range(Nsites):
+        dic_winf[f'pi{i+1}'] = pis[i]
+    for i in range(Nsites):
+        dic_winf[f'q{i+1}'] = qs[i]
+    dic_winf['l'] = ls
+    dic_winf['lci'] = lcis
+    dic_winf['ci_kwargs'] = ci_kwargs_list
+    dic_winf['N'] = Ns
+    dic_winf['ic'] = ics
+    dic_winf['Nrea'] = Nreas
+    for i in range(Nsites):
+        dic_winf[f'f{i+1}'] = winf[i]
+    dfwinf_new = pd.DataFrame(dic_winf)
+    sitesSufix = f'_{Nsites}_sites' if Nsites > 2 else ''
+    winnerDataFileName = f'winner_perc_data{sitesSufix}.csv'
+    if os.path.exists(f'{resPath}/{winnerDataFileName}'):
+        dfwinf = pd.read_csv(f'{resPath}/{winnerDataFileName}')
+        dfwinf = pd.concat([dfwinf, dfwinf_new], ignore_index=True)
+        sortValsBy = [f'pi{i+1}' for i in range(Nsites)]
+        sortValsBy.extend([f'q{i+1}' for i in range(Nsites)])
+        sortValsBy.extend(['ci_kwargs', 'l', 'lci',  'N', 'Nrea'])
+        dfwinf = dfwinf.sort_values(by=sortValsBy, ignore_index=True)
+        dfwinf.to_csv(f'{resPath}/{winnerDataFileName}', index=False)
+    else:
+        dfwinf_new.to_csv(f'{resPath}/{winnerDataFileName}', index=False)
