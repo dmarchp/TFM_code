@@ -238,6 +238,8 @@ if __name__ == '__main__':
         newRowDic['N'] = [N, ]
         newRowDic['ic'] = [ic, ]
         newRowDic['Nrea'] = [Nrea, ]
+        if Nsites > 2:
+            newRowDic['maxTime'] = [maxTime, ]
         new_row = pd.DataFrame(newRowDic)
         for i in range(Nsites):
             newRowDic[f'f{i+1}win'] = [countsWinner[i]/Nrea, ]
