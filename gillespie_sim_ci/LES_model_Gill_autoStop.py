@@ -100,7 +100,7 @@ def LESgillespieStep(state, vectorsOfChange, timeLeft):
         print(randReac)
         print(state)
         input('enter ')
-    if Nsites == 2:
+    if Nsites == 2 and autoStop:
         if abs(state[1]/N-f1winVal) < epsWinVal or abs(state[2]/N-f2winVal) < epsWinVal:
             return True, timeInterval
         else:
@@ -150,6 +150,8 @@ if __name__ == '__main__':
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     # boolean arguments 
+    # parser.add_argument('--autoStop', type=bool, help)
+    autoStop = False
     parser.add_argument('--final_state', type=bool, help='Print each realization final state', action=argparse.BooleanOptionalAction)
     parser.add_argument('--save_win_count', type=bool, help='Save winner percentage count to csv file', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
@@ -242,7 +244,7 @@ if __name__ == '__main__':
             newRowDic['maxTime'] = [maxTime, ]
         new_row = pd.DataFrame(newRowDic)
         for i in range(Nsites):
-            newRowDic[f'f{i+1}win'] = [countsWinner[i]/Nrea, ]
+            newRowDic[f'f{i+1}'] = [countsWinner[i]/Nrea, ]
         if os.path.exists(f'{resPath}/{winnerDataFileName}'):
             df = pd.read_csv(f'{resPath}/{winnerDataFileName}')
             df = pd.concat([df, new_row], ignore_index=True)
