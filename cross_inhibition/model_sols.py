@@ -68,13 +68,17 @@ def checkFoundFunc(fs, foundRoots):
 def get_sols_nlinci(starters, tol, foundRoots, methods, startersRepeat, startersFound):
     methodSufix = f'_{tol}' if tol else ''
     for fs0 in starters+startersExtra:
-        fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', tol=tol, jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False}) # tol=5e-5,
-        fs = [1-sum(fxp.x), *fxp.x]
+        try:
+            fxp = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='hybr', tol=tol, jac=fs_evo_eq_fxp_v2_jac, options={'col_deriv':False, 'line_search':'wolfe'}) # tol=5e-5,
+            fs = [1-sum(fxp.x), *fxp.x]
+        except ValueError:
+            fs = [1000]*3
+            fxp = {'success':False}
         # print(*fs, fxp.success, fxp.message)
         if tol:
-            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), tol=tol, method='krylov')
+            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), tol=tol, method='krylov', options={'line_search':'wolfe'})
         else:
-            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov')
+            fxpAlt = root(fs_evo_eq_fxp_v2, fs0, args=(pis, qs, l, lci, ci_kwargs), method='krylov', options={'line_search':'wolfe'})
         fsAlt = [1-sum(fxpAlt.x), *fxpAlt.x]
         # print(*fs, fxp.success, fxp.message)
         if fxp.success and fs[0] <= 1.0:
