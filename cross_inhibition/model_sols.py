@@ -84,6 +84,7 @@ def get_sols_nlinci(starters, tol, foundRoots, methods, startersRepeat, starters
         if fxp.success and fs[0] <= 1.0:
             if len(foundRoots) > 0:
                 checkFound = checkFoundFunc(fs, foundRoots)
+                # checkFound = 0
             else:
                 checkFound = 0
             if not checkFound:
