@@ -49,9 +49,11 @@ def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic
     wd = os.getcwd()
     change_sim_input(froute, fin_file, pis=pis, qs=qs, max_time=max_time, N_sites=Nsites, N_bots=N, 
                      bots_per_site=bots_per_site, nw_model=nw_model, nw_param=nw_param)
-    dec = len(str(dl).split('.')[-1])
-    all_ls = np.arange(ls[0], round(ls[1]+dl,dec), dl)
-    all_ls = np.around(all_ls, dec)
+    # dec = len(str(dl).split('.')[-1])
+    # all_ls = np.arange(ls[0], round(ls[1]+dl,dec), dl)
+    # all_ls = np.around(all_ls, dec)
+    num = round((ls[1]-ls[0])/(dl)) + 1
+    all_ls = np.linspace(ls[0], ls[1], num)
     # prepare the results dictionary (later df) PART1
     colOrder = ['N', 'nw_param']
     colOrder.extend([f'pi{i}' for i in range(1,Nsites+1)])

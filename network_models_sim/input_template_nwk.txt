@@ -9,12 +9,12 @@
 &input_cts
 
 ! System
-N_bots = 35
+N_bots = 500
 N_sites = 2
 max_time = 2000
 
 ! Interdependence:
-lambda = 0.8
+lambda = 0.9
 ! Time scale parameter q0 (r = q0/q)
 q0 = 1
 /
@@ -32,12 +32,14 @@ q(:) = 7.0 10.0
 ! Bots initially uncomitted, comitted to site 1, 2 ...
 ! Options: yes (Y), no (N), uniform (U), pi (P). If yes/uniform/pi what is set in bots_per_site won't be used
 random_bots_per_site = "N"
-bots_per_site = 35 0 0
+bots_per_site = 500 0 0
 /
 
 &input_network
 ! Barabasi-Albert: BA, Erdos-Renyi: 'ER', Watts-Strogatz: 'WS', ...
-nw_model = "ER"
-nw_param = 0.07
+! nw_model = "BA"
+! nw_param = 4
+nw_model = "BA"
+nw_param = 4
 
 /
