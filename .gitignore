@@ -43,6 +43,8 @@ gillespie_sim_ci_Reina/sim_results_evos.tar.gz
 gillespie_sim_ci_Reina/time_evo_rea*.png
 gillespie_sim_ci_Reina/evos_qs_*/*
 
+network_models_sim/networks_UCM_gen/N*
+
 limit_lambda_1/
 power_spectrum/
 power_spectrum_PRL/
