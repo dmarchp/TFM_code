@@ -57,6 +57,8 @@
 
     enddo
 
+    call execute_command_line('python formatEdgelist.py')
+
 
     end program UCM_writing
 

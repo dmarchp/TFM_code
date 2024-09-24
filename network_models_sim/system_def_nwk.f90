@@ -172,6 +172,7 @@ module system_parameters
       integer, intent(in) :: config_id
       character(5) :: Nstr, nw_param_str, nw_param_2_str, config_id_str
       write(Nstr, '(I5)') N_bots
+      ! convert parameters into strings for the generator input
       if (nw_model.eq."BA") then
         write(nw_param_str, '(I5)') int(nw_param)
       else if (nw_model.eq."ER") then

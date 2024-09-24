@@ -13,9 +13,16 @@ else:
     ucmPath = 'networks_UCM_gen/'
 
 # how to include UCM
-# fortran needs to be modified to accept two different nw_params, the gamma exponent and the minimum degree
-# then it needs to be modified to make a call to this program sending two parameters instead of one
-# the add argument parser needs to parse through a list...
+# fortran needs to be modified to accept two different nw_params, the gamma exponent and the minimum degree # OK
+# then it needs to be modified to make a call to this program sending two parameters instead of one # OK
+# the add argument parser needs to parse through a list... # OK
+# fortran needs to randomly choose on of the stored files by its index (when using UCM); send it to generate netowrk routine....
+
+extSSDpath = getExternalSSDpath()
+if os.path.exists(extSSDpath):
+    ucmPath = extSSDpath + getProjectFoldername() + '/network_models_sim/networks_UCM_gen/'
+else:
+    ucmPath = '/networks_UCM_gen'
 
 def main():
     parser = argparse.ArgumentParser()
