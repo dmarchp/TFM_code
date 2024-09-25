@@ -6,7 +6,7 @@
 # It also recieves two values of lambda and the lambda step
 # resulting dataframe columns:
 # N,pi1,pi2,...,q1,q2,...,l,f1,f2,...,sdf1,sdf2,...,Q,sdQ,Nrea,simTime,ic
-import pandas as pd
+import pandas as pd # type: ignore
 import numpy as np
 import argparse
 import os
@@ -38,7 +38,7 @@ fex_file = 'main.x'
 f_file = 'main_nwk.f90'
 
 ### ATENTION: as it is now the order of the columns when creating a new dataframe will be messed up!!!!!!!!!
-def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic, max_time, Nrea, ow_geq_Nrea=True, ow_geq_simTime=False, ow_hard=False):
+def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_params, ic, max_time, Nrea, ow_geq_Nrea=True, ow_geq_simTime=False, ow_hard=False):
     '''
     Overwriting old results control:
     ow_geq_Nrea: if Nrea >= stored Nrea, overwrite
@@ -48,14 +48,17 @@ def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic
     resFile = f'resultsNetwork_model_{nw_model}_sim_Nsites_{Nsites}.csv'
     wd = os.getcwd()
     change_sim_input(froute, fin_file, pis=pis, qs=qs, max_time=max_time, N_sites=Nsites, N_bots=N, 
-                     bots_per_site=bots_per_site, nw_model=nw_model, nw_param=nw_param)
+                     bots_per_site=bots_per_site, nw_model=nw_model, nw_params=nw_params)
     dec = len(str(dl).split('.')[-1])
     # all_ls = np.arange(ls[0], round(ls[1]+dl,dec), dl)
     # all_ls = np.around(all_ls, dec)
     num = round((ls[1]-ls[0])/(dl)) + 1
     all_ls = np.around(np.linspace(ls[0], ls[1], num),dec)
     # prepare the results dictionary (later df) PART1
-    colOrder = ['N', 'nw_param']
+    if nw_model in ['BA', 'ER']:
+        colOrder = ['N', 'nw_param']
+    elif nw_model == 'UCM':
+        colOrder = ['N', 'gamma', 'minDegree']
     colOrder.extend([f'pi{i}' for i in range(1,Nsites+1)])
     colOrder.extend([f'q{i}' for i in range(1,Nsites+1)])
     colOrder.append('l')
@@ -96,7 +99,11 @@ def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic
         results['l'].append(l)
     N_stored_results = len(results[f'f{i}'])
     results['N'] = [N]*N_stored_results
-    results['nw_param'] = [nw_param]*N_stored_results
+    if nw_model in ['BA', 'ER']:
+        results['nw_param'] = [nw_params[0]]*N_stored_results
+    elif nw_model == 'UCM':
+        results['gamma'] = [nw_params[0]]*N_stored_results
+        results['minDegree'] = [nw_params[1]]*N_stored_results
     for i in range(1,Nsites+1):
         results[f'pi{i}'] = [pis[i-1]]*N_stored_results
     for i in range(1,Nsites+1):
@@ -109,8 +116,12 @@ def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic
     call(f'mkdir -p {path}', shell=True)
     # Replace values if already present in the old df and simTime > old_simTime,  or Nrea > old_Nrea
     if os.path.exists(path + '/' + resFile):
-        for index,row in df_new.iterrows():   
-            bool_series = (df_old['N']==row['N']) & (df_old['nw_param']==row['nw_param']) & (df_old['l']==row['l']) & (df_old['ic'] == row['ic'])
+        for index,row in df_new.iterrows():
+            bool_series = (df_old['N']==row['N']) & (df_old['l']==row['l']) & (df_old['ic'] == row['ic'])
+            if nw_model in ['BA', 'ER']:
+                bool_series = bool_series & (df_old['nw_param']==row['nw_param'])
+            elif nw_model == 'UCM':
+                bool_series = bool_series & (df_old['gamma'] == row['gamma']) & (df_old['minDegree'] == row['minDegree'])
             for i in range(1,Nsites+1):
                 bool_series = bool_series & (df_old[f'pi{i}']==row[f'pi{i}']) & (df_old[f'q{i}']==row[f'q{i}'])
             if not(df_old.loc[bool_series].empty):
@@ -120,7 +131,10 @@ def simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic
                     df_old.drop(df_old.loc[bool_series].index,inplace=True)
         # append the new results to the csv dataframe
         df_old = pd.concat([df_old,df_new],ignore_index=True)
-        df_old = df_old.sort_values(by=['N', 'nw_param', f'q{Nsites}', f'pi{Nsites}','l', f'q{Nsites-1}'], ignore_index=True)
+        if nw_model in ['BA', 'ER']:
+            df_old = df_old.sort_values(by=['N', 'nw_param', f'q{Nsites}', f'pi{Nsites}','l', f'q{Nsites-1}'], ignore_index=True)
+        if nw_model == 'UCM':
+            df_old = df_old.sort_values(by=['N', 'gamma', 'minDegree', f'q{Nsites}', f'pi{Nsites}','l', f'q{Nsites-1}'], ignore_index=True)
         df_old.to_csv(path + '/' + resFile, index=False)
     else:
         df_new.to_csv(path + '/' + resFile, index=False)
@@ -138,17 +152,19 @@ if __name__ == '__main__':
     parser.add_argument('dl', help='lambda step', type=float)
     parser.add_argument('N', type=int, help='Number of agents')
     parser.add_argument('nw_model', type=str, help='Network model: ER, BA')
-    parser.add_argument('nw_param', type=float, help='ER: p, BA: m')
+    parser.add_argument('nw_params', type=lambda s: [float(item) for item in s.split(',')], help='ER: p, BA: m, UCM: gamma,m')
     parser.add_argument('ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     parser.add_argument('max_time', type=int, help='simulation time; averages are computed from the last 1000 iters from each sim')
     parser.add_argument('Nrea', type=int, help='Number of realizations')
     args = parser.parse_args()
-    pis, qs, ls, dl, N, nw_model, nw_param, ic, max_time, Nrea = args.pis, args.qs, args.ls, args.dl, args.N, args.nw_model, args.nw_param, args.ic, args.max_time, args.Nrea
+    pis, qs, ls, dl, N, nw_model, nw_params, ic, max_time, Nrea = args.pis, args.qs, args.ls, args.dl, args.N, args.nw_model, args.nw_params, args.ic, args.max_time, args.Nrea
     if len(pis) != len(qs):
         print('Input number of pis different from qualities. Aborting.')
         exit()
     if nw_model == 'BA':
-        nw_param = int(nw_param)
+        nw_params[0] = int(nw_params[0])
+    elif nw_model == 'UCM':
+        nw_params[1] = int(nw_params[1])
     Nsites = len(pis)
     # assing the initial condition
     bots_per_site = prepare_ic(N, Nsites, ic)
@@ -160,6 +176,6 @@ if __name__ == '__main__':
         print(f'qualities: {qs}')
         print(f'lambda: from {ls[0]} to {ls[1]} on {dl} steps')
         print(f'N: {N}')
-        print(f'Model: {nw_model}, nw_param: {nw_param}')
+        print(f'Model: {nw_model}, nw_params: {nw_params}')
         print(f'ic: {ic}, bots_per_site = {bots_per_site}')
-    simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_param, ic, max_time, Nrea, ow_hard=True) # , ow_hard=True
+    simEvoNetwork_iter_lambda(pis, qs, ls, dl, Nsites, N, nw_model, nw_params, ic, max_time, Nrea, ow_hard=True) # , ow_hard=True

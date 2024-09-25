@@ -24,7 +24,7 @@ q0 = 1
 &input_arrays
 
 ! Sites discovery prob:
-pi(:) = 0.05 0.05
+pi(:) = 0.1 0.1
 
 ! Sites qualities:
 q(:) = 7.0 10.0
@@ -36,10 +36,11 @@ bots_per_site = 500 0 0
 /
 
 &input_network
-! Barabasi-Albert: BA, Erdos-Renyi: 'ER', Watts-Strogatz: 'WS', ...
-! nw_model = "ER"
-! nw_param = 0.1
-nw_model = "ER"
-nw_param = 0.1
+! Barabasi-Albert: BA, Erdos-Renyi: 'ER', Uncorrelated Random Model: 'UCM', Watts-Strogatz: 'WS', ...
+! for the UCM, nw_param == gamma, nw_param_2 = minimum degree
+
+nw_model = "UCM"
+nw_param = 2.5
+nw_param_2 = 2
 
 /

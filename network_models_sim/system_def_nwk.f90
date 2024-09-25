@@ -12,25 +12,25 @@ module system_parameters
       ! Probabilities and tower sampling variables:
     real(8), dimension(:,:), allocatable :: probs, tower_sample ! each bot has its probabilities to transition
     ! Network model:
-    character(2) :: nw_model
-    real(8) :: nw_param
+    character(3) :: nw_model
+    real(8) :: nw_param, nw_param_2
     integer, dimension(:), allocatable :: bot_degree, p_ini, p_fin, neighbors
     logical :: push
     ! Path to the configurations:
-    character(39) :: path
+    character(70) :: path
 
     contains
 
     subroutine init_path()
-      character(30) :: hostname
+      character(14) :: hostname
       !path = 'positions_and_contacts/'
       !path = '/media/david/KINGSTON/quenched_configs/'
       !path = '/Volumes/KINGSTON/quenched_configs/'
       call hostnm(hostname)
       if (trim(adjustl(hostname)).eq."david-X550LD") then
-          path = '/media/david/KINGSTON/quenched_configs/'
+          path = '/media/david/KINGSTON/TFM_code/network_models_sim/networks_UCM_gen/'
       else if (trim(adjustl(hostname)).eq."depaula.upc.es") then
-          path = '/Volumes/KINGSTON/quenched_configs/'
+          path = '/Volumes/KINGSTON/TFM_code/network_models_sim/networks_UCM_gen/'
       endif
     end subroutine init_path
 
@@ -159,7 +159,7 @@ module system_parameters
         implicit none
         integer, intent(in) :: input_unit
         integer :: errstat
-        namelist /input_network/ nw_model, nw_param
+        namelist /input_network/ nw_model, nw_param, nw_param_2
         read(unit=input_unit, nml=input_network, iostat=errstat)
         if (errstat > 0) then
             print *, "ERROR reading namelist network from input file (code", errstat, ")"
@@ -167,17 +167,27 @@ module system_parameters
         end if
     end subroutine init_network
 
-    subroutine generate_network()
+    subroutine generate_network(config_id)
       implicit none
-      character(5) :: Nstr, nw_param_str
+      integer, intent(in) :: config_id
+      character(5) :: Nstr, nw_param_str, nw_param_2_str, config_id_str
       write(Nstr, '(I5)') N_bots
       if (nw_model.eq."BA") then
         write(nw_param_str, '(I5)') int(nw_param)
-      else
+      else if (nw_model.eq."ER") then
         write(nw_param_str, '(F5.3)') nw_param
+      else if (nw_model.eq."UCM") then
+        write(nw_param_str, '(F5.1)') nw_param ! gamma
+        write(nw_param_2_str, '(I5)') int(nw_param_2) ! min degee
+        write(config_id_str, '(I5)') config_id
       endif
-      call execute_command_line('python generate_network.py '//trim(adjustl(Nstr))//' '//trim(adjustl(nw_model))//&
-      ' '//trim(adjustl(nw_param_str)))
+      if (nw_model.eq.'BA'.or.nw_model.eq.'ER') then
+        call execute_command_line('python generate_network.py '//trim(adjustl(Nstr))//' '//trim(adjustl(nw_model))//&
+        ' '//trim(adjustl(nw_param_str)))
+      else if (nw_model.eq.'UCM') then
+        call execute_command_line('python generate_network.py '//trim(adjustl(Nstr))//' '//trim(adjustl(nw_model))//&
+        ' '//trim(adjustl(nw_param_str))//','//trim(adjustl(nw_param_2_str))//','//trim(adjustl(config_id_str)))
+      endif
     end subroutine
 
     subroutine get_contact_list()

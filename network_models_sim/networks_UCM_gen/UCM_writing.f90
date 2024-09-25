@@ -2,13 +2,23 @@
 
 	use mtmod
     implicit none
-    integer, parameter :: NN = 500, seed = 97018, min_deg = 1
-    double precision, parameter :: gam = 2d0
+    character(20) :: seed_input, start_idx_input
+    integer, parameter :: NN = 500, min_deg = 3
+    double precision, parameter :: gam = 2.5d0
     integer deg(0:NN), place(0:NN + 1)
     integer, allocatable :: net(:)
-    integer i, j, max_deg, k
+    integer i, j, max_deg, k, seed, start_idx
     character(len=100) num, name
+    character(5) :: minDeg_str, gamma_str, Nstr
 
+    write(minDeg_str, "(I5)") min_deg
+    write(gamma_str, "(F3.1)") gam
+    write(Nstr, "(I5)") NN
+
+    call get_command_argument(1, seed_input)
+    call get_command_argument(2, start_idx_input)
+    read(seed_input,*) seed
+    read(start_idx_input,*) start_idx
 
     call sgrnd(seed + 1)
 
@@ -21,7 +31,7 @@
     endif
 
     ! Main loop
-    do k = 1,100
+    do k = start_idx,100
 
         call deg_SF(NN, gam, min_deg, max_deg, deg)
         ! deg = 5
@@ -33,15 +43,12 @@
 
         ! Network writing
         write(num,"(I3)") k
-        ! name = "N500_g2_min1/N500_g2_min1_"//trim(adjustl(num))//".dat"
-        name = "N500_g2_min1_"//trim(adjustl(num))//".dat"
-        ! name = "error/UCM_N13_g25_"//trim(adjustl(num))//".dat"
-!        name = "UCM_N16_g35_"//trim(adjustl(num))//"_min10.dat"
-!        name = "UCM_N15_g4.dat"
+        name = "N"//trim(adjustl(Nstr))//"_g"//trim(adjustl(gamma_str))//"_min"//trim(adjustl(minDeg_str))//"_"//trim(adjustl(num))//".dat"
         open(10, file=name)
         do i = 1,NN
             do j = place(i), place(i + 1) - 1
-                write(10,*) i, net(j)
+                ! write(10,*) i, net(j)
+                write(10,*) i-1, net(j)-1 ! David: mod to comply with my other programs...
             enddo
         enddo
         close(10)
@@ -144,7 +151,8 @@
                 enddo
             endif
             cnt = cnt + 1
-            if (cnt .gt. 3*con) then
+            ! if (cnt .gt. 3*con) then
+            if (cnt .gt. con) then
                 flag = 2
                 exit
             endif

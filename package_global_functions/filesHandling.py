@@ -23,7 +23,7 @@ def getProjectFoldername():
 
 def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=False, N_sites=False, N_bots=False,
                      bots_per_site=False, ic=False, arena_r=False, interac_r = False, exclusion_r = None, push=False,
-                     nw_model=False, nw_param=False, lci=None, cimode=False, ci_x0=False, ci_a=False):
+                     nw_model=False, nw_params=False, lci=None, cimode=False, ci_x0=False, ci_a=False):
     PCname = getPCname()
     if PCname == 'depaula.upc.es':
         sed_start = "sed -i'' -e "
@@ -73,9 +73,11 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=
     if nw_model:
         sed_command = sed_start + f"'s/nw_model.*/nw_model = \"{nw_model}\"/' "
         call(f'{sed_command}'+froute+fin_file, shell=True)
-    if nw_param:
-        sed_command = sed_start + f"'s/nw_param.*/nw_param = {nw_param}/' "
-        call(f'{sed_command}'+froute+fin_file, shell=True)
+    if nw_params:
+        for i in range(len(nw_params)):
+            sufix = f'_{i+1}' if i > 0 else ''
+            sed_command = sed_start + f"'s/^nw_param{sufix} =.*/nw_param{sufix} = {nw_params[i]}/' "
+            call(f'{sed_command}'+froute+fin_file, shell=True)
     if os.path.exists(froute+fin_file+'-e'):
         call(f'rm {froute+fin_file}-e', shell=True)
     # cross inhibition simulation parameters only #
