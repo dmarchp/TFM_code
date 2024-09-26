@@ -25,7 +25,8 @@ files = glob.glob('N*_g*_min*_*.dat')
 print(len(files))
 
 ### DELETE DUPLICATE EDGES ###
-for file in files:
+for i,file in enumerate(files):
+    print(f'Working on file {i}: {file}')
     df = pd.read_csv(file, names=['i', 'j'], delimiter=r'\s+')
     df.sort_values(by=['i', 'j'], inplace=True)
     idxsToDelete = []

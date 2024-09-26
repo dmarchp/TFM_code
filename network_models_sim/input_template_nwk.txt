@@ -41,6 +41,6 @@ bots_per_site = 500 0 0
 
 nw_model = "UCM"
 nw_param = 2.5
-nw_param_2 = 2
+nw_param_2 = 3
 
 /

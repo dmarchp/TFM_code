@@ -90,8 +90,9 @@
     subroutine UCM(NN, con, deg, place, net)
     use mtmod
     implicit none
-    integer i, j, k, NN, con, con_inst, flag, cnt
+    integer i, j, k, NN, con, con_inst, flag, cnt, con_lim
     integer deg(0:NN), place(0:NN + 1), net(con), node(con), ind(2), link(NN)
+    ! integer(4) :: time_start, time_current
         ! Llista de nodes i veïnatge
         place = 1
         node = 0
@@ -108,15 +109,26 @@
         net = 0
         link = 0
         i = 0
+        con_lim = int(real(con)/1.5)
+        ! con_lim = con
+        ! print*, con_lim
+        ! read(*,*)
         con_inst = con
         cnt = 0
         flag = 0
+        ! call cpu_time(time_start)
+        ! print*, time_start
         do while (i .lt. con)
             ind(1) = mod(int(grnd()*con_inst), con_inst) + 1
             ind(2) = mod(int(grnd()*con_inst), con_inst) + 1
             ! Self-connections
             if (node(ind(1)) .eq. node(ind(2))) then
                 cnt = cnt + 1
+                if (cnt .gt. con_lim) then
+                    flag = 2
+                    ! exit
+                    stop
+                endif
                 cycle
             endif
             ! Multi-connections
@@ -151,11 +163,21 @@
                 enddo
             endif
             cnt = cnt + 1
+            ! print*, cnt
+            ! call cpu_time(time_current)
             ! if (cnt .gt. 3*con) then
-            if (cnt .gt. con) then
+            if (cnt .gt. con_lim) then
                 flag = 2
-                exit
+                ! exit
+                stop
             endif
+            ! print*, (time_current)
+            ! read(*,*)
+            ! if (time_current-time_start.gt.5d0) then
+            !     flag = 2
+            !     exit
+            !     print *, 'exitiiiing'
+            ! endif
         enddo
     return
     end subroutine UCM
