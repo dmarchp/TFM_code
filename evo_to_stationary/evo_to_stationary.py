@@ -22,7 +22,7 @@ else:
     path = '/time_evos_dif_cond'
 
 # input to Fortran code route:
-if getPCname() == 'depaula.upc.es':
+if getPCname() == 'depaula.upc.es' or 'depaula.local':
     froute = '/Users/david/Desktop/Uni_code/TFM_code/clean_version/'
 else:
     froute = "/home/david/Desktop/Uni_code/TFM_code/clean_version/"

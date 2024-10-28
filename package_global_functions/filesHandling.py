@@ -10,7 +10,7 @@ def getExternalSSDpath():
     hostName = getPCname()
     if hostName == 'bestia' or hostName == 'david-X550LD':
         extSSDpath = '/media/david/KINGSTON'
-    elif hostName == 'depaula.upc.es':
+    elif hostName == 'depaula.upc.es' or 'depaula.local':
         extSSDpath = '/Volumes/KINGSTON'
     else:
         print("Unrecognized PC!")
@@ -25,7 +25,7 @@ def change_sim_input(froute, fin_file, pis=False, qs=False, lamb=None, max_time=
                      bots_per_site=False, ic=False, arena_r=False, interac_r = False, exclusion_r = None, push=False,
                      nw_model=False, nw_params=False, lci=None, cimode=False, ci_x0=False, ci_a=False):
     PCname = getPCname()
-    if PCname == 'depaula.upc.es':
+    if PCname == 'depaula.upc.es' or 'depaula.local':
         sed_start = "sed -i'' -e "
     else:
         sed_start = 'sed -i '
