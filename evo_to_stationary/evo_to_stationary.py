@@ -12,8 +12,8 @@ from datetime import datetime
 from more_sites import prepare_ic
 
 Nsites = 2
-Nrea = 5
-max_time = 100000
+Nrea = 10
+max_time = 5000
 
 extSSDpath = getExternalSSDpath()
 if os.path.exists(extSSDpath):
@@ -39,7 +39,7 @@ def simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround):
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_thirds'
     elif ic=='J':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_julia'
-    elif ic in ['H', '95f2', '95f1', '60f1', '60f2', '80f1', '80f2']:
+    elif ic in ['H', '95f2', '95f1', '60f1', '60f2', '80f1', '80f2'] or ic[0] == 'p':
         newFolderName = f'time_evo_csv_N_{N}_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{round(l,lround)}_ic_{ic}'
     print(newFolderName)
     if os.path.exists(f'{path}/{newFolderName}'):
@@ -80,7 +80,7 @@ def intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time):
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_thirds_Euler.csv'
     elif ic=='J':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_julia_Euler.csv'
-    elif ic in ['H', '95f2', '95f1', '60f1','60f2', '80f1','80f2']:
+    elif ic in ['H', '95f2', '95f1', '60f1','60f2', '80f1','80f2'] or ic[0] == 'p':
         intEvoName = path + f'/time_evo_csv_pi1_{pi1}_pi2_{pi2}_q1_{q1}_q2_{q2}_l_{l}_ic_{ic}_Euler.csv'
     if os.path.exists(intEvoName):
         df = pd.read_csv(intEvoName)
@@ -136,13 +136,11 @@ def main():
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
         print(bots_per_site)
-        # input('enter ')
     elif ic=='H':
         if N%2 == 0:
             bots_per_site = [0, int(N/2), int(N/2)]
         else:
             bots_per_site = [0, int(N/2), int(N/2)+1]
-    # elif ic=='95f2':
     elif ic in ['95f2', '80f2', '60f2']:
         perc  = int(ic[:-2])/100
         bots_per_site = [0, int((1-perc)*N), int((perc)*N)]
@@ -155,23 +153,14 @@ def main():
         while sum(bots_per_site) != N:
             randsite = np.random.randint(1,3)
             bots_per_site[randsite] += 1
-    # elif ic=='95f1':
-    #     bots_per_site = [0, int(0.95*N), int(0.05*N)]
-    #     while sum(bots_per_site) != N:
-    #         randsite = np.random.randint(1,3)
-    #         bots_per_site[randsite] += 1
-    # elif ic=='60f1':
-    #     bots_per_site = [0, int(0.60*N), int(0.40*N)]
-    #     while sum(bots_per_site) != N:
-    #         randsite = np.random.randint(1,3)
-    #         bots_per_site[randsite] += 1
     elif ic=='J':
         bots_per_site = [round(0.14*N), round(0.43*N), round(0.43*N)] # probably int() is not necessary
         if (N - sum(bots_per_site)):
             print('REVISE WHAT YOU ARE DOING WITH THE INITIAL CONDITONS!!')
             exit()
         print(bots_per_site)
-        # input('enter ')
+    else:
+        bots_per_site = prepare_ic(N, Nsites, ic)
     simEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time, Nrea, lround)
     intEvo(pi1, pi2, q1, q2, l, N, ic, bots_per_site, max_time)
 
