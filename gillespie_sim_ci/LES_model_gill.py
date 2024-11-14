@@ -112,7 +112,7 @@ def LESgillespieSim(initial_state, save_time_evo=False, avg_last_perc=0.2):
         # possible transitions: discovery, abandonment, recruitment, cross-inhibition
         for j in range(3+Nsites-1): # disc, aband, recruit, and Nsites cross inhs
             vec_change = [0]*(Nsites+1)
-            if j==0 or j==2: # discovery, abandonment
+            if j==0 or j==2: # discovery, recruitment
                 vec_change[0], vec_change[i] = -1, +1
             # if j==1 or j==3: # abandoment, cross-inhibition
             else:
