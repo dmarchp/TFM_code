@@ -123,7 +123,7 @@ def gillespieSim(initial_state, save_time_evo=False, save_time_evo_ts = 1, avg_l
 def gillespieSim_numba(initial_state, pis, qs, l1, l2, N, maxTime, rng, save_time_evo=True, save_time_evo_ts_tuple = (0.2, 1)):
     ### save_time_evo_ts_tuple = (time step when t<=10, time step when t > 10)
     state = np.array(initial_state)
-    t = 0
+    t = 0.0
     # Creating the list of vector of change
     vecsChange = []
     for i in range(1,Nsites+1):
