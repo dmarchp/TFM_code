@@ -17,7 +17,7 @@ def histogramBinLog(data, lims, logBoxes):
     boxCenters = [(boxSupLim+boxInfLim)/2 for boxSupLim,boxInfLim in zip(boxLims[1:], boxLims[:-1])]
     hist, _ = np.histogram(data, bins=boxLims)
     dens, _ = np.histogram(data, bins=boxLims, density=True)
-    return boxCenters, hist, dens    
+    return boxCenters, hist, dens
 
 ### ATENCIO: PEL BIN CENTER DE LA PART LOGARITMICA HAURE DE FER CENTER = NP.SQRT(INF*SUP)
 def binsForHist1D_log(lims: tuple[float], logBoxes: int):
@@ -84,5 +84,4 @@ def latexFont(size= 15, labelsize=18, titlesize=20, ticklabelssize=15, legendsiz
     plt.rc('ytick', labelsize=ticklabelssize)    # fontsize of the tick labels
     plt.rc('legend', fontsize=legendsize)    # legend fontsize
     plt.rc('figure', titlesize=titlesize)  # fontsize of the figure title
-    
     
