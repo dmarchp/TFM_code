@@ -1,7 +1,7 @@
 import numpy as np
 
 # Find the stationary time of the time evolution from solving an ODE;
-def evoTimeDeriv(sol, getFullEvo=False, getStatTime=True, thresh=1e-4, discard_initial=0.0):
+def evoTimeDeriv_solve_ivp(sol, getFullEvo=False, getStatTime=True, thresh=1e-4, discard_initial=0.0):
     '''
     recieves the full output sol from solve_ivp (i.e sol.t, sol.y[...] ...)
     '''
@@ -21,7 +21,7 @@ def evoTimeDeriv(sol, getFullEvo=False, getStatTime=True, thresh=1e-4, discard_i
             if getFullEvo:
                 dfj.append(deriv)
             if getStatTime:
-                if deriv <= thresh and sol.t[i] >= discard_initial:
+                if abs(deriv) <= thresh and sol.t[i] >= discard_initial:
                     statTimej.append(sol.t[i])
                     break
         if getFullEvo:
@@ -30,5 +30,26 @@ def evoTimeDeriv(sol, getFullEvo=False, getStatTime=True, thresh=1e-4, discard_i
         return evo_derivs
     if getStatTime:
         return max(statTimej)
+    
+def evoTimeDeriv_general(tarray, yarray, getFullEvo=False, getStatTime=True, thresh=1e-4):
+    # central derivative for all timesteps inbetween first to last:
+    evoDeriv = (yarray[2:] - yarray[:-2])/(tarray[2:] - tarray[:-2])
+    # forward derivative for the first timestep:
+    evoDeriv = np.insert(evoDeriv, 0, (yarray[1]-yarray[0])/(tarray[1]-tarray[0]))
+    # backward derivative for the last timestep:
+    evoDeriv = np.insert(evoDeriv, -1, (yarray[-1]-yarray[-2])/(tarray[-1]-tarray[-2]))
+    statTime = tarray[abs(evoDeriv) <= thresh][0]
+    if getFullEvo and getStatTime:
+        return statTime, evoDeriv
+    elif not getFullEvo and getStatTime:
+        return statTime
+    
+
+# buscar la funcion que feia servir per les evolucions estocastiques i generalitzar-la per tot
+# o bé no imposar un threshold com a parametre a l'anterior funció, si no veure com de petita arriba
+# a ser la derivada al plateau final i fer servir aquell valor com a referència
+
+
+
 
 # Find the stationary time of the time evolution from a stochatic simulation;
