@@ -50,6 +50,32 @@ def evoTimeDeriv_general(tarray, yarray, getFullEvo=False, getStatTime=True, thr
 # a ser la derivada al plateau final i fer servir aquell valor com a referència
 
 
+def search_time_useStatDif(time, evo, statVal: float, statTime: float):
+    evo_dif_to_stat = abs(evo - statVal)
+    evo_rel_dif_to_stat = abs(evo - statVal)/statVal
+    avgdif = np.average(evo_dif_to_stat[time >= statTime])
+    # times_below_avgdif = time[evo_dif_to_stat < avgdif]
+    times_rel_dif_overX = time[evo_rel_dif_to_stat >= 0.9]
+    if len(times_rel_dif_overX) > 0:
+        mintss = max(times_rel_dif_overX)
+    else:
+        mintss = 0
+    # if statVal is very small do not consider the relative difference as it may rocket up many times...
+    if statVal > 0.1:
+        refinedTimes = time[(evo_dif_to_stat < avgdif) & (time > mintss) & (time > 2.0)]
+    else:
+        refinedTimes = time[(evo_dif_to_stat < avgdif) & (time > 2.0)]
+    # finally...
+    # initially i did this...
+    # if len(refinedTimes) > 3:
+    #     max_times_to_use = 3
+    # else:
+    #     max_times_to_use = len(refinedTimes)
+    # tss = np.average(refinedTimes[0:max_times_to_use])
+    # but let's only use the first time from refined times...
+    tss = refinedTimes[0]
+    return tss
+
 
 
 # Find the stationary time of the time evolution from a stochatic simulation;
