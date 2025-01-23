@@ -49,14 +49,20 @@ def execSims_for_time_evos(pis, qs, l, lci, ci_kwargs, N, ic, maxTime, Nrea):
     pichainExec = ','.join([str(pi) for pi in pis])
     qchainExec = ','.join([str(q) for q in qs])
     ci_kwargs_chainExec = ','.join([str(cikw) for cikw in ci_kwargs])
-    simCall = f'python LES_model_gill.py -pis {pichainExec} -qs {qchainExec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chainExec} '
-    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic} --time_evo'
+    # simCall = f'python LES_model_gill.py -pis {pichainExec} -qs {qchainExec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chainExec} '
+    # simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic} --time_evo'
+    simCall = f'python LES_model_gill_numba.py -pis {pichainExec} -qs {qchainExec} -l {l} -lci {lci} -ci_kwargs {ci_kwargs_chainExec} '
+    simCall += f'-N {N} -maxTime {maxTime} -Nrea {Nrea} -ic {ic}'
     call(simCall, shell=True)
 
 
-def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, Nrea=100, execSim=False, keepData=False):
+def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, Nrea=100, execSim=False, keepData=False, smoothEvo = False):
     """
-    keepData only works when execSim==True; then if keepData=True, Nrea simulations are executed and addet to the already existing folder
+    keepData only works when execSim==True; then if keepData=True, Nrea simulations are executed and added to the already existing folder
+
+    --- smoothEvo ---
+    since I modified the simulation code to use numba, I aslo printed less points there from the time evolution
+    consequently there is no need to smooth out the time evolutions now; smooth_evo=False
     """
     pichain = '_'.join([str(pi) for pi in pis])
     qchain = '_'.join([str(q) for q in qs])
@@ -67,7 +73,7 @@ def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, 
         if not os.path.exists(f'{resPath}/{evoName}'):
             keepData = False
     #####
-    if execSim: # mandatory to execute simulations, even if evos folder already exists
+    if execSim: # make it mandatory to execute simulations, even if evos folder already exists, and add to or replace the old ones
         execSims_for_time_evos(pis, qs, l, lci, ci_kwargs, N, ic, maxTime, Nrea)
         call(f'tar -xzf {evoName}.tar.gz', shell=True)
         call(f'rm {evoName}.tar.gz', shell=True)
@@ -98,21 +104,24 @@ def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, 
         iterFiles = range(existingEvos, existingEvos+Nrea)
     else:
         iterFiles = range(len(evoFiles))
-    for i in iterFiles:
+    for file_i in iterFiles:
         # if i%10 == 0:
         #     print(f'analyzing file {i}')
-        f = f'{resPath}/{evoName}/time_evo_rea_{i}.csv'
+        f = f'{resPath}/{evoName}/time_evo_rea_{file_i}.csv'
         tevo = pd.read_csv(f)
         tssRea = []
         for k in range(len(pis)+1):
-            fevo_smoothed = []
-            for i in range(int(maxTime/h)):
-                tmin, tmax = h*i, h*(i+1)
-                fblock = np.average(tevo.query('time >= @tmin and time < @tmax')[f'f{k}'])
-                fevo_smoothed.append(fblock)
             statVal = np.average(tevo.query('time > @statTime')[f'f{k}'])
-            times_smooth = np.arange(0,maxTime,h)
-            tss = search_time_useStatDif(times_smooth, fevo_smoothed, statVal, statTime)
+            if smoothEvo:
+                fevo_smoothed = []
+                for i in range(int(maxTime/h)):
+                    tmin, tmax = h*i, h*(i+1)
+                    fblock = np.average(tevo.query('time >= @tmin and time < @tmax')[f'f{k}'])
+                    fevo_smoothed.append(fblock)
+                times_smooth = np.arange(0,maxTime,h)
+                tss = search_time_useStatDif(times_smooth, fevo_smoothed, statVal, statTime)
+            else:
+                tss = search_time_useStatDif(np.array(tevo['time']), np.array(tevo[f'f{k}']), statVal, statTime)
             tssFs[f'f{k}'].append(tss), tssRea.append(tss)
         tssRea = [t for t in tssRea if not isnan(t)]
         if len(tssRea) > 0:

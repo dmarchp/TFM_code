@@ -81,7 +81,7 @@ def LESgillespieStep(state, pis, qs, l, lci, ci_kwargs, N, vecsChange, timeLeft,
     return False, timeInterval
 
 @jit
-def LESgillespieSim(initial_state, pis, qs, l, lci, ci_kwargs, N, maxTime, rng, save_time_evo_ts_tuple = (0.2, 1)):
+def LESgillespieSim(initial_state, pis, qs, l, lci, ci_kwargs, N, maxTime, rng, save_time_evo_ts_tuple = (0.2, 1.0)):
     ### save_time_evo_ts_tuple = (time step when t<=10, time step when t > 10)
     state = np.array(initial_state)
     t = 0
@@ -130,19 +130,22 @@ if __name__ == '__main__':
     parser.add_argument('-qs', help='qs, separated by comas', type=lambda s: [float(item) for item in s.split(',')])
     parser.add_argument('-l', help='lambda', type=float)
     parser.add_argument('-lci', help='lambda ci', type=float)
-    parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[0, 0, 0])
+    parser.add_argument('-ci_kwargs', help='(cimode; ci_x0, ci_a)', type=lambda s: [float(item) for item in s.split(',')], default=[0.0, 0.0, 0.0])
     parser.add_argument('-N', type=int, help='Number of agents')
     parser.add_argument('-maxTime', type=float, help='simulation time')
     parser.add_argument('-Nrea', type=int, help='Number of realizations')
     parser.add_argument('-ic', type=str, help="Initial conditions. N for all uncomitted; E for equipartition bt sites; E for equipartition bt sites and uncomitted;")
     # boolean arguments 
     parser.add_argument('--final_state', type=bool, help='Print each realization final state', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--dontSaveTimeEvo', type=bool, help='Do not save the time evolution; will come handy when computing win probs', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--countWinner', type=bool, help='print the amount of time each option has won, after Nrea', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     pis, qs, l, lci, ci_kwargs, N, maxTime, Nrea, ic = args.pis, args.qs, args.l, args.lci, args.ci_kwargs, args.N, args.maxTime, args.Nrea, args.ic
-    printFinalState = args.final_state
+    printFinalState, dontSaveTimeEvo, countWinner = args.final_state, args.dontSaveTimeEvo, args.countWinner
     # ci_kwargs = ['sigmoid1', 0.5, 50 ]
     # ci_kwargs = ['lin', ]
-    ci_kwargs[0] = int(ci_kwargs[0])
+    # ci_kwargs[0] = int(ci_kwargs[0]) # can't be int anymore if using numba
+    # ci_kwargs[0] = float(ci_kwargs[0])
     if len(pis) != len(qs):
         print('Input number of pis different from qualities. Aborting.')
         exit()
@@ -159,20 +162,40 @@ if __name__ == '__main__':
     # fsavg = [0.0]*(Nsites+1)
     pichain = '_'.join([str(pi) for pi in pis])
     qchain = '_'.join([str(q) for q in qs])
-    ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
-    evosFolder = f'sim_results_evos_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}'
-    call(f'mkdir -p {evosFolder}/', shell=True)
+    # ci_kwargs_chain = '_'.join([str(cikw) for cikw in ci_kwargs])
+    if ci_kwargs[0] > 0.0:
+        ci_kwargs_chain = str(int(ci_kwargs[0])) + '_' + '_'.join([str(cikw) for cikw in ci_kwargs[1:]])
+    else:
+        ci_kwargs_chain = '0'
+    if not dontSaveTimeEvo:
+        evosFolder = f'sim_results_evos_pis_{pichain}_qs_{qchain}_l_{l}_lci_{lci}_cikw_{ci_kwargs_chain}_N_{N}_ic_{ic}'
+        call(f'mkdir -p {evosFolder}/', shell=True)
+    if countWinner:
+        countsWinner = [0 for _ in range(Nsites)]
     ##### START REALIZATIONS LOOP #####
     for i in range(Nrea):
-        finalState, time_evo = LESgillespieSim(bots_per_site, pis, qs, l, lci, ci_kwargs, N, maxTime, rng, save_time_evo_ts_tuple = (0.2, 1))
-        dfevo = pd.DataFrame({'time':time_evo[0]})
-        for j in range(1,Nsites+2):
-            dfevo[f'f{j-1}'] = time_evo[j]
-        dfevo.to_csv(f'{evosFolder}/time_evo_rea_{i}.csv', index=False)
+        finalState, time_evo = LESgillespieSim(bots_per_site, pis, qs, l, lci, ci_kwargs, N, maxTime, rng, save_time_evo_ts_tuple = (0.2, 1.0))
+        if not dontSaveTimeEvo: # save it!
+            dfevo = pd.DataFrame({'time':time_evo[0]})
+            for j in range(1,Nsites+2):
+                dfevo[f'f{j-1}'] = time_evo[j]
+            dfevo.to_csv(f'{evosFolder}/time_evo_rea_{i}.csv', index=False)
         if printFinalState:
             finalStatefs = [s/N for s in finalState]
             print(f'Final State: {finalStatefs}')
+        if countWinner:
+            index_max = max(range(len(finalState)), key=finalState.__getitem__)
+            if index_max != 0:
+                countsWinner[index_max-1] += 1
+            else:
+                # print('f0 is winning, smth went wrong...') # do not print this...
+                index_max_alt = max(range(len(finalState[1:])), key=finalState.__getitem__)
+                countsWinner[index_max_alt] += 1
     ##### END REALIZATIONS LOOP #####
     
-    call(f'tar -czf {evosFolder}.tar.gz {evosFolder}', shell=True)
-    call(f'rm -r {evosFolder}', shell=True)
+    if not dontSaveTimeEvo: # do what it has to be done with the time evolutions:
+        call(f'tar -czf {evosFolder}.tar.gz {evosFolder}', shell=True)
+        call(f'rm -r {evosFolder}', shell=True)
+    
+    if countWinner:
+        print(*countsWinner)
