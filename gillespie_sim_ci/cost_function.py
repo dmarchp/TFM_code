@@ -131,14 +131,14 @@ def get_data_for_cost_func(h, pis, qs, l, lci, ci_kwargs, N, ic, maxTime=100.0, 
             # get 2000 uniformly distributed points in the stationary state
             tevoAux = tevo.query('time >= @tssMaxRea')
             len_statData = len(tevoAux)
-            while len_statData < 2000 and len(tssRea) > 0:
-                # print(f'could not get 2000 different ss values for {f}')
-                # tssAlt = sorted(tssRea, reverse=True)[1]
-                tssAlt = tssRea.pop()
-                tevoAux = tevo.query('time >= @tssAlt')
+            # while len_statData < 2000 and len(tssRea) > 0:
+            #     # print(f'could not get 2000 different ss values for {f}')
+            #     # tssAlt = sorted(tssRea, reverse=True)[1]
+            #     tssAlt = tssRea.pop()
+            #     tevoAux = tevo.query('time >= @tssAlt')
             len_statData = len(tevoAux)
-            if len_statData < 2000:
-                print(f'could not get 2000 different ss values for {f}')
+            # if len_statData < 2000:
+            #     print(f'could not get 2000 different ss values for {f}')
             index_statData = np.linspace(tevoAux.index[0], tevoAux.index[-1], 2000, dtype=int)
             tevoAux = tevo.query('index in @index_statData')
             for k in range(len(pis)+1):

@@ -37,6 +37,8 @@ gillespie_sim_ci/sim_results_evos*
 gillespie_sim_ci/sim_results_evos*.tar.gz
 gillespie_sim_ci/winprobs*.dat
 gillespie_sim_ci/sols*.dat
+gillespie_sim_ci/numba_sims
+gillespie_sim_ci/sim_results_evos_pis_*
 
 gillespie_sim_ci_Reina/time_evo_rea*.csv
 gillespie_sim_ci_Reina/sim_results_evos.tar.gz
